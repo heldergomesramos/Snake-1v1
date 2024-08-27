@@ -1,0 +1,247 @@
+/* General */
+
+@font-face {
+  font-family: "FFF";
+  src: url("./assets/fonts/FFFForward Clean.woff2") format("woff2");
+  font-weight: bolder;
+  font-style: normal;
+}
+
+:root {
+  --color-background: #18101f;
+  --color-text: #ffffff;
+  --color-text-purple: #743ad5;
+  --color-border-input: #f05928;
+  --color-border-input-shadow: rgba(240, 89, 40, 0.25);
+  --color-text-title: #f05928;
+  --color-border-gradient-1: #743ad5;
+  --color-border-gradient-2: #d53a9d;
+
+  --fs-xl: clamp(1.8rem, 4vw + 1rem, 2.1rem);
+  --fs-600: clamp(1.3rem, 3vw + 0.8rem, 1.5rem);
+  --fs-500: clamp(1rem, 2.5vw + 0.6rem, 1.25rem);
+  --fs-400: clamp(0.7rem, 2vw + 0.38rem, 1rem);
+  --fs-300: clamp(0.65rem, 1.95vw + 0.35rem, 0.95rem);
+  --fs-200: clamp(0.55rem, 1.8vw + 0.25rem, 0.9rem);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-background);
+  font-family: "FFF", sans-serif;
+  font-size: var(--fs-400);
+}
+
+p {
+  color: var(--color-text);
+  -webkit-text-stroke: var(--color-background) 0.8px;
+}
+
+a {
+  transition: all 300ms ease;
+  font-size: var(--fs-400);
+  color: var(--color-text);
+  text-decoration: none;
+  text-decoration-color: var(--color-background);
+  -webkit-text-stroke: var(--color-background) 0.8px;
+}
+
+a:hover {
+  color: var(--color-text-purple);
+}
+
+.container-center {
+  display:flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  align-items: center;
+  height: 80vh;
+}
+
+/* Forms */
+
+form {
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  align-items: center; /* Center form elements horizontally */
+}
+
+input {
+  background-color: var(--color-background);
+  margin-bottom: 15px;
+  padding: 10px;
+  font-family: 'FFF';
+  font-size: var(--fs-400);
+  color: white;
+  border: 2px solid var(--color-border-gradient-1);
+  width: 100%; /* Full width of the parent container */
+  max-width: 400px; /* Maximum width for better control */
+  box-sizing: border-box; /* Ensure padding and border are included in the width */
+}
+
+input::placeholder  {
+  color: var(--color-text-purple);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--color-border-input);
+  box-shadow: 0 0 0 3px var(--color-border-input-shadow);
+}
+
+button {
+  font-family: 'FFF';
+  padding: 10px 20px; /* Padding for button */
+  font-size: 16px; /* Font size */
+  border: none; /* Remove default border */
+  border-radius: 4px; /* Rounded corners */
+  background-color: var(--color-text-title); /* Primary button color */
+  color: var(--color-background); /* Primary button color */ /* Text color */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s; /* Smooth color transition */
+}
+
+button:hover {
+  background-color: #b30027; /* Darker color on hover */
+}
+
+button:focus {
+  outline: none; /* Remove default focus outline */
+  box-shadow: 0 0 0 3px rgba(38, 143, 255, 0.3); /* Custom focus ring */
+}
+
+/* Home Page */
+
+
+
+/* Text */
+
+.text-color-alternate {
+  color: var(--color-text-title);
+}
+
+.text-color-weaker {
+  color: var(--color-border-gradient-2);
+}
+
+.text-easier-font {
+  font-family: FFF;
+  line-height: 25px;
+  letter-spacing: 1px;
+  font-size: var(--fs-300);
+  -webkit-text-stroke: var(--color-background) 0.8px;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+.section__text__p1 {
+  text-align: center;
+  color: var(--color-text-purple);
+}
+
+.section__text__p2 {
+  font-size: var(--fs-600);  
+  color: var(--color-text-purple);
+}
+
+.title {
+  font-size: var(--fs-xl);
+  text-align: center;
+  padding: 0.5rem;
+}
+
+/* Buttons */
+
+.btn-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.button-default {
+  transition: all 300ms ease;
+
+  font-family: "FFF", sans-serif;
+  font-size: var(--fs-400);
+  font-weight: 10;
+
+  width: 12rem;
+  height: 6rem;
+  color: var(--color-text);
+  background: none;
+
+  padding: 1rem;
+
+  -webkit-text-stroke: var(--color-background) 0.8px;
+
+  border: 10px solid;
+  border-image-slice: 1;
+  border-width: 3px;
+  border-image-source: linear-gradient(
+    to bottom,
+    var(--color-border-gradient-1),
+    var(--color-border-gradient-2)
+  );
+}
+
+.button-default:hover {
+  cursor: pointer;
+  background: linear-gradient(
+    to bottom,
+    var(--color-border-gradient-1),
+    var(--color-border-gradient-2)
+  );
+  scale: 1.1;
+}
+
+.button-height-less {
+  height: 4rem;
+}
+
+.btn-container {
+  gap: 1rem;
+}
+
+/* Gradients */
+
+.gradient-text {
+  background: -webkit-linear-gradient(
+    -86deg,
+    #f05a28 5%,
+    #d91c5c 53%,
+    #a922ff 91%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-stroke: 5px transparent;
+  color: #18001d;
+}
+
+.border-gradient-thin {
+  border: 10px solid;
+  border-image-slice: 1;
+  border-width: 3px;
+  border-image-source: linear-gradient(
+    to bottom,
+    var(--color-border-gradient-1),
+    var(--color-border-gradient-2)
+  );
+}
+
+.border-gradient-normal {
+  border: 10px solid;
+  border-image-slice: 1;
+  border-width: 5px;
+  border-image-source: linear-gradient(
+    to bottom,
+    var(--color-border-gradient-1),
+    var(--color-border-gradient-2)
+  );
+}
