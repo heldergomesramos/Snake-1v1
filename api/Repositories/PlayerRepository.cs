@@ -18,15 +18,21 @@ namespace api.Repositories
             return await _context.Players.SingleOrDefaultAsync(p => p.Username == username);
         }
 
+        public async Task<List<Player>> GetAllPlayersAsync()
+        {
+            return await _context.Players.ToListAsync();
+        }
+
         public async Task AddPlayerAsync(Player player)
         {
             _context.Players.Add(player);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Player>> GetAllPlayersAsync()
+        public async Task UpdatePlayerAsync(Player player)
         {
-            return await _context.Players.ToListAsync();
+            _context.Players.Update(player);
+            await _context.SaveChangesAsync();
         }
     }
 }

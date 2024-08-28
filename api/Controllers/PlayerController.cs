@@ -71,5 +71,18 @@ namespace api.Controllers
 
             return Ok(new { status = "registered", player = result });
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] PlayerRegisterRequestDto dto)
+        {
+            var result = await _playerService.LoginPlayerAsync(dto);
+
+            if (result == null)
+            {
+                return Unauthorized(new { message = "Invalid username or password." });
+            }
+
+            return Ok(new { status = "logged_in", player = result });
+        }
     }
 }

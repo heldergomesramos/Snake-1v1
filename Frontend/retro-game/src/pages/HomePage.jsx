@@ -39,38 +39,31 @@ export default function HomePage() {
       const data = await response.json();
 
       if (response.ok) {
-        if (data.status === "logged_in" || data.status === "registered") {
-          setUser(data.player); // Save user data in context
-          navigate("/main-menu", { state: { user: data.player } });
-        }
+        setUser(data.player);
+        navigate("/main-menu", { state: { user: data.player } });
       } else {
         switch (response.status) {
           case 400:
-            setError(
-              data.message || "Invalid request. Please check your data."
-            );
+            setError("Invalid request. Please check your data.");
             break;
           case 401:
-            setError(
-              data.message || "Unauthorized. Please check your credentials."
-            );
+            setError("Unauthorized. Please check your credentials.");
             break;
           case 403:
-            setError(data.message || "Forbidden. You do not have permission.");
+            setError("Forbidden. You do not have permission.");
             break;
           case 409:
-            setError(
-              data.message || "Conflict. Please try a different username."
-            );
+            setError("Conflict. Please try a different username.");
             break;
           case 500:
-            setError(data.message || "Server error. Please try again later.");
+            setError("Server error. Please try again later.");
             break;
           default:
             setError("An unexpected error occurred. Please try again.");
         }
       }
     } catch (err) {
+      console.log(err);
       setError("Failed to connect to the server.");
     }
   };
@@ -124,10 +117,18 @@ export default function HomePage() {
             required
           />
           <div className="buttons-login">
-            <button type="submit" className="button-default button-height-less">
+            <button
+              type="submit"
+              className="button-default button-height-less"
+              onClick={() => setActionType("login")}
+            >
               Login
             </button>
-            <button type="submit" className="button-default button-height-less">
+            <button
+              type="submit"
+              className="button-default button-height-less"
+              onClick={() => setActionType("register")}
+            >
               Register
             </button>
           </div>

@@ -29,6 +29,19 @@ namespace api.Services
             return PlayerMappers.ToResponseDto(newPlayer);
         }
 
+        public async Task<PlayerRegisterResponseDto?> LoginPlayerAsync(PlayerRegisterRequestDto dto)
+        {
+            var existingPlayer = await _playerRepository.GetPlayerByUsernameAsync(dto.Username);
+
+            if (existingPlayer == null || dto.Password != existingPlayer.Password)
+                return null;
+
+            existingPlayer.LastLogin = DateTime.Now;
+            await _playerRepository.UpdatePlayerAsync(existingPlayer);
+
+            return PlayerMappers.ToResponseDto(existingPlayer);
+        }
+
         public async Task<Player?> GetPlayerByUsernameAsync(string username)
         {
             return await _playerRepository.GetPlayerByUsernameAsync(username);
