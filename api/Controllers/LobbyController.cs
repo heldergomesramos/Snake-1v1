@@ -33,5 +33,15 @@ namespace api.Controllers
                 return NotFound();
             return Ok(lobby);
         }
+
+        // [HttpPost]
+        // public IActionResult Create([FromBody] CreateLobbyRequest lobbyDto)
+        // {
+        //     var lobby = _context.Lobbies.Find(id);
+
+        //     if (lobby == null)
+        //         return NotFound();
+        //     return Ok(lobby);
+        // }
     }
 }

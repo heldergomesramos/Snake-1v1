@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -29,7 +30,14 @@ namespace api.Migrations
                 columns: table => new
                 {
                     PlayerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Wins = table.Column<int>(type: "int", nullable: false),
+                    Losses = table.Column<int>(type: "int", nullable: false),
+                    Color = table.Column<int>(type: "int", nullable: false),
+                    Ability = table.Column<int>(type: "int", nullable: false),
+                    LastLogin = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsGuest = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -1,17 +1,28 @@
 using api.Data;
+using api.Repositories;
+using api.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IPlayerService, PlayerService>();
+builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder => builder.WithOrigins("http://localhost:5173") // React app URL
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
 });
 
 var app = builder.Build();
@@ -23,11 +34,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowSpecificOrigin");
 app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
