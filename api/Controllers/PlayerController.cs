@@ -22,15 +22,6 @@ namespace api.Controllers
             _playerService = playerService;
         }
 
-        // [HttpPost]
-        // public IActionResult Create([FromBody] LoginPlayerRequestDto playerDto)
-        // {
-        //     var playerModel = playerDto.ToPlayerFromLoginDTO();
-        //     _context.Players.Add(playerModel);
-        //     _context.SaveChanges();
-        //     return CreatedAtAction(nameof(GetById), new { id = playerModel.id }, playerModel.ToPlayerFromLoginDTO);
-        // }
-
         [HttpGet("all")]
         public async Task<IActionResult> GetAllPlayers()
         {

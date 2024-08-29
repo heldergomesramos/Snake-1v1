@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
 
 export default function HomePage() {
@@ -10,8 +11,6 @@ export default function HomePage() {
   const navigate = useNavigate();
 
   const { setPlayerData } = useContext(PlayerContext);
-
-  const BASE_URL = "http://localhost:5030";
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-
 import { PlayerContext } from "../context/PlayerContext";
 
 export default function Profile() {

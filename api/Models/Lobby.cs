@@ -2,29 +2,43 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using api.Dtos.Player;
 
 namespace api.Models
 {
     public class Lobby
     {
-        public string LobbyId { get; protected set; } = string.Empty;
+        public string LobbyId { get; set; } = string.Empty;
         public string? HostPlayerId { get; set; } = string.Empty;
-        public Player? HostPlayer { get; set; }
+        public PlayerRegisterResponseDto? HostPlayer { get; set; }
         public string? InviteePlayerId { get; set; } = string.Empty;
-        public Player? InviteePlayer { get; set; }
-        public bool GameStarted { get; protected set; }
-        public string? GameSettingsId { get; protected set; } = string.Empty;
-        public GameSettings? GameSettings { get; protected set; }
+        public PlayerRegisterResponseDto? InviteePlayer { get; set; }
+        public bool GameStarted { get; set; } = false;
+        public GameSettings? GameSettings { get; set; }
         public bool IsFull => HostPlayer != null && InviteePlayer != null;
 
         public Lobby() { }
 
-        public Lobby(string hostPlayerId)
+        public Lobby(PlayerRegisterResponseDto hostPlayer)
         {
             LobbyId = Guid.NewGuid().ToString();
-            HostPlayerId = hostPlayerId;
+            HostPlayerId = hostPlayer.PlayerId;
+            HostPlayer = hostPlayer;
             GameSettings = new();
-            GameStarted = false;
+        }
+
+        public void AddPlayer(PlayerRegisterResponseDto newPlayer)
+        {
+            if (HostPlayer == null)
+            {
+                HostPlayer = newPlayer;
+                HostPlayerId = newPlayer.PlayerId;
+            }
+            else
+            {
+                InviteePlayer = newPlayer;
+                InviteePlayerId = newPlayer.PlayerId;
+            }
         }
 
         public void StartGame()
