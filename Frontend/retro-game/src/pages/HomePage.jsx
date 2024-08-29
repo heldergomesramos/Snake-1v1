@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../UserContext";
+import { PlayerContext } from "../context/PlayerContext";
 
 export default function HomePage() {
   const [username, setUsername] = useState("");
@@ -8,7 +8,8 @@ export default function HomePage() {
   const [error, setError] = useState("");
   const [actionType, setActionType] = useState("");
   const navigate = useNavigate();
-  const { setUser } = useContext(UserContext);
+
+  const { setPlayerData } = useContext(PlayerContext);
 
   const BASE_URL = "http://localhost:5030";
 
@@ -39,41 +40,40 @@ export default function HomePage() {
       const data = await response.json();
 
       if (response.ok) {
-        setUser(data.player);
-        navigate("/main-menu", { state: { user: data.player } });
+        setPlayerData(data.player);
+        navigate("/main-menu");
       } else {
         switch (response.status) {
           case 400:
-            setError("Invalid request. Please check your data.");
+            setError("Invalid request, please check your data");
             break;
           case 401:
-            setError("Unauthorized. Please check your credentials.");
+            setError("Wrong Credentials");
             break;
           case 403:
-            setError("Forbidden. You do not have permission.");
+            setError("Forbidden, you do not have permission");
             break;
           case 409:
-            setError("Conflict. Please try a different username.");
+            setError("Username already exists");
             break;
           case 500:
-            setError("Server error. Please try again later.");
+            setError("Server error, please try again later");
             break;
           default:
-            setError("An unexpected error occurred. Please try again.");
+            setError("An unexpected error occurred, please try again");
         }
       }
     } catch (err) {
       console.log(err);
-      setError("Failed to connect to the server.");
+      setError("Failed to connect to the server");
     }
   };
 
-  /* Fix this later (doesnt have the switch error code to message validation) */
   const handleGuestLogin = async () => {
-    setError(""); // Clear any previous errors
+    setError("");
 
     try {
-      const response = await fetch(BASE_URL + "/api/guest", {
+      const response = await fetch(BASE_URL + "/api/player/guest", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,16 +82,16 @@ export default function HomePage() {
 
       const data = await response.json();
 
-      if (response.ok && data.status === "guest_logged_in") {
-        setUser(data.user); // Save guest user data in context
-        navigate("/main-menu", { state: { user: data.user } });
+      if (response.ok) {
+        setPlayerData(data.player);
+        navigate("/main-menu");
       } else {
         setError(
-          "An error occurred while joining as a guest. Please try again."
+          "An error occurred while joining as a guest, please try again"
         );
       }
     } catch (err) {
-      setError("Failed to connect to the server.");
+      setError("Failed to connect to the server");
     }
   };
 

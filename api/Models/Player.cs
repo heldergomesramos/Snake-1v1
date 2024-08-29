@@ -22,5 +22,21 @@ namespace api.Models
         {
 
         }
+
+        public static Player Guest()
+        {
+            return new Player()
+            {
+                PlayerId = Guid.NewGuid().ToString(),
+                Username = "Guest_" + Guid.NewGuid().ToString().Substring(0, 4),
+                Password = string.Empty,
+                Wins = 0,
+                Losses = 0,
+                Color = 0,
+                Ability = 0,
+                LastLogin = DateTime.Now,
+                IsGuest = true
+            };
+        }
     }
 }

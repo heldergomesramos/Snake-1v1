@@ -100,13 +100,6 @@ input:focus {
   box-shadow: 0 0 0 3px var(--color-border-input-shadow);
 }
 
-/* Home Page */
-
-.buttons-login-container {
-  display: flex;
-  flex-direction: row;
-}
-
 /* Text */
 
 .text-color-alternate {
@@ -146,8 +139,10 @@ input:focus {
 }
 
 .title-section {
-  height: 30vh;
+  height: 35vh;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
 }
 
@@ -225,4 +220,18 @@ input:focus {
     var(--color-border-gradient-1),
     var(--color-border-gradient-2)
   );
+}
+
+/* Home Page */
+
+.buttons-login-container {
+  display: flex;
+  flex-direction: row;
+}
+
+/* Main Menu Page */
+
+.buttons-main-menu-container {
+  display: flex;
+  flex-direction: row;
 }
