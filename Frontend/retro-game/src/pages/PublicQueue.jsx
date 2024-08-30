@@ -13,7 +13,7 @@ export default function PublicQueue() {
     const joinLobby = async () => {
       try {
         const response = await fetch(
-          `${BASE_URL}/api/player/join-public-lobby`,
+          `${BASE_URL}/api/lobby/join-public-lobby`,
           {
             method: "POST",
             headers: {
@@ -48,7 +48,6 @@ export default function PublicQueue() {
         setLoading(false);
       }
     };
-
     joinLobby();
   });
 

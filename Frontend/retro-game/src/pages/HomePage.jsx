@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
@@ -12,6 +12,26 @@ export default function HomePage() {
 
   const { setPlayerData } = useContext(PlayerContext);
 
+  // Add useEffect to send a ping request on component mount
+  useEffect(() => {
+    const sendPing = async () => {
+      try {
+        const response = await fetch(BASE_URL + "/api/app/ping", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) console.error("Ping request failed");
+      } catch (err) {
+        console.error("Failed to connect to the server for ping:", err);
+      }
+    };
+
+    sendPing(); // Send the ping request when the homepage loads
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -21,7 +41,6 @@ export default function HomePage() {
       return;
     }
 
-    /* Change this when server gets public */
     const endpoint =
       actionType === "login"
         ? BASE_URL + "/api/player/login"

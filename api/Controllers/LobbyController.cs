@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using api.Data;
 using api.Dtos.Player;
-using api.Mappers;
 using api.Models;
+using api.Singletons;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
@@ -14,26 +9,25 @@ namespace api.Controllers
     [ApiController]
     public class LobbyController : ControllerBase
     {
-        private Lobby _currentLobby = new();
-        private List<Lobby> allLobies = [];
+        private readonly ILogger<LobbyController> _logger;
 
-        private readonly ApplicationDBContext _context;
-        public LobbyController(ApplicationDBContext context)
+        // Constructor to inject ILogger
+        public LobbyController(ILogger<LobbyController> logger)
         {
-            _context = context;
+            _logger = logger;
         }
 
         [HttpGet("all")]
         public IActionResult GetAll()
         {
-            var lobbies = allLobies;
+            var lobbies = LobbyManager.AllLobbies;
             return Ok(lobbies);
         }
 
         [HttpGet("details/{id}")]
         public IActionResult GetById([FromRoute] string id)
         {
-            var lobby = allLobies.Find(x => x.LobbyId == id);
+            var lobby = LobbyManager.AllLobbies.Find(x => x.LobbyId == id);
 
             if (lobby == null)
                 return NotFound();
@@ -43,24 +37,15 @@ namespace api.Controllers
         [HttpPost("join-public-lobby")]
         public IActionResult JoinPublicLobby([FromBody] PlayerRegisterResponseDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Username))
-                return BadRequest(new { message = "Player name is required." });
+            var _lobbyToReturn = LobbyManager.JoinPublicLobby(dto);
 
-            if (_currentLobby == null || _currentLobby.IsFull)
-            {
-                _currentLobby = new Lobby(dto);
-                allLobies.Add(_currentLobby);
-            }
-            else
-                _currentLobby.AddPlayer(dto);
-
-            if (_currentLobby.IsFull)
-                _currentLobby.GameStarted = true;
+            if (_lobbyToReturn == null)
+                return BadRequest();
 
             return Ok(new
             {
                 status = "joined_lobby",
-                lobby = _currentLobby
+                lobby = _lobbyToReturn
             });
         }
     }
