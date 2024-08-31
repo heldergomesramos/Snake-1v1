@@ -10,35 +10,37 @@ namespace api.Models
     {
         public string LobbyId { get; set; } = string.Empty;
         public string? HostPlayerId { get; set; } = string.Empty;
-        public PlayerRegisterResponseDto? HostPlayer { get; set; }
+        public Player? HostPlayer { get; set; }
         public string? InviteePlayerId { get; set; } = string.Empty;
-        public PlayerRegisterResponseDto? InviteePlayer { get; set; }
+        public Player? InviteePlayer { get; set; }
         public bool GameStarted { get; set; } = false;
         public GameSettings? GameSettings { get; set; }
         public bool IsFull => HostPlayer != null && InviteePlayer != null;
 
         public Lobby() { }
 
-        public Lobby(PlayerRegisterResponseDto hostPlayer)
+        public Lobby(Player hostPlayer)
         {
             LobbyId = Guid.NewGuid().ToString();
-            HostPlayerId = hostPlayer.PlayerId;
+            HostPlayerId = hostPlayer.Id;
             HostPlayer = hostPlayer;
             GameSettings = new();
+            hostPlayer.LobbyId = LobbyId;
         }
 
-        public void AddPlayer(PlayerRegisterResponseDto newPlayer)
+        public void AddPlayer(Player newPlayer)
         {
             if (HostPlayer == null)
             {
                 HostPlayer = newPlayer;
-                HostPlayerId = newPlayer.PlayerId;
+                HostPlayerId = newPlayer.Id;
             }
             else
             {
                 InviteePlayer = newPlayer;
-                InviteePlayerId = newPlayer.PlayerId;
+                InviteePlayerId = newPlayer.Id;
             }
+            newPlayer.LobbyId = LobbyId;
         }
 
         public void StartGame()

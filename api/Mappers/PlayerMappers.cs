@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using api.Dtos.Lobby;
 using api.Dtos.Player;
 using api.Models;
 
@@ -14,15 +9,15 @@ namespace api.Mappers
         {
             return new Player
             {
-                PlayerId = Guid.NewGuid().ToString(),
-                Username = dto.Username,
-                Password = dto.Password, // Needs Hashing
+                UserName = dto.Username,
                 Wins = 0,
                 Losses = 0,
                 Color = 0,
                 Ability = 0,
                 LastLogin = DateTime.UtcNow,
-                IsGuest = false
+                IsGuest = false,
+                LobbyId = string.Empty,
+                GameId = string.Empty
             };
         }
 
@@ -30,8 +25,8 @@ namespace api.Mappers
         {
             return new PlayerRegisterResponseDto
             {
-                PlayerId = player.PlayerId,
-                Username = player.Username,
+                PlayerId = player.Id,
+                Username = player.UserName,
                 IsGuest = player.IsGuest,
                 Wins = player.Wins,
                 Losses = player.Losses,
@@ -39,22 +34,5 @@ namespace api.Mappers
                 Ability = player.Ability
             };
         }
-
-        // Ignore this, i need to learn how to update
-        // public static Player ToPlayerEntity(PlayerUpdateRequestDto dto)
-        // {
-        //     return new Player
-        //     {
-        //         PlayerId = Guid.NewGuid().ToString(),
-        //         Username = dto.Username,
-        //         //Password = dto.Password, // Needs Hashing
-        //         Wins = 0,
-        //         Losses = 0,
-        //         Color = 0,
-        //         Ability = 0,
-        //         LastLogin = DateTime.UtcNow,
-        //         IsGuest = false
-        //     };
-        // }
     }
 }

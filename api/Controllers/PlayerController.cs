@@ -7,7 +7,9 @@ using api.Dtos.Player;
 using api.Mappers;
 using api.Models;
 using api.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.Controllers
 {
@@ -15,11 +17,17 @@ namespace api.Controllers
     [ApiController]
     public class PlayerController : ControllerBase
     {
+        private readonly UserManager<Player> _userManager;
         private readonly IPlayerService _playerService;
+        private readonly ITokenService _tokenService;
+        private readonly SignInManager<Player> _signInManager;
 
-        public PlayerController(IPlayerService playerService)
+        public PlayerController(UserManager<Player> userManager, IPlayerService playerService, ITokenService tokenService, SignInManager<Player> signInManager)
         {
+            _userManager = userManager;
             _playerService = playerService;
+            _tokenService = tokenService;
+            _signInManager = signInManager;
         }
 
         [HttpGet("all")]
@@ -47,33 +55,65 @@ namespace api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] PlayerRegisterRequestDto dto)
         {
-            if (dto == null)
-                return BadRequest(new { message = "Invalid registration request." });
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest();
 
-            var result = await _playerService.RegisterPlayerAsync(dto);
+                var user = new Player
+                {
+                    UserName = dto.Username,
+                };
 
-            if (result == null)
-                return Conflict(new { message = "Username already exists." });
+                var createdUser = await _userManager.CreateAsync(user, dto.Password);
 
-            return Ok(new { status = "registered", player = result });
+                if (createdUser.Succeeded)
+                {
+                    var roleResult = await _userManager.AddToRoleAsync(user, "User");
+
+                    if (roleResult.Succeeded)
+                    {
+                        var token = _tokenService.CreateToken(user);
+
+                        var responseDto = PlayerMappers.ToResponseDto(user);
+                        responseDto.Token = token;
+
+                        return Ok(responseDto);
+                    }
+                    else
+                        return StatusCode(500, roleResult.Errors);
+                }
+                else
+                {
+                    return StatusCode(500, createdUser.Errors);
+                }
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e);
+            }
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] PlayerRegisterRequestDto dto)
         {
-            var result = await _playerService.LoginPlayerAsync(dto);
+            if (!ModelState.IsValid)
+                return BadRequest();
 
-            if (result == null)
-                return Unauthorized(new { message = "Invalid username or password." });
+            var response = await _playerService.LoginPlayerAsync(dto);
 
-            return Ok(new { status = "logged_in", player = result });
+            if (response == null)
+                return Unauthorized("Invalid username or password.");
+
+            return Ok(response);
         }
 
         [HttpPost("guest")]
-        public IActionResult Guest()
+        public async Task<IActionResult> Guest()
         {
-            var guestPlayer = Player.Guest();
-            var guestPlayerDto = PlayerMappers.ToResponseDto(guestPlayer);
+            var guestPlayerDto = await _playerService.CreateGuestAsync();
+            if (guestPlayerDto == null)
+                return StatusCode(500, new { message = "Failed to create guest player." });
             return Ok(new { status = "guest_joined", player = guestPlayerDto });
         }
     }

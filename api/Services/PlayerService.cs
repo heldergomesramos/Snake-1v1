@@ -1,55 +1,117 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using api.Dtos.Player;
 using api.Mappers;
 using api.Models;
-using api.Repositories;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace api.Services
 {
     public class PlayerService : IPlayerService
     {
-        private readonly IPlayerRepository _playerRepository;
+        private readonly UserManager<Player> _userManager;
+        private readonly SignInManager<Player> _signInManager;
+        private readonly ITokenService _tokenService;
 
-        public PlayerService(IPlayerRepository playerRepository)
+        public PlayerService(
+            UserManager<Player> userManager,
+            SignInManager<Player> signInManager,
+            ITokenService tokenService)
         {
-            _playerRepository = playerRepository;
-        }
-
-        public async Task<PlayerRegisterResponseDto?> RegisterPlayerAsync(PlayerRegisterRequestDto dto)
-        {
-            var existingPlayer = await _playerRepository.GetPlayerByUsernameAsync(dto.Username);
-
-            if (existingPlayer != null)
-            {
-                return null;
-            }
-
-            var newPlayer = PlayerMappers.ToPlayerEntity(dto);
-            await _playerRepository.AddPlayerAsync(newPlayer);
-            return PlayerMappers.ToResponseDto(newPlayer);
-        }
-
-        public async Task<PlayerRegisterResponseDto?> LoginPlayerAsync(PlayerRegisterRequestDto dto)
-        {
-            var existingPlayer = await _playerRepository.GetPlayerByUsernameAsync(dto.Username);
-
-            if (existingPlayer == null || dto.Password != existingPlayer.Password)
-                return null;
-
-            existingPlayer.LastLogin = DateTime.Now;
-            await _playerRepository.UpdatePlayerAsync(existingPlayer);
-
-            return PlayerMappers.ToResponseDto(existingPlayer);
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _tokenService = tokenService;
         }
 
         public async Task<Player?> GetPlayerByUsernameAsync(string username)
         {
-            return await _playerRepository.GetPlayerByUsernameAsync(username);
+            return await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == username);
         }
 
         public async Task<List<Player>> GetAllPlayersAsync()
         {
-            return await _playerRepository.GetAllPlayersAsync();
+            return await _userManager.Users.ToListAsync();
+        }
+
+        public async Task<PlayerRegisterResponseDto?> RegisterPlayerAsync(PlayerRegisterRequestDto dto)
+        {
+            var existingPlayer = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == dto.Username);
+            if (existingPlayer != null)
+                return null;
+
+            var newPlayer = new Player
+            {
+                UserName = dto.Username,
+                Wins = 0,
+                Losses = 0,
+                Color = 0,
+                Ability = 0,
+                LastLogin = DateTime.UtcNow,
+                IsGuest = false
+            };
+
+            var result = await _userManager.CreateAsync(newPlayer, dto.Password);
+            if (!result.Succeeded)
+                return null;
+
+            await _userManager.AddToRoleAsync(newPlayer, "User");
+
+            var token = _tokenService.CreateToken(newPlayer);
+
+            var responseDto = PlayerMappers.ToResponseDto(newPlayer);
+            responseDto.Token = token;
+
+            return responseDto;
+        }
+
+        public async Task<PlayerRegisterResponseDto?> LoginPlayerAsync(PlayerRegisterRequestDto dto)
+        {
+            var player = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == dto.Username);
+
+            if (player == null)
+                return null;
+
+            var result = await _signInManager.CheckPasswordSignInAsync(player, dto.Password, false);
+            if (!result.Succeeded)
+                return null;
+
+            player.LastLogin = DateTime.UtcNow;
+            await _userManager.UpdateAsync(player);
+
+            var token = _tokenService.CreateToken(player);
+
+            var responseDto = PlayerMappers.ToResponseDto(player);
+            responseDto.Token = token;
+
+            return responseDto;
+        }
+
+        public async Task<PlayerRegisterResponseDto?> CreateGuestAsync()
+        {
+            var guestUsername = $"Guest_{Guid.NewGuid().ToString()[..8]}";
+
+            var guestPlayer = new Player
+            {
+                UserName = guestUsername,
+                IsGuest = true,
+                Wins = 0,
+                Losses = 0,
+                Color = 0,
+                Ability = 0,
+                LastLogin = DateTime.UtcNow
+            };
+
+            var result = await _userManager.CreateAsync(guestPlayer);
+            if (!result.Succeeded)
+                return null;
+
+            var token = _tokenService.CreateToken(guestPlayer);
+
+            var guestPlayerDto = PlayerMappers.ToResponseDto(guestPlayer);
+            guestPlayerDto.Token = token;
+
+            return guestPlayerDto;
         }
     }
 }

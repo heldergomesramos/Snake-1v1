@@ -48,5 +48,13 @@ namespace api.Controllers
                 lobby = _lobbyToReturn
             });
         }
+
+        [HttpDelete("all")]
+        public IActionResult DeleteAllLobbies()
+        {
+            _logger.LogWarning("DeleteAllLobbies() executed");
+            LobbyManager.DeleteAllLobbies();
+            return NoContent();
+        }
     }
 }

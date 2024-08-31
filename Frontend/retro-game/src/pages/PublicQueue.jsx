@@ -10,46 +10,105 @@ export default function PublicQueue() {
   const { playerData, setPlayerData } = useContext(PlayerContext);
 
   useEffect(() => {
-    const joinLobby = async () => {
-      try {
-        const response = await fetch(
-          `${BASE_URL}/api/lobby/join-public-lobby`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              playerId: playerData.playerId,
-              username: playerData.username,
-              isGuest: playerData.isGuest,
-              wins: playerData.wins,
-              losses: playerData.losses,
-              color: playerData.color,
-              ability: playerData.ability,
-            }),
-          }
-        );
+    if (!hasJoinedLobby.current) {
+      checkLobbyStatus();
+      hasJoinedLobby.current = true;
+    }
 
-        const data = await response.json();
-
-        if (response.ok) {
-          // setLobby(data.lobby);
-          console.log(JSON.stringify(data, null, 2));
-        } else {
-          setError(
-            "An error occurred while joining the lobby. Please try again."
-          );
-        }
-      } catch (err) {
-        console.error("Error joining lobby:", err);
-        setError("Failed to connect to the server. Please try again.");
-      } finally {
-        setLoading(false);
-      }
+    const handleUnload = () => {
+      leaveLobby();
     };
-    joinLobby();
-  });
+
+    window.addEventListener("beforeunload", handleUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleUnload);
+      leaveLobby();
+    };
+  }, []);
+
+  const checkLobbyStatus = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/lobby/check-lobby-status`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          playerId: playerData.playerId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.lobby) {
+        setLobby(data.lobby);
+        setLoading(false);
+      } else {
+        joinLobby();
+      }
+    } catch (err) {
+      console.error("Error checking lobby status:", err);
+      setError("Failed to connect to the server. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  const joinLobby = async () => {
+    console.log("Join Lobby Front End");
+    try {
+      const response = await fetch(`${BASE_URL}/api/lobby/join-public-lobby`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          playerId: playerData.playerId,
+          username: playerData.username,
+          isGuest: playerData.isGuest,
+          wins: playerData.wins,
+          losses: playerData.losses,
+          color: playerData.color,
+          ability: playerData.ability,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setLobby(data.lobby);
+      } else {
+        setError(
+          "An error occurred while joining the lobby. Please try again."
+        );
+      }
+    } catch (err) {
+      console.error("Error joining lobby:", err);
+      setError("Failed to connect to the server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const leaveLobby = async () => {
+    console.log("Leave Lobby Front End");
+    try {
+      const response = await fetch(`${BASE_URL}/api/lobby/leave-lobby`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          playerId: playerData.playerId,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Error leaving lobby.");
+      }
+    } catch (err) {
+      console.error("Error leaving lobby:", err);
+    }
+  };
 
   return (
     <div className="container-center">
