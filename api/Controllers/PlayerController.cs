@@ -78,19 +78,19 @@ namespace api.Controllers
                         var responseDto = PlayerMappers.ToResponseDto(user);
                         responseDto.Token = token;
 
-                        return Ok(responseDto);
+                        return Ok(new { player = responseDto });
                     }
                     else
-                        return StatusCode(500, roleResult.Errors);
+                        return StatusCode(500, new { message = roleResult.Errors });
                 }
                 else
                 {
-                    return StatusCode(500, createdUser.Errors);
+                    return StatusCode(409, new { message = createdUser.Errors });
                 }
             }
             catch (Exception e)
             {
-                return StatusCode(500, e);
+                return StatusCode(500, new { message = e });
             }
         }
 
@@ -103,7 +103,7 @@ namespace api.Controllers
             var response = await _playerService.LoginPlayerAsync(dto);
 
             if (response == null)
-                return Unauthorized("Invalid username or password.");
+                return Unauthorized(new { message = "Invalid username or password." });
 
             return Ok(response);
         }

@@ -12,7 +12,6 @@ export default function HomePage() {
 
   const { setPlayerData } = useContext(PlayerContext);
 
-  // Add useEffect to send a ping request on component mount
   useEffect(() => {
     const sendPing = async () => {
       try {

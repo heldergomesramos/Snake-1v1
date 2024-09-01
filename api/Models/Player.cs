@@ -8,7 +8,6 @@ namespace api.Models
 {
     public class Player : IdentityUser
     {
-        public string Token { get; set; } = string.Empty;
         public int Wins { get; set; } = 0;
         public int Losses { get; set; } = 0;
         public int Color { get; set; } = 0;
@@ -22,12 +21,6 @@ namespace api.Models
         public Player()
         {
 
-        }
-
-        public Player(string username, string token)
-        {
-            UserName = username;
-            Token = token;
         }
 
         public static Player Guest()

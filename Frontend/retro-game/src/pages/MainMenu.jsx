@@ -23,10 +23,10 @@ export default function MainMenu() {
         <p className="title gradient-text">Pick your poison</p>
       </div>
       <div className="buttons-main-menu-container">
-        <Link to="/create-private-game">
+        <Link to="/create-private-lobby">
           <button className="button-default">Create Private Game</button>
         </Link>
-        <Link to="/join-private-game">
+        <Link to="/join-private-lobby">
           <button className="button-default">Join Private Game</button>
         </Link>
         <Link to="/public-queue">
