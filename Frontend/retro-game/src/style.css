@@ -205,6 +205,17 @@ input:focus {
   height: 3rem;
 }
 
+.button-square {
+  height: 3rem;
+  width: 3rem;
+  margin: 1rem;
+  padding: 0rem;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+}
+
 /* Gradients */
 
 .gradient-text {
@@ -261,7 +272,6 @@ input:focus {
 .cpl-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 20px;
   height: 100vh;
   padding: 20px;
@@ -273,7 +283,6 @@ input:focus {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
   grid-template-rows: 2;
-  gap: 20px;
   padding: 20px;
   box-sizing: border-box;
 }
@@ -314,7 +323,6 @@ input:focus {
   width: 40px;
   height: 40px;
   border: 2px solid transparent;
-  border-radius: 5px;
   cursor: pointer;
   margin: 1rem;
 
@@ -339,11 +347,6 @@ input:focus {
   height: 100%;
 }
 
-.map-settings {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-}
-
 .cpl-map-navigation-container {
   display: flex;
   justify-content: space-around;
@@ -357,61 +360,49 @@ input:focus {
   font-size: var(--fs-600);
 }
 
-.game-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  border-radius: 8px;
+.cpl-map-settings {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
-.map-settings {
-  /* grid-column: 1 / 2;
-  grid-row: 2 / 3; */
-}
+.cpl-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 
-.game-actions {
-  /* grid-column: 2 / 4;
-  grid-row: 3 / 4;
-  justify-content: space-between;
-  padding: 10px 20px; */
-}
-
-.map-settings label {
-}
-
-.map-settings input[type="number"] {
-  width: 60px;
-  margin-left: 10px;
-  padding: 5px;
-  border-radius: 5px;
-  text-align: center;
-}
-
-.map-settings input[type="checkbox"] {
-  margin-left: 10px;
-}
-
-.game-code {
-  margin-top: 20px;
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.game-actions button {
-  padding: 10px 20px;
-  border-radius: 5px;
-  border: none;
+  width: 40px;
+  height: 40px;
   cursor: pointer;
-  font-size: 1rem;
+
+  background-color: var(--color-background);
+  border: 2px solid var(--color-border-gradient-1);
 }
 
-.game-actions button:hover {
+.cpl-checkbox:checked {
+  border-color: var(--color-border-input);
+  box-shadow: 0 0 0 3px var(--color-border-input-shadow);
 }
 
-.game-actions button:first-child {
+.cpl-checkbox:hover {
+  border-color: var(--color-border-input);
 }
 
-.game-actions button:first-child:hover {
+.cpl-label {
+  font-size: var(--fs-300);
+  color: var(--color-border-gradient-2);
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2rem;
+}
+
+.cpl-input {
+  width: 200px;
 }

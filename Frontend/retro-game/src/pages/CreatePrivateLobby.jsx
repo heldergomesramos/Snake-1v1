@@ -36,11 +36,11 @@ export default function CreatePrivateLobby() {
   };
 
   return (
-    <div className="cpl-container border-gradient-normal">
+    <div className="cpl-container">
       <div className="cpl-top-grid border-gradient-normal">
         <div className="cpl-player-info cpl-player-info-left border-gradient-normal">
           <div>
-            <h3 className="title gradient-text">Pofinho</h3>
+            <p className="title gradient-text">Pofinho</p>
           </div>
           <div>
             <p className="text-color-green">Ws: 5</p>
@@ -74,15 +74,15 @@ export default function CreatePrivateLobby() {
             alt="Map Image"
           />
           <div className="cpl-map-navigation-container">
-            <button>&lt;</button>
+            <button className="button-default button-square">&lt;</button>
             <p className="cpl-map-name gradient-text">Forest</p>
-            <button>&gt;</button>
+            <button className="button-default button-square">&gt;</button>
           </div>
         </div>
 
         <div className="cpl-player-info cpl-player-info-right border-gradient-normal">
           <div>
-            <h3 className="title gradient-text">Shaduru</h3>
+            <p className="title gradient-text">Shaduru</p>
           </div>
           <div>
             <p className="text-color-green">Ws: 0</p>
@@ -109,55 +109,61 @@ export default function CreatePrivateLobby() {
           </div>
         </div>
       </div>
-      <div className="map-settings border-gradient-normal">
-        <label>
-          Map Height:
+      <div className="cpl-map-settings border-gradient-normal">
+        <label className="cpl-label">
+          Map Height
           <input
+            className="cpl-input"
             type="number"
             name="height"
             value={mapSettings.height}
             onChange={handleMapSettingChange}
           />
         </label>
-        <label>
-          Map Width:
+        <label className="cpl-label">
+          Time Limit
           <input
-            type="number"
-            name="width"
-            value={mapSettings.width}
-            onChange={handleMapSettingChange}
-          />
-        </label>
-        <label>
-          Tiles/Second:
-          <input
-            type="number"
-            name="speed"
-            value={mapSettings.speed}
-            onChange={handleMapSettingChange}
-          />
-        </label>
-        <label>
-          Time Limit:
-          <input
+            className="cpl-input"
             type="number"
             name="timeLimit"
             value={mapSettings.timeLimit}
             onChange={handleMapSettingChange}
           />
         </label>
-        <label>
-          Borders:
+        <label className="cpl-label">
+          Borders
           <input
+            className="cpl-checkbox"
             type="checkbox"
             name="borders"
             checked={mapSettings.borders}
             onChange={handleMapSettingChange}
           />
         </label>
-        <label>
-          Specials:
+        <label className="cpl-label">
+          Map Width
           <input
+            className="cpl-input"
+            type="number"
+            name="width"
+            value={mapSettings.width}
+            onChange={handleMapSettingChange}
+          />
+        </label>
+        <label className="cpl-label">
+          Speed
+          <input
+            className="cpl-input"
+            type="number"
+            name="speed"
+            value={mapSettings.speed}
+            onChange={handleMapSettingChange}
+          />
+        </label>
+        <label className="cpl-label">
+          Abilities
+          <input
+            className="cpl-checkbox"
             type="checkbox"
             name="specials"
             checked={mapSettings.specials}
@@ -165,10 +171,7 @@ export default function CreatePrivateLobby() {
           />
         </label>
       </div>
-      <div className="game-code container-center border-gradient-normal">
-        Code: AHGEYF
-      </div>
-      <div className="buttons-login-container container-center border-gradient-normal">
+      <div className="buttons-login-container container-center">
         <button
           className="button-default button-height-less"
           onClick={handleSubmit}
