@@ -95,6 +95,8 @@ namespace api.Services
                 return null;
 
             player.LastLogin = DateTime.UtcNow;
+            player.LobbyId = string.Empty;
+            player.GameId = string.Empty;
             await _userManager.UpdateAsync(player);
 
             var token = _tokenService.CreateToken(player);

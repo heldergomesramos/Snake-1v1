@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using api.Controllers;
 using api.Dtos.Player;
 using api.Models;
@@ -10,19 +11,18 @@ namespace api.Singletons
         private static readonly Lazy<LobbyManager> instance = new(() => new LobbyManager());
         public static LobbyManager Instance => instance.Value;
 
-
         private static readonly object _lock = new();
         private static Lobby? _currentLobby = null;
-        private static readonly List<Lobby> _allLobbies = [];
+        private static readonly List<PrivateLobby> _privateLobbies = [];
+        private static readonly List<Lobby> _publicLobbies = [];
 
-        // Returns copy of _allLobies
-        public static List<Lobby> AllLobbies
+        public static List<Lobby> AllLobbiesCopy
         {
             get
             {
                 lock (_lock)
                 {
-                    return [.. _allLobbies];
+                    return _publicLobbies.Concat<Lobby>(_privateLobbies).ToList();
                 }
             }
         }
@@ -45,14 +45,6 @@ namespace api.Singletons
             }
         }
 
-        public static void AddLobby(Lobby lobby)
-        {
-            lock (_lock)
-            {
-                _allLobbies.Add(lobby);
-            }
-        }
-
         public static Lobby? JoinPublicLobby(PlayerRegisterResponseDto dto)
         {
             Console.WriteLine("Join Function Executed by " + dto.Username);
@@ -65,7 +57,7 @@ namespace api.Singletons
                 {
                     //_currentLobby = new Lobby(dto);
                     //dto.LobbyId = _currentLobby.LobbyId;
-                    AddLobby(_currentLobby);
+                    _publicLobbies.Add(_currentLobby);
                 }
                 else
                 {
@@ -85,15 +77,32 @@ namespace api.Singletons
             }
         }
 
-        public static Lobby? CreatePrivateLobby(Player player)
+        public static PrivateLobby? CreatePrivateLobby(Player player)
         {
-            Console.WriteLine("Create Private Lobby Function Executed by " + player.UserName);
             lock (_lock)
             {
-                var newLobby = new Lobby(player);
-                _allLobbies.Add(newLobby);
+                var newLobby = new PrivateLobby(player);
+                _privateLobbies.Add(newLobby);
                 player.LobbyId = newLobby.LobbyId;
                 return newLobby;
+            }
+        }
+
+        public static PrivateLobby? JoinPrivateLobby(Player player, string code)
+        {
+            lock (_lock)
+            {
+                var lobbyFound = _privateLobbies.Find(x => x.Code == code);
+                if (lobbyFound == null)
+                    return null;
+                if (lobbyFound.Player1 == null)
+                    lobbyFound.Player1 = player;
+                else if (lobbyFound.Player2 == null)
+                    lobbyFound.Player2 = player;
+                else
+                    return null;
+                player.LobbyId = lobbyFound.LobbyId;
+                return lobbyFound;
             }
         }
 
@@ -101,14 +110,17 @@ namespace api.Singletons
         {
             lock (_lock)
             {
-                _allLobbies.Clear();
+                _privateLobbies.Clear();
+                _publicLobbies.Clear();
                 _currentLobby = null;
             }
         }
 
-        public static bool IsPlayerInLobby(string playerId, Lobby? lobby)
+        public static bool IsPlayerInLobby(string playerId, Lobby lobby)
         {
-            return lobby != null && (lobby.HostPlayerId == playerId || lobby.InviteePlayerId == playerId);
+            if (lobby == null)
+                return false;
+            return lobby != null && ((lobby.Player1 != null && lobby.Player1.Id == playerId) || (lobby.Player2 != null && lobby.Player2.Id == playerId));
         }
     }
 }

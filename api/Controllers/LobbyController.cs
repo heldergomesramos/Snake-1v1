@@ -1,4 +1,6 @@
+using api.Dtos.Lobby;
 using api.Dtos.Player;
+using api.Mappers;
 using api.Models;
 using api.Services;
 using api.Singletons;
@@ -23,14 +25,14 @@ namespace api.Controllers
         [HttpGet("all")]
         public IActionResult GetAll()
         {
-            var lobbies = LobbyManager.AllLobbies;
+            var lobbies = LobbyManager.AllLobbiesCopy;
             return Ok(lobbies);
         }
 
         [HttpGet("details/{id}")]
         public IActionResult GetById([FromRoute] string id)
         {
-            var lobby = LobbyManager.AllLobbies.Find(x => x.LobbyId == id);
+            var lobby = LobbyManager.AllLobbiesCopy.Find(x => x.LobbyId == id);
 
             if (lobby == null)
                 return NotFound();
@@ -53,19 +55,19 @@ namespace api.Controllers
         }
 
         [HttpPost("create-private-lobby")]
-        public async Task<IActionResult> CreatePrivateLobby([FromBody] PlayerRegisterResponseDto dto)
+        public async Task<IActionResult> CreatePrivateLobby([FromBody] PlayerIdDto dto)
         {
             if (dto == null)
                 return BadRequest(new { status = "error", message = "Request body cannot be null." });
-            if (string.IsNullOrEmpty(dto.Username))
-                return BadRequest(new { status = "error", message = "Username is required." });
+            if (string.IsNullOrEmpty(dto.PlayerId))
+                return BadRequest(new { status = "error", message = "Player Id is required." });
             var player = await _playerService.GetPlayerByIdAsync(dto.PlayerId);
             if (player == null)
-                return NotFound(new { status = "error", message = $"Player with username '{dto.Username}' not found." });
+                return NotFound(new { status = "error", message = $"Player with id '{dto.PlayerId}' not found." });
             if (player.LobbyId != string.Empty)
                 return Conflict(new { status = "error", message = "Player is already in a lobby." });
 
-            var lobbyToReturn = LobbyManager.CreatePrivateLobby(player);
+            PrivateLobby? lobbyToReturn = LobbyManager.CreatePrivateLobby(player);
             if (lobbyToReturn == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to create lobby. Please try again later." });
 
@@ -82,7 +84,41 @@ namespace api.Controllers
             return Ok(new
             {
                 status = "joined_lobby",
-                lobby = lobbyToReturn
+                lobby = LobbyMappers.ToResponseDto(lobbyToReturn)
+            });
+        }
+
+        [HttpPost("join-private-lobby")]
+        public async Task<IActionResult> JoinPrivateLobby([FromBody] JoinPrivateLobbyRequestDto dto)
+        {
+            if (dto == null)
+                return BadRequest(new { status = "error", message = "Request body cannot be null." });
+            if (string.IsNullOrEmpty(dto.PlayerId))
+                return BadRequest(new { status = "error", message = "Player Id is required." });
+            var player = await _playerService.GetPlayerByIdAsync(dto.PlayerId);
+            if (player == null)
+                return NotFound(new { status = "error", message = $"Player with id '{dto.PlayerId}' not found." });
+            if (player.LobbyId != string.Empty)
+                return Conflict(new { status = "error", message = "Player is already in a lobby." });
+
+            PrivateLobby? lobbyToReturn = LobbyManager.JoinPrivateLobby(player, dto.LobbyCode);
+            if (lobbyToReturn == null)
+                return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to join lobby. Please try again later." });
+
+            try
+            {
+                player.LobbyId = lobbyToReturn.LobbyId;
+                await _playerService.UpdatePlayerAsync(player);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = $"Failed to update player: {ex.Message}" });
+            }
+
+            return Ok(new
+            {
+                status = "joined_lobby",
+                lobby = LobbyMappers.ToResponseDto(lobbyToReturn)
             });
         }
 
