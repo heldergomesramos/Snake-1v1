@@ -45,6 +45,11 @@ namespace api.Singletons
             }
         }
 
+        public static PrivateLobby? GetPrivateLobbyById(string id)
+        {
+            return _privateLobbies.Find(x => x.LobbyId == id);
+        }
+
         public static Lobby? JoinPublicLobby(PlayerRegisterResponseDto dto)
         {
             Console.WriteLine("Join Function Executed by " + dto.Username);

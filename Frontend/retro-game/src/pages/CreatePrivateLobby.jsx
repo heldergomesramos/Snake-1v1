@@ -1,16 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useLocation } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
 import greenWormFull from "../assets/images/GreenWormFull.png";
 import redWormFull from "../assets/images/RedWormFull.png";
 import mapTest from "../assets/images/MapTest.png";
 
-import { Link, useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 
 export default function CreatePrivateLobby() {
+  console.log("A");
   const { playerData, setPlayerData } = useContext(PlayerContext);
   const navigate = useNavigate();
-  const [lobby, setLobby] = useState(null);
   const [mapType, setMapType] = useState("Forest");
+
+  const location = useLocation();
+  const lobby = location.state?.lobby;
+
+  useEffect(() => {
+    if (!lobby) {
+      console.log("Lobby data is not present");
+    } else console.log("Lobby Id: " + lobby.lobbyId);
+  }, [lobby]);
 
   const handleAbilityClick = (ability) => {
     setActiveAbility(ability);

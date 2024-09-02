@@ -57,7 +57,7 @@ export default function HomePage() {
       const data = await response.json();
 
       if (response.ok) {
-        setPlayerData(data.player);
+        setPlayerData(data);
         navigate("/main-menu");
       } else {
         switch (response.status) {

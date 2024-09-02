@@ -32,11 +32,10 @@ namespace api.Controllers
         [HttpGet("details/{id}")]
         public IActionResult GetById([FromRoute] string id)
         {
-            var lobby = LobbyManager.AllLobbiesCopy.Find(x => x.LobbyId == id);
-
+            var lobby = LobbyManager.GetPrivateLobbyById(id);
             if (lobby == null)
                 return NotFound();
-            return Ok(lobby);
+            return Ok(new { lobby = LobbyMappers.ToResponseDto(lobby) });
         }
 
         [HttpPost("join-public-lobby")]

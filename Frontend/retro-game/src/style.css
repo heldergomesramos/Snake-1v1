@@ -10,6 +10,7 @@
 :root {
   --color-background: #161616; /* A deeper black for a more immersive dark background */
   --color-text: #e0e0e0; /* Off-white for better contrast with the dark background */
+  --color-text-purple: #9c27b0;
   --color-text-green: #39ff14; /* Neon green, symbolizing the toxic/poisonous theme */
   --color-border-input: #39ff14; /* Matching neon green for inputs */
   --color-border-input-shadow: rgba(
