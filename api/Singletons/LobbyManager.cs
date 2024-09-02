@@ -1,11 +1,16 @@
 using api.Controllers;
 using api.Dtos.Player;
 using api.Models;
+using api.Services;
 
 namespace api.Singletons
 {
-    public static class LobbyManager
+    public class LobbyManager
     {
+        private static readonly Lazy<LobbyManager> instance = new(() => new LobbyManager());
+        public static LobbyManager Instance => instance.Value;
+
+
         private static readonly object _lock = new();
         private static Lobby? _currentLobby = null;
         private static readonly List<Lobby> _allLobbies = [];
@@ -77,6 +82,18 @@ namespace api.Singletons
                 }
 
                 return _currentLobby;
+            }
+        }
+
+        public static Lobby? CreatePrivateLobby(Player player)
+        {
+            Console.WriteLine("Create Private Lobby Function Executed by " + player.UserName);
+            lock (_lock)
+            {
+                var newLobby = new Lobby(player);
+                _allLobbies.Add(newLobby);
+                player.LobbyId = newLobby.LobbyId;
+                return newLobby;
             }
         }
 

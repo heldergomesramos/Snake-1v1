@@ -24,6 +24,24 @@ namespace api.Services
             _tokenService = tokenService;
         }
 
+        public async Task UpdatePlayerAsync(Player player)
+        {
+            ArgumentNullException.ThrowIfNull(player);
+
+            var result = await _userManager.UpdateAsync(player);
+
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to update player: {errors}");
+            }
+        }
+
+        public async Task<Player?> GetPlayerByIdAsync(string id)
+        {
+            return await _userManager.Users.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
         public async Task<Player?> GetPlayerByUsernameAsync(string username)
         {
             return await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == username);

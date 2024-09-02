@@ -5,6 +5,8 @@ namespace api.Services
 {
     public interface IPlayerService
     {
+        Task UpdatePlayerAsync(Player player);
+        Task<Player?> GetPlayerByIdAsync(string id);
         Task<Player?> GetPlayerByUsernameAsync(string username);
         Task<List<Player>> GetAllPlayersAsync();
         Task<PlayerRegisterResponseDto?> RegisterPlayerAsync(PlayerRegisterRequestDto dto);

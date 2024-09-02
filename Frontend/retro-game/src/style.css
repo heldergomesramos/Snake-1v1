@@ -8,16 +8,21 @@
 }
 
 :root {
-  --color-background: #18101f;
-  --color-text: #ffffff;
-  --color-text-purple: #743ad5;
-  --color-border-input: #f05928;
-  --color-border-input-shadow: rgba(240, 89, 40, 0.25);
-  --color-text-title: #f05928;
-  --color-border-gradient-1: #743ad5;
-  --color-border-gradient-2: #d53a9d;
-  --color-red: #f02828;
-  --color-green: #57f028;
+  --color-background: #161616; /* A deeper black for a more immersive dark background */
+  --color-text: #e0e0e0; /* Off-white for better contrast with the dark background */
+  --color-text-green: #39ff14; /* Neon green, symbolizing the toxic/poisonous theme */
+  --color-border-input: #39ff14; /* Matching neon green for inputs */
+  --color-border-input-shadow: rgba(
+    57,
+    255,
+    20,
+    0.25
+  ); /* Soft shadow for input borders */
+  --color-text-title: #9c27b0; /* Deep purple, keeping in line with the snake theme */
+  --color-border-gradient-1: #6aff14; /* Gradient start with neon green */
+  --color-border-gradient-2: #27b077; /* Gradient end with deep purple */
+  --color-red: #ff1744; /* Bright red for danger alerts, keeping a toxic feel */
+  --color-green: #39ff14; /* Consistent neon green across the design */
 
   --fs-xl: clamp(1.8rem, 4vw + 1rem, 2.5rem);
   --fs-600: clamp(1.3rem, 3vw + 0.8rem, 1.5rem);
@@ -221,14 +226,13 @@ input:focus {
 .gradient-text {
   background: -webkit-linear-gradient(
     -86deg,
-    #f05a28 5%,
-    #d91c5c 53%,
-    #a922ff 91%
+    #39ff14 45%,
+    /* Neon green at the start */ #9c27b0 73%
   );
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-stroke: 5px transparent;
-  color: #18001d;
+  color: var(--color-background);
 }
 
 .border-gradient-thin {
@@ -367,8 +371,8 @@ input:focus {
   gap: 1rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-left: 20%;
+  padding-right: 20%;
 }
 
 .cpl-checkbox {
@@ -400,9 +404,9 @@ input:focus {
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 .cpl-input {
-  width: 200px;
+  width: 80px;
 }

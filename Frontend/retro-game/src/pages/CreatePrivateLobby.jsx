@@ -3,16 +3,13 @@ import greenWormFull from "../assets/images/GreenWormFull.png";
 import redWormFull from "../assets/images/RedWormFull.png";
 import mapTest from "../assets/images/MapTest.png";
 
+import { Link, useNavigate } from "react-router-dom";
+import { PlayerContext } from "../context/PlayerContext";
+
 export default function CreatePrivateLobby() {
-  const [activeAbility, setActiveAbility] = useState(null);
-  const [mapSettings, setMapSettings] = useState({
-    height: 20,
-    width: 20,
-    speed: 2,
-    timeLimit: 180,
-    borders: false,
-    specials: true,
-  });
+  const { playerData, setPlayerData } = useContext(PlayerContext);
+  const navigate = useNavigate();
+  const [lobby, setLobby] = useState(null);
   const [mapType, setMapType] = useState("Forest");
 
   const handleAbilityClick = (ability) => {
