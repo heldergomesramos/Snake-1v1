@@ -70,13 +70,17 @@ namespace api.Controllers
             if (player.LobbyId != string.Empty)
                 return Conflict(new { status = "error", message = "Player is already in a lobby." });
 
-            PrivateLobby? lobbyToReturn = await LobbyManager.CreatePrivateLobby(player, _hubContext);
+            Console.WriteLine("\nCreate Private Lobby\n");
+            Console.WriteLine("Player: " + player.UserName);
+            Console.WriteLine("Context: " + _hubContext);
+            PrivateLobbyResponseDto? lobbyToReturn = await LobbyManager.CreatePrivateLobby(player, _hubContext);
+            Console.WriteLine("lobbyToReturn below");
+            Console.WriteLine("lobbyToReturn: " + lobbyToReturn);
             if (lobbyToReturn == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to create lobby. Please try again later." });
-
             try
             {
-                player.LobbyId = lobbyToReturn.LobbyId;
+                player.LobbyId = lobbyToReturn.LobbyId; /* Duplicated line of code | Lobby Manager already does this */
                 await _playerService.UpdatePlayerAsync(player);
             }
             catch (Exception ex)
@@ -87,7 +91,7 @@ namespace api.Controllers
             return Ok(new
             {
                 status = "joined_lobby",
-                lobby = LobbyMappers.ToResponseDto(lobbyToReturn)
+                lobby = lobbyToReturn
             });
         }
 
@@ -104,7 +108,7 @@ namespace api.Controllers
             if (player.LobbyId != string.Empty)
                 return Conflict(new { status = "error", message = "Player is already in a lobby." });
 
-            PrivateLobby? lobbyToReturn = await LobbyManager.JoinPrivateLobby(player, dto.LobbyCode, _hubContext);
+            PrivateLobbyResponseDto? lobbyToReturn = await LobbyManager.JoinPrivateLobby(player, dto.LobbyCode, _hubContext);
             if (lobbyToReturn == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to join lobby. Please try again later." });
 
@@ -121,7 +125,7 @@ namespace api.Controllers
             return Ok(new
             {
                 status = "joined_lobby",
-                lobby = LobbyMappers.ToResponseDto(lobbyToReturn)
+                lobby = lobbyToReturn
             });
         }
 

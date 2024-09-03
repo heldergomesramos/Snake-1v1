@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using api.Controllers;
+using api.Dtos.Lobby;
 using api.Dtos.Player;
 using api.Hubs;
 using api.Mappers;
@@ -85,39 +86,37 @@ namespace api.Singletons
             }
         }
 
-        public static async Task<PrivateLobby?> CreatePrivateLobby(Player player, IHubContext<LobbyHub> hubContext)
+        public static async Task<PrivateLobbyResponseDto?> CreatePrivateLobby(Player player, IHubContext<LobbyHub> hubContext)
         {
             var newLobby = new PrivateLobby(player);
             _privateLobbies.Add(newLobby);
             player.LobbyId = newLobby.LobbyId;
+            var lobbyDto = LobbyMappers.ToResponseDto(newLobby);
 
-            await hubContext.Groups.AddToGroupAsync(player.Id, newLobby.LobbyId);
-
-            return newLobby;
+            Console.WriteLine("Lobby Manager before Hub call, lobbyDto: " + lobbyDto);
+            await LobbyHub.AddPlayerToLobby(player.Id, lobbyDto.LobbyId, lobbyDto, hubContext);
+            Console.WriteLine("Lobby Manager after Hub call");
+            return lobbyDto;
         }
 
-        public static async Task<PrivateLobby?> JoinPrivateLobby(Player player, string code, IHubContext<LobbyHub> hubContext)
+        public static async Task<PrivateLobbyResponseDto?> JoinPrivateLobby(Player player, string code, IHubContext<LobbyHub> hubContext)
         {
-            Console.WriteLine("Join Private Lobby by: " + player.UserName + " and code: " + code);
             var lobbyFound = _privateLobbies.Find(x => x.Code == code);
             if (lobbyFound == null)
                 return null;
-            Console.WriteLine("Lobby Found: " + lobbyFound.LobbyId);
             if (lobbyFound.Player1 == null)
                 lobbyFound.Player1 = player;
             else if (lobbyFound.Player2 == null)
                 lobbyFound.Player2 = player;
             else
                 return null;
-            Console.WriteLine("Lobby is not full, so he got through");
-            player.LobbyId = lobbyFound.LobbyId;
 
+            player.LobbyId = lobbyFound.LobbyId;
             var lobbyDto = LobbyMappers.ToResponseDto(lobbyFound);
 
-            await hubContext.Clients.Group(lobbyFound.LobbyId).SendAsync("LobbyUpdated", lobbyDto);
-            await hubContext.Groups.AddToGroupAsync(player.Id, lobbyFound.LobbyId);
+            await LobbyHub.UpdateLobby(lobbyDto.LobbyId, lobbyDto, hubContext);
 
-            return lobbyFound;
+            return lobbyDto;
         }
 
         public static void DeleteAllLobbies()

@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { HubConnectionBuilder } from "@microsoft/signalr";
 import { BASE_URL } from "../constants";
+import { PlayerContext } from "../context/PlayerContext";
 
 import greenWormFull from "../assets/images/GreenWormFull.png";
 import redWormFull from "../assets/images/RedWormFull.png";
@@ -22,13 +23,15 @@ export default function CreatePrivateLobby() {
   });
   const [connectionState, setConnectionState] = useState("Disconnected");
   const [errorMessage, setErrorMessage] = useState("");
+  const { playerData, setPlayerData } = useContext(PlayerContext);
 
   const location = useLocation();
   const lobby = location.state?.lobby.lobby;
 
   useEffect(() => {
+    console.log("Log:" + playerData.playerId);
     const newConnection = new HubConnectionBuilder()
-      .withUrl(BASE_URL + "/lobbyHub")
+      .withUrl(`${BASE_URL}/lobbyHub?playerId=${playerData.playerId}`)
       .withAutomaticReconnect()
       .build();
 
