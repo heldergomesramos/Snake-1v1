@@ -1,20 +1,29 @@
-import React, { useState, useLocation } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useContext, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 import greenWormFull from "../assets/images/GreenWormFull.png";
 import redWormFull from "../assets/images/RedWormFull.png";
 import mapTest from "../assets/images/MapTest.png";
+import trophy from "../assets/images/Trophy.png";
+import skull from "../assets/images/Skull.png";
 
 import { PlayerContext } from "../context/PlayerContext";
 
 export default function CreatePrivateLobby() {
-  console.log("A");
   const { playerData, setPlayerData } = useContext(PlayerContext);
-  const navigate = useNavigate();
   const [mapType, setMapType] = useState("Forest");
+  const [activeAbility, setActiveAbility] = useState(null);
+  const [mapSettings, setMapSettings] = useState({
+    height: 20,
+    width: 20,
+    speed: 2,
+    timeLimit: 180,
+    borders: false,
+    specials: true,
+  });
 
   const location = useLocation();
-  const lobby = location.state?.lobby;
+  const lobby = location.state?.lobby.lobby;
 
   useEffect(() => {
     if (!lobby) {
@@ -47,11 +56,25 @@ export default function CreatePrivateLobby() {
       <div className="cpl-top-grid border-gradient-normal">
         <div className="cpl-player-info cpl-player-info-left border-gradient-normal">
           <div>
-            <p className="title gradient-text">Pofinho</p>
+            <p className="title gradient-text">{lobby.player1.username}</p>
           </div>
-          <div>
-            <p className="text-color-green">Ws: 5</p>
-            <p className="text-color-red">Ls: 3</p>
+          <div class="cpl-player-stats">
+            <div className="cpl-player-stats-group">
+              <img
+                src={trophy}
+                alt="Wins"
+                className="pixel-art cpl-player-stats-icon"
+              />
+              <p className="text-color-green">{lobby.player1.wins}</p>
+            </div>
+            <div className="cpl-player-stats-group">
+              <img
+                src={skull}
+                alt="Losses"
+                className="pixel-art cpl-player-stats-icon"
+              />
+              <p className="text-color-red">{lobby.player1.losses}</p>
+            </div>
           </div>
           <img
             src={greenWormFull}
@@ -88,32 +111,60 @@ export default function CreatePrivateLobby() {
         </div>
 
         <div className="cpl-player-info cpl-player-info-right border-gradient-normal">
-          <div>
-            <p className="title gradient-text">Shaduru</p>
-          </div>
-          <div>
-            <p className="text-color-green">Ws: 0</p>
-            <p className="text-color-red">Ls: 69</p>
-          </div>
-          <img
-            src={redWormFull}
-            alt="Player 1 Snake"
-            className="cpl-player-info-snake-image pixel-art flip-horizontal"
-          />
-          <div className="abilities">
-            <button
-              onClick={() => handleAbilityClick(1)}
-              className={activeAbility === 1 ? "active" : ""}
-            ></button>
-            <button
-              onClick={() => handleAbilityClick(2)}
-              className={activeAbility === 2 ? "active" : ""}
-            ></button>
-            <button
-              onClick={() => handleAbilityClick(3)}
-              className={activeAbility === 3 ? "active" : ""}
-            ></button>
-          </div>
+          {lobby.player2 == null ? (
+            <div>
+              <div>
+                <p className="title gradient-text">Invite</p>
+              </div>
+              <div className="cpl-code-container">
+                <p className="text-color-weaker">Code: </p>
+                <p>{lobby.code}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="player-info">
+              <div>
+                <p className="title gradient-text">{lobby.player2.username}</p>
+              </div>
+              <div class="cpl-player-stats">
+                <div className="cpl-player-stats-group">
+                  <img
+                    src={trophy}
+                    alt="Wins"
+                    className="pixel-art cpl-player-stats-icon"
+                  />
+                  <p className="text-color-green">{lobby.player1.wins}</p>
+                </div>
+                <div className="cpl-player-stats-group">
+                  <img
+                    src={skull}
+                    alt="Losses"
+                    className="pixel-art cpl-player-stats-icon"
+                  />
+                  <p className="text-color-red">{lobby.player1.losses}</p>
+                </div>
+              </div>
+              <img
+                src={redWormFull}
+                alt="Player 2 Snake"
+                className="cpl-player-info-snake-image pixel-art flip-horizontal"
+              />
+              <div className="abilities">
+                <button
+                  onClick={() => handleAbilityClick(1)}
+                  className={activeAbility === 1 ? "active" : ""}
+                ></button>
+                <button
+                  onClick={() => handleAbilityClick(2)}
+                  className={activeAbility === 2 ? "active" : ""}
+                ></button>
+                <button
+                  onClick={() => handleAbilityClick(3)}
+                  className={activeAbility === 3 ? "active" : ""}
+                ></button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <div className="cpl-map-settings border-gradient-normal">
@@ -123,7 +174,7 @@ export default function CreatePrivateLobby() {
             className="cpl-input"
             type="number"
             name="height"
-            value={mapSettings.height}
+            value={lobby.gameSettings.height}
             onChange={handleMapSettingChange}
           />
         </label>
@@ -133,7 +184,7 @@ export default function CreatePrivateLobby() {
             className="cpl-input"
             type="number"
             name="timeLimit"
-            value={mapSettings.timeLimit}
+            value={lobby.gameSettings.time}
             onChange={handleMapSettingChange}
           />
         </label>
@@ -143,7 +194,7 @@ export default function CreatePrivateLobby() {
             className="cpl-checkbox"
             type="checkbox"
             name="borders"
-            checked={mapSettings.borders}
+            checked={lobby.gameSettings.borders}
             onChange={handleMapSettingChange}
           />
         </label>
@@ -153,7 +204,7 @@ export default function CreatePrivateLobby() {
             className="cpl-input"
             type="number"
             name="width"
-            value={mapSettings.width}
+            value={lobby.gameSettings.width}
             onChange={handleMapSettingChange}
           />
         </label>
@@ -163,7 +214,7 @@ export default function CreatePrivateLobby() {
             className="cpl-input"
             type="number"
             name="speed"
-            value={mapSettings.speed}
+            value={lobby.gameSettings.speed}
             onChange={handleMapSettingChange}
           />
         </label>
@@ -173,7 +224,7 @@ export default function CreatePrivateLobby() {
             className="cpl-checkbox"
             type="checkbox"
             name="specials"
-            checked={mapSettings.specials}
+            checked={lobby.gameSettings.abilities}
             onChange={handleMapSettingChange}
           />
         </label>

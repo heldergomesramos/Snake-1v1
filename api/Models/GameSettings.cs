@@ -11,13 +11,19 @@ namespace api.Models
         public int Speed { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
+        public int Time { get; set; }
+        public bool Borders { get; set; }
+        public bool Abilities { get; set; }
 
         public GameSettings()
         {
             GameSettingsId = Guid.NewGuid().ToString();
-            Speed = 1;
-            Width = 10;
-            Height = 10;
+            Speed = 2;
+            Width = 14;
+            Height = 14;
+            Time = 150;
+            Borders = false;
+            Abilities = true;
         }
     }
 }

@@ -227,8 +227,8 @@ input:focus {
 .gradient-text {
   background: -webkit-linear-gradient(
     -86deg,
-    #39ff14 45%,
-    /* Neon green at the start */ #9c27b0 73%
+    #39ff14 25%,
+    var(--color-border-gradient-2) 75%
   );
   background-clip: text;
   -webkit-background-clip: text;
@@ -307,6 +307,23 @@ input:focus {
   justify-content: space-around;
 }
 
+.cpl-player-stats {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.cpl-player-stats-group {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.cpl-player-stats-icon {
+  width: 30px;
+  height: 30px;
+}
+
 .cpl-player-info-snake-image {
   width: 100%;
   height: auto;
@@ -338,6 +355,12 @@ input:focus {
 .abilities button.active {
   border-color: var(--color-border-input);
   box-shadow: 0 0 0 3px var(--color-border-input-shadow);
+}
+
+.cpl-code-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
 }
 
 .cpl-map-preview-container {
