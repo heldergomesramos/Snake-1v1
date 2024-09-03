@@ -1,10 +1,12 @@
 using api.Dtos.Lobby;
 using api.Dtos.Player;
+using api.Hubs;
 using api.Mappers;
 using api.Models;
 using api.Services;
 using api.Singletons;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace api.Controllers
 {
@@ -14,12 +16,14 @@ namespace api.Controllers
     {
         private readonly IPlayerService _playerService;
         private readonly ILogger<LobbyController> _logger;
+        private readonly IHubContext<LobbyHub> _hubContext;
 
         // Constructor to inject ILogger
-        public LobbyController(ILogger<LobbyController> logger, IPlayerService playerService)
+        public LobbyController(ILogger<LobbyController> logger, IPlayerService playerService, IHubContext<LobbyHub> hubContext)
         {
             _logger = logger;
             _playerService = playerService;
+            _hubContext = hubContext;
         }
 
         [HttpGet("all")]
@@ -66,7 +70,7 @@ namespace api.Controllers
             if (player.LobbyId != string.Empty)
                 return Conflict(new { status = "error", message = "Player is already in a lobby." });
 
-            PrivateLobby? lobbyToReturn = LobbyManager.CreatePrivateLobby(player);
+            PrivateLobby? lobbyToReturn = await LobbyManager.CreatePrivateLobby(player, _hubContext);
             if (lobbyToReturn == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to create lobby. Please try again later." });
 
@@ -100,7 +104,7 @@ namespace api.Controllers
             if (player.LobbyId != string.Empty)
                 return Conflict(new { status = "error", message = "Player is already in a lobby." });
 
-            PrivateLobby? lobbyToReturn = LobbyManager.JoinPrivateLobby(player, dto.LobbyCode);
+            PrivateLobby? lobbyToReturn = await LobbyManager.JoinPrivateLobby(player, dto.LobbyCode, _hubContext);
             if (lobbyToReturn == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to join lobby. Please try again later." });
 

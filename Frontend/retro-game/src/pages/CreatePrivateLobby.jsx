@@ -1,5 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { HubConnectionBuilder } from "@microsoft/signalr";
+import { BASE_URL } from "../constants";
 
 import greenWormFull from "../assets/images/GreenWormFull.png";
 import redWormFull from "../assets/images/RedWormFull.png";
@@ -7,11 +9,8 @@ import mapTest from "../assets/images/MapTest.png";
 import trophy from "../assets/images/Trophy.png";
 import skull from "../assets/images/Skull.png";
 
-import { PlayerContext } from "../context/PlayerContext";
-
 export default function CreatePrivateLobby() {
-  const { playerData, setPlayerData } = useContext(PlayerContext);
-  const [mapType, setMapType] = useState("Forest");
+  const [connection, setConnection] = useState(null);
   const [activeAbility, setActiveAbility] = useState(null);
   const [mapSettings, setMapSettings] = useState({
     height: 20,
@@ -21,14 +20,69 @@ export default function CreatePrivateLobby() {
     borders: false,
     specials: true,
   });
+  const [connectionState, setConnectionState] = useState("Disconnected");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const location = useLocation();
   const lobby = location.state?.lobby.lobby;
 
   useEffect(() => {
+    const newConnection = new HubConnectionBuilder()
+      .withUrl(BASE_URL + "/lobbyHub")
+      .withAutomaticReconnect()
+      .build();
+
+    setConnection(newConnection);
+
+    newConnection.onclose((error) => {
+      setConnectionState("Disconnected");
+      console.error("SignalR connection closed:", error);
+    });
+
+    newConnection.onreconnecting((error) => {
+      setConnectionState("Reconnecting");
+      console.log("SignalR reconnecting:", error);
+    });
+
+    newConnection.onreconnected(() => {
+      setConnectionState("Connected");
+      console.log("SignalR reconnected");
+    });
+
+    newConnection
+      .start()
+      .then(() => {
+        setConnectionState("Connected");
+        console.log("SignalR connected");
+      })
+      .catch((e) => {
+        setConnectionState("Disconnected");
+        console.error("SignalR connection failed:", e);
+        setErrorMessage("Failed to connect to the SignalR hub.");
+      });
+
+    return () => {
+      if (newConnection) {
+        newConnection.stop();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (connection) {
+      connection.on("LobbyUpdated", (updatedLobbyData) => {
+        console.log("Settings updated:", updatedLobbyData);
+        setMapSettings(updatedLobbyData.gameSettings);
+      });
+    }
+  }, [connection]);
+
+  useEffect(() => {
     if (!lobby) {
       console.log("Lobby data is not present");
-    } else console.log("Lobby Id: " + lobby.lobbyId);
+    } else {
+      console.log("Lobby Id: " + lobby.lobbyId);
+    }
   }, [lobby]);
 
   const handleAbilityClick = (ability) => {
@@ -43,10 +97,6 @@ export default function CreatePrivateLobby() {
     });
   };
 
-  const handleMapTypeChange = (direction) => {
-    // Update map type based on direction (left or right)
-  };
-
   const handleSubmit = () => {
     // Start game logic
   };
@@ -58,7 +108,7 @@ export default function CreatePrivateLobby() {
           <div>
             <p className="title gradient-text">{lobby.player1.username}</p>
           </div>
-          <div class="cpl-player-stats">
+          <div className="cpl-player-stats">
             <div className="cpl-player-stats-group">
               <img
                 src={trophy}
@@ -126,7 +176,7 @@ export default function CreatePrivateLobby() {
               <div>
                 <p className="title gradient-text">{lobby.player2.username}</p>
               </div>
-              <div class="cpl-player-stats">
+              <div className="cpl-player-stats">
                 <div className="cpl-player-stats-group">
                   <img
                     src={trophy}

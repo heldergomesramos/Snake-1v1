@@ -1,32 +1,89 @@
-import React, { useEffect, useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
 
 export default function JoinPrivateLobby() {
-  const [lobby, setLobby] = useState(null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
-  const { playerData, setPlayerData } = useContext(PlayerContext);
+  const [loading, setLoading] = useState(false);
+  const [code, setCode] = useState("");
+  const { playerData } = useContext(PlayerContext);
+  const navigate = useNavigate();
+
+  const handleJoin = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const endpoint = `${BASE_URL}/api/lobby/join-private-lobby`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          playerId: playerData.playerId,
+          lobbyCode: code,
+        }),
+      });
+
+      setLoading(false);
+
+      if (response.ok) {
+        const lobby = await response.json();
+        navigate("/create-private-lobby", { state: { lobby } });
+      } else {
+        const errorData = await response.json();
+        const errorMessage = errorData.message || "An error occurred";
+        console.log(errorMessage);
+
+        switch (response.status) {
+          case 400:
+            setError("Invalid request, please check your data");
+            break;
+          case 401:
+            setError("Unauthorized, please log in");
+            break;
+          case 403:
+            setError("Forbidden, you do not have permission");
+            break;
+          case 409:
+            setError("Conflict, possibly the lobby is full");
+            break;
+          case 500:
+            setError("Server error, please try again later");
+            break;
+          default:
+            setError("An unexpected error occurred, please try again");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Failed to connect to the server.");
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="container-center">
       <p className="title gradient-text title-section">Join Private Game</p>
-      <form>
+      <form onSubmit={handleJoin}>
         <input
           type="text"
-          //value={username}
-          //onChange={(e) => setUsername(e.target.value)}
           placeholder="6 digit code"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
           required
         />
         <div className="buttons-login">
           <button
             type="submit"
             className="button-default button-height-less"
-            //onClick={() => setActionType("login")}
+            disabled={loading}
           >
-            Join
+            {loading ? "Joining..." : "Join"}
           </button>
         </div>
       </form>

@@ -1,4 +1,5 @@
 using api.Data;
+using api.Hubs;
 using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPlayerService, PlayerService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddSignalR();
 
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
 {
@@ -46,12 +48,12 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin",
         builder => builder.WithOrigins("http://localhost:5173")
                           .AllowAnyMethod()
-                          .AllowAnyHeader());
+                          .AllowAnyHeader()
+                          .AllowCredentials());
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -65,4 +67,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<LobbyHub>("/lobbyHub");
 app.Run();
