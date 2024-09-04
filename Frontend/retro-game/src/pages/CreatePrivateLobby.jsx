@@ -14,13 +14,15 @@ import skull from "../assets/images/Skull.png";
 export default function CreatePrivateLobby() {
   const [activeAbility, setActiveAbility] = useState(null);
   const [mapSettings, setMapSettings] = useState({
-    height: 20,
-    width: 20,
     speed: 2,
-    timeLimit: 180,
+    width: 20,
+    height: 20,
+    time: 180,
     borders: false,
-    specials: true,
+    abilities: true,
+    map: 0,
   });
+
   const [errorMessage, setErrorMessage] = useState("");
   const { playerData } = useContext(PlayerContext);
   const { connection } = useSignalR();
@@ -52,11 +54,22 @@ export default function CreatePrivateLobby() {
   };
 
   const handleMapSettingChange = (e) => {
-    setMapSettings({
+    const updatedSettings = {
       ...mapSettings,
       [e.target.name]:
         e.target.type === "checkbox" ? e.target.checked : e.target.value,
-    });
+    };
+
+    setMapSettings(updatedSettings);
+
+    if (connection) {
+      console.log(
+        "New Updated Settings Sent Height: " + updatedSettings.height
+      );
+      connection
+        .invoke("UpdateLobbySettings", lobby.lobbyId, updatedSettings)
+        .catch((err) => console.error(err));
+    }
   };
 
   const handleSubmit = () => {

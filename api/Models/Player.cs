@@ -17,19 +17,13 @@ namespace api.Models
         public string LobbyId { get; set; } = string.Empty;
         public string GameId { get; set; } = string.Empty;
 
-        // Default constructor required by EF Core
-        public Player()
-        {
-
-        }
+        public Player() { }
 
         public static Player Guest()
         {
             return new Player()
             {
-                //PlayerId = Guid.NewGuid().ToString(),
                 UserName = string.Concat("Guest_", Guid.NewGuid().ToString().AsSpan(0, 4)),
-                //Password = string.Empty,
                 Wins = 0,
                 Losses = 0,
                 Color = 0,

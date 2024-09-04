@@ -135,5 +135,16 @@ namespace api.Singletons
                 return false;
             return lobby != null && ((lobby.Player1 != null && lobby.Player1.Id == playerId) || (lobby.Player2 != null && lobby.Player2.Id == playerId));
         }
+
+        public static PrivateLobbyResponseDto? UpdateLobbySettings(string lobbyId, GameSettings newSettings)
+        {
+            Console.WriteLine("Inside LobbyManager.UpdateLobbySettings()");
+            var lobby = GetPrivateLobbyById(lobbyId);
+            if (lobby == null)
+                return null;
+
+            lobby.GameSettings = newSettings;
+            return LobbyMappers.ToResponseDto(lobby);
+        }
     }
 }

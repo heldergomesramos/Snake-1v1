@@ -1,5 +1,8 @@
 using api.Dtos.Lobby;
+using api.Models;
+using api.Singletons;
 using Microsoft.AspNetCore.SignalR;
+using System.Text.Json;
 
 namespace api.Hubs
 {
@@ -44,6 +47,21 @@ namespace api.Hubs
             Console.WriteLine($"\nPlayer {playerId} disconnected\n");
             await base.OnDisconnectedAsync(exception);
         }
+
+        public async Task UpdateLobbySettings(string lobbyId, object newSettings)
+        {
+            Console.WriteLine("\n\nReceived UPDATE LOBBY SETTINGS for lobby: " + lobbyId);
+            var newGameSettings = GameSettings.ObjectToGameSettings(newSettings);
+            if (newGameSettings == null)
+                return;
+            var updatedLobby = LobbyManager.UpdateLobbySettings(lobbyId, newGameSettings);
+
+            if (updatedLobby != null)
+                await Clients.Group(lobbyId).SendAsync("LobbyUpdated", updatedLobby);
+        }
+
+
+        /* Static Methods */
 
         public static async Task AddPlayerToLobby(string playerId, string lobbyId, object lobbyDto, IHubContext<LobbyHub> hubContext)
         {
