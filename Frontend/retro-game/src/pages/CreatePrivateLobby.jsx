@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { HubConnectionBuilder } from "@microsoft/signalr";
 import { BASE_URL } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
+import { useSignalR } from "../context/SignalRContext";
 
 import greenWormFull from "../assets/images/GreenWormFull.png";
 import redWormFull from "../assets/images/RedWormFull.png";
@@ -11,7 +12,6 @@ import trophy from "../assets/images/Trophy.png";
 import skull from "../assets/images/Skull.png";
 
 export default function CreatePrivateLobby() {
-  const [connection, setConnection] = useState(null);
   const [activeAbility, setActiveAbility] = useState(null);
   const [mapSettings, setMapSettings] = useState({
     height: 20,
@@ -21,60 +21,19 @@ export default function CreatePrivateLobby() {
     borders: false,
     specials: true,
   });
-  const [connectionState, setConnectionState] = useState("Disconnected");
   const [errorMessage, setErrorMessage] = useState("");
-  const { playerData, setPlayerData } = useContext(PlayerContext);
+  const { playerData } = useContext(PlayerContext);
+  const { connection } = useSignalR();
 
   const location = useLocation();
-  const lobby = location.state?.lobby.lobby;
-
-  useEffect(() => {
-    console.log("Log:" + playerData.playerId);
-    const newConnection = new HubConnectionBuilder()
-      .withUrl(`${BASE_URL}/lobbyHub?playerId=${playerData.playerId}`)
-      .withAutomaticReconnect()
-      .build();
-
-    setConnection(newConnection);
-
-    newConnection.onclose((error) => {
-      setConnectionState("Disconnected");
-      console.error("SignalR connection closed:", error);
-    });
-
-    newConnection.onreconnecting((error) => {
-      setConnectionState("Reconnecting");
-      console.log("SignalR reconnecting:", error);
-    });
-
-    newConnection.onreconnected(() => {
-      setConnectionState("Connected");
-      console.log("SignalR reconnected");
-    });
-
-    newConnection
-      .start()
-      .then(() => {
-        setConnectionState("Connected");
-        console.log("SignalR connected");
-      })
-      .catch((e) => {
-        setConnectionState("Disconnected");
-        console.error("SignalR connection failed:", e);
-        setErrorMessage("Failed to connect to the SignalR hub.");
-      });
-
-    return () => {
-      if (newConnection) {
-        newConnection.stop();
-      }
-    };
-  }, []);
+  const initialLobby = location.state?.lobby.lobby;
+  const [lobby, setLobby] = useState(initialLobby);
 
   useEffect(() => {
     if (connection) {
       connection.on("LobbyUpdated", (updatedLobbyData) => {
-        console.log("Settings updated:", updatedLobbyData);
+        console.log("Lobby Updated:", updatedLobbyData);
+        setLobby(updatedLobbyData);
         setMapSettings(updatedLobbyData.gameSettings);
       });
     }
