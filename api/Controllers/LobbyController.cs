@@ -18,7 +18,6 @@ namespace api.Controllers
         private readonly ILogger<LobbyController> _logger;
         private readonly IHubContext<LobbyHub> _hubContext;
 
-        // Constructor to inject ILogger
         public LobbyController(ILogger<LobbyController> logger, IPlayerService playerService, IHubContext<LobbyHub> hubContext)
         {
             _logger = logger;
@@ -45,15 +44,15 @@ namespace api.Controllers
         [HttpPost("join-public-lobby")]
         public IActionResult JoinPublicLobby([FromBody] PlayerRegisterResponseDto dto)
         {
-            var _lobbyToReturn = LobbyManager.JoinPublicLobby(dto);
+            var lobbyToReturn = LobbyManager.JoinPublicLobby(dto);
 
-            if (_lobbyToReturn == null)
+            if (lobbyToReturn == null)
                 return BadRequest();
 
             return Ok(new
             {
                 status = "joined_lobby",
-                lobby = _lobbyToReturn
+                lobby = lobbyToReturn
             });
         }
 
@@ -71,18 +70,12 @@ namespace api.Controllers
                 return Conflict(new { status = "error", message = "Player is already in a lobby." });
 
             Console.WriteLine("\nCreate Private Lobby from: " + player.UserName);
-            PrivateLobbyResponseDto? lobbyToReturn = await LobbyManager.CreatePrivateLobby(player, _hubContext);
+            var lobbyToReturn = await LobbyManager.CreatePrivateLobby(player, _hubContext);
             if (lobbyToReturn == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to create lobby. Please try again later." });
-            try
-            {
-                player.LobbyId = lobbyToReturn.LobbyId;
-                await _playerService.UpdatePlayerAsync(player);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = $"Failed to update player: {ex.Message}" });
-            }
+
+            player.LobbyId = lobbyToReturn.LobbyId;
+            await _playerService.UpdatePlayerAsync(player);
 
             return Ok(new
             {
@@ -104,19 +97,12 @@ namespace api.Controllers
             if (player.LobbyId != string.Empty)
                 return Conflict(new { status = "error", message = "Player is already in a lobby." });
 
-            PrivateLobbyResponseDto? lobbyToReturn = await LobbyManager.JoinPrivateLobby(player, dto.LobbyCode, _hubContext);
+            var lobbyToReturn = await LobbyManager.JoinPrivateLobby(player, dto.LobbyCode, _hubContext);
             if (lobbyToReturn == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to join lobby. Please try again later." });
 
-            try
-            {
-                player.LobbyId = lobbyToReturn.LobbyId;
-                await _playerService.UpdatePlayerAsync(player);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = $"Failed to update player: {ex.Message}" });
-            }
+            player.LobbyId = lobbyToReturn.LobbyId;
+            await _playerService.UpdatePlayerAsync(player);
 
             return Ok(new
             {
@@ -141,15 +127,9 @@ namespace api.Controllers
 
             await LobbyManager.LeavePrivateLobby(player.Id, player.LobbyId, _hubContext);
 
-            try
-            {
-                player.LobbyId = string.Empty;
-                await _playerService.UpdatePlayerAsync(player);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = $"Failed to update player: {ex.Message}" });
-            }
+            player.LobbyId = string.Empty;
+            await _playerService.UpdatePlayerAsync(player);
+
             Console.WriteLine("Everything good, return left_lobby status.");
             return Ok(new
             {

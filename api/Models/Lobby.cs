@@ -8,6 +8,7 @@ namespace api.Models
         public bool GameStarted { get; set; } = false;
         public GameSettings? GameSettings { get; set; }
         public bool IsFull => Player1 != null && Player2 != null;
+        public bool IsEmpty => Player1 == null && Player2 == null;
 
         public Lobby() { }
 
