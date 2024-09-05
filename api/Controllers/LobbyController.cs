@@ -70,17 +70,13 @@ namespace api.Controllers
             if (player.LobbyId != string.Empty)
                 return Conflict(new { status = "error", message = "Player is already in a lobby." });
 
-            Console.WriteLine("\nCreate Private Lobby\n");
-            Console.WriteLine("Player: " + player.UserName);
-            Console.WriteLine("Context: " + _hubContext);
+            Console.WriteLine("\nCreate Private Lobby from: " + player.UserName);
             PrivateLobbyResponseDto? lobbyToReturn = await LobbyManager.CreatePrivateLobby(player, _hubContext);
-            Console.WriteLine("lobbyToReturn below");
-            Console.WriteLine("lobbyToReturn: " + lobbyToReturn);
             if (lobbyToReturn == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to create lobby. Please try again later." });
             try
             {
-                player.LobbyId = lobbyToReturn.LobbyId; /* Duplicated line of code | Lobby Manager already does this */
+                player.LobbyId = lobbyToReturn.LobbyId;
                 await _playerService.UpdatePlayerAsync(player);
             }
             catch (Exception ex)
@@ -126,6 +122,38 @@ namespace api.Controllers
             {
                 status = "joined_lobby",
                 lobby = lobbyToReturn
+            });
+        }
+
+        [HttpPost("leave-private-lobby")]
+        public async Task<IActionResult> LeavePrivateLobby([FromBody] PlayerIdDto dto)
+        {
+            Console.WriteLine("\nLeave Private Lobby from: " + dto.PlayerId);
+            if (dto == null)
+                return BadRequest(new { status = "error", message = "Request body cannot be null." });
+            if (string.IsNullOrEmpty(dto.PlayerId))
+                return BadRequest(new { status = "error", message = "Player Id is required." });
+            var player = await _playerService.GetPlayerByIdAsync(dto.PlayerId);
+            if (player == null)
+                return NotFound(new { status = "error", message = $"Player with id '{dto.PlayerId}' not found." });
+            if (player.LobbyId == string.Empty)
+                return Conflict(new { status = "error", message = "Player is not in a lobby." });
+
+            await LobbyManager.LeavePrivateLobby(player.Id, player.LobbyId, _hubContext);
+
+            try
+            {
+                player.LobbyId = string.Empty;
+                await _playerService.UpdatePlayerAsync(player);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = $"Failed to update player: {ex.Message}" });
+            }
+            Console.WriteLine("Everything good, return left_lobby status.");
+            return Ok(new
+            {
+                status = "left_lobby",
             });
         }
 

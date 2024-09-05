@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { HubConnectionBuilder } from "@microsoft/signalr";
 import { BASE_URL } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
@@ -13,17 +13,9 @@ import skull from "../assets/images/Skull.png";
 
 export default function CreatePrivateLobby() {
   const [activeAbility, setActiveAbility] = useState(null);
-  const [mapSettings, setMapSettings] = useState({
-    speed: 2,
-    width: 20,
-    height: 20,
-    time: 180,
-    borders: false,
-    abilities: true,
-    map: 0,
-  });
-
-  const [errorMessage, setErrorMessage] = useState("");
+  const [mapSettings, setMapSettings] = useState();
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
   const { playerData } = useContext(PlayerContext);
   const { connection } = useSignalR();
 
@@ -60,19 +52,74 @@ export default function CreatePrivateLobby() {
         e.target.type === "checkbox" ? e.target.checked : e.target.value,
     };
 
+    console.log(
+      "MapSettings before: " + mapSettings + " | " + JSON.stringify(mapSettings)
+    );
     setMapSettings(updatedSettings);
+    console.log(
+      "MapSettings after: " + mapSettings + " | " + JSON.stringify(mapSettings)
+    );
+    console.log("Updated Settings: " + JSON.stringify(updatedSettings));
 
     if (connection) {
-      console.log(
-        "New Updated Settings Sent Height: " + updatedSettings.height
-      );
       connection
-        .invoke("UpdateLobbySettings", lobby.lobbyId, updatedSettings)
+        .invoke("UpdateLobbySettings", lobby.lobbyId, mapSettings)
         .catch((err) => console.error(err));
     }
   };
 
-  const handleSubmit = () => {
+  const handleLeave = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/lobby/leave-private-lobby`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ playerId: playerData.playerId }),
+        }
+      );
+
+      if (response.ok) {
+        console.log("OK");
+        navigate("/main-menu");
+      } else {
+        console.log("NOT OK");
+        const errorData = await response.json();
+        const errorMessage = errorData.message;
+        console.log(errorMessage);
+
+        switch (response.status) {
+          case 400:
+            setError("Invalid request, please check your data");
+            break;
+          case 401:
+            setError("Wrong Credentials");
+            break;
+          case 403:
+            setError("Forbidden, you do not have permission");
+            break;
+          case 409:
+            setError("Username already exists");
+            break;
+          case 500:
+            setError("Server error, please try again later");
+            break;
+          default:
+            setError("An unexpected error occurred, please try again");
+        }
+      }
+    } catch (err) {
+      console.log(err);
+      setError("Failed to connect to the server.");
+    }
+  };
+
+  const handleStart = () => {
     // Start game logic
   };
 
@@ -80,46 +127,60 @@ export default function CreatePrivateLobby() {
     <div className="cpl-container">
       <div className="cpl-top-grid border-gradient-normal">
         <div className="cpl-player-info cpl-player-info-left border-gradient-normal">
-          <div>
-            <p className="title gradient-text">{lobby.player1.username}</p>
-          </div>
-          <div className="cpl-player-stats">
-            <div className="cpl-player-stats-group">
-              <img
-                src={trophy}
-                alt="Wins"
-                className="pixel-art cpl-player-stats-icon"
-              />
-              <p className="text-color-green">{lobby.player1.wins}</p>
+          {lobby.player1 == null ? (
+            <div>
+              <div>
+                <p className="title gradient-text">Invite</p>
+              </div>
+              <div className="cpl-code-container">
+                <p className="text-color-weaker">Code: </p>
+                <p>{lobby.code}</p>
+              </div>
             </div>
-            <div className="cpl-player-stats-group">
+          ) : (
+            <div className="player-info">
+              <div>
+                <p className="title gradient-text">{lobby.player1.username}</p>
+              </div>
+              <div className="cpl-player-stats">
+                <div className="cpl-player-stats-group">
+                  <img
+                    src={trophy}
+                    alt="Wins"
+                    className="pixel-art cpl-player-stats-icon"
+                  />
+                  <p className="text-color-green">{lobby.player1.wins}</p>
+                </div>
+                <div className="cpl-player-stats-group">
+                  <img
+                    src={skull}
+                    alt="Losses"
+                    className="pixel-art cpl-player-stats-icon"
+                  />
+                  <p className="text-color-red">{lobby.player1.losses}</p>
+                </div>
+              </div>
               <img
-                src={skull}
-                alt="Losses"
-                className="pixel-art cpl-player-stats-icon"
+                src={greenWormFull}
+                alt="Player 1 Snake"
+                className="cpl-player-info-snake-image pixel-art flip-horizontal"
               />
-              <p className="text-color-red">{lobby.player1.losses}</p>
+              <div className="abilities">
+                <button
+                  onClick={() => handleAbilityClick(1)}
+                  className={activeAbility === 1 ? "active" : ""}
+                ></button>
+                <button
+                  onClick={() => handleAbilityClick(2)}
+                  className={activeAbility === 2 ? "active" : ""}
+                ></button>
+                <button
+                  onClick={() => handleAbilityClick(3)}
+                  className={activeAbility === 3 ? "active" : ""}
+                ></button>
+              </div>
             </div>
-          </div>
-          <img
-            src={greenWormFull}
-            alt="Player 1 Snake"
-            className="cpl-player-info-snake-image pixel-art"
-          />
-          <div className="abilities">
-            <button
-              onClick={() => handleAbilityClick(1)}
-              className={activeAbility === 1 ? "active" : ""}
-            ></button>
-            <button
-              onClick={() => handleAbilityClick(2)}
-              className={activeAbility === 2 ? "active" : ""}
-            ></button>
-            <button
-              onClick={() => handleAbilityClick(3)}
-              className={activeAbility === 3 ? "active" : ""}
-            ></button>
-          </div>
+          )}
         </div>
 
         <div className="cpl-map-preview-container">
@@ -158,7 +219,7 @@ export default function CreatePrivateLobby() {
                     alt="Wins"
                     className="pixel-art cpl-player-stats-icon"
                   />
-                  <p className="text-color-green">{lobby.player1.wins}</p>
+                  <p className="text-color-green">{lobby.player2.wins}</p>
                 </div>
                 <div className="cpl-player-stats-group">
                   <img
@@ -166,7 +227,7 @@ export default function CreatePrivateLobby() {
                     alt="Losses"
                     className="pixel-art cpl-player-stats-icon"
                   />
-                  <p className="text-color-red">{lobby.player1.losses}</p>
+                  <p className="text-color-red">{lobby.player2.losses}</p>
                 </div>
               </div>
               <img
@@ -257,16 +318,19 @@ export default function CreatePrivateLobby() {
       <div className="buttons-login-container container-center">
         <button
           className="button-default button-height-less"
-          onClick={handleSubmit}
+          onClick={handleLeave}
         >
           Leave
         </button>
         <button
           className="button-default button-height-less"
-          onClick={handleSubmit}
+          onClick={handleStart}
         >
           Start
         </button>
+      </div>
+      <div className="container-center">
+        {error && <p className="error-text">{error}</p>}
       </div>
     </div>
   );

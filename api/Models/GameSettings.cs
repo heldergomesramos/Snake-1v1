@@ -21,7 +21,7 @@ namespace api.Models
             if (settings is JsonElement jsonElement)
             {
                 var gameSettings = new GameSettings();
-
+                Console.WriteLine("Constructing Game Settings");
                 if (jsonElement.TryGetProperty("speed", out var speedProperty) && speedProperty.TryGetInt32(out var speed))
                     gameSettings.Speed = speed;
 
@@ -30,11 +30,34 @@ namespace api.Models
 
                 if (jsonElement.TryGetProperty("height", out var heightProperty))
                 {
-                    if (heightProperty.ValueKind == JsonValueKind.String && int.TryParse(heightProperty.GetString(), out var heightFromString))
-                        gameSettings.Height = heightFromString;
-                    else if (heightProperty.TryGetInt32(out var height))
-                        gameSettings.Height = height;
+                    //Console.WriteLine(1);
+                    //if (heightProperty.TryGetInt32(out var height)) ;
+                    //Console.WriteLine(heightProperty == null)
+                    //if (heightProperty.TryGetInt32(out var height)) ;
+                    //Console.WriteLine(2);
+                    //gameSettings.Height = height;
+                    //Console.WriteLine(3);
                 }
+
+
+                // if (jsonElement.TryGetProperty("height", out var heightProperty))
+                // {
+                //     Console.WriteLine("Height 1");
+                //     if (heightProperty.ValueKind == JsonValueKind.String && int.TryParse(heightProperty.GetString(), out var heightFromString))
+                //     {
+                //         Console.WriteLine("Height 2");
+                //         gameSettings.Height = heightFromString;
+                //         Console.WriteLine("Height 3");
+                //     }
+
+                //     else if (heightProperty.TryGetInt32(out var height))
+                //     {
+                //         Console.WriteLine("Height 4");
+                //         gameSettings.Height = height;
+                //         Console.WriteLine("Height 5");
+                //     }
+                //     Console.WriteLine("Height 6");
+                // }
 
                 if (jsonElement.TryGetProperty("time", out var timeProperty) && timeProperty.TryGetInt32(out var time))
                     gameSettings.Time = time;

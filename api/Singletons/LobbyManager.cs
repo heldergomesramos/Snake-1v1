@@ -93,9 +93,8 @@ namespace api.Singletons
             player.LobbyId = newLobby.LobbyId;
             var lobbyDto = LobbyMappers.ToResponseDto(newLobby);
 
-            Console.WriteLine("Lobby Manager before Hub call, lobbyDto: " + lobbyDto);
             await LobbyHub.AddPlayerToLobby(player.Id, lobbyDto.LobbyId, lobbyDto, hubContext);
-            Console.WriteLine("Lobby Manager after Hub call");
+
             return lobbyDto;
         }
 
@@ -111,10 +110,9 @@ namespace api.Singletons
             else
                 return null;
 
-            player.LobbyId = lobbyFound.LobbyId;
             var lobbyDto = LobbyMappers.ToResponseDto(lobbyFound);
 
-            await LobbyHub.UpdateLobby(lobbyDto.LobbyId, lobbyDto, hubContext);
+            await LobbyHub.AddPlayerToLobby(player.Id, lobbyDto.LobbyId, lobbyDto, hubContext);
 
             return lobbyDto;
         }
@@ -129,6 +127,28 @@ namespace api.Singletons
             }
         }
 
+        public static async Task LeavePrivateLobby(string playerId, string lobbyId, IHubContext<LobbyHub> hubContext)
+        {
+            var lobbyFound = GetPrivateLobbyById(lobbyId);
+            if (lobbyFound == null)
+                return;
+            if (lobbyFound.Player1 != null && lobbyFound.Player1.Id == playerId)
+                lobbyFound.Player1 = null;
+            else if (lobbyFound.Player2 != null && lobbyFound.Player2.Id == playerId)
+                lobbyFound.Player2 = null;
+            else
+                return;
+
+            PrivateLobbyResponseDto? lobbyUpdated = LobbyMappers.ToResponseDto(lobbyFound);
+
+            if (lobbyFound.Player1 == null && lobbyFound.Player2 == null)
+            {
+                _privateLobbies.Remove(lobbyFound);
+                lobbyUpdated = null;
+            }
+            await LobbyHub.RemovePlayerFromLobby(playerId, lobbyId, lobbyUpdated, hubContext);
+        }
+
         public static bool IsPlayerInLobby(string playerId, Lobby lobby)
         {
             if (lobby == null)
@@ -138,7 +158,6 @@ namespace api.Singletons
 
         public static PrivateLobbyResponseDto? UpdateLobbySettings(string lobbyId, GameSettings newSettings)
         {
-            Console.WriteLine("Inside LobbyManager.UpdateLobbySettings()");
             var lobby = GetPrivateLobbyById(lobbyId);
             if (lobby == null)
                 return null;
