@@ -13,7 +13,6 @@ import skull from "../assets/images/Skull.png";
 
 export default function CreatePrivateLobby() {
   const [activeAbility, setActiveAbility] = useState(null);
-  const [mapSettings, setMapSettings] = useState();
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const { playerData } = useContext(PlayerContext);
@@ -22,6 +21,8 @@ export default function CreatePrivateLobby() {
   const location = useLocation();
   const initialLobby = location.state?.lobby.lobby;
   const [lobby, setLobby] = useState(initialLobby);
+  const [mapSettings, setMapSettings] = useState(lobby.gameSettings);
+  const [tempMapSettings, setTempMapSettings] = useState(mapSettings);
 
   useEffect(() => {
     if (connection) {
@@ -29,6 +30,7 @@ export default function CreatePrivateLobby() {
         console.log("Lobby Updated:", updatedLobbyData);
         setLobby(updatedLobbyData);
         setMapSettings(updatedLobbyData.gameSettings);
+        setTempMapSettings(updatedLobbyData.gameSettings);
       });
     }
   }, [connection]);
@@ -45,28 +47,57 @@ export default function CreatePrivateLobby() {
     setActiveAbility(ability);
   };
 
-  const handleMapSettingChange = (e) => {
-    const updatedSettings = {
-      ...mapSettings,
-      [e.target.name]:
-        e.target.type === "checkbox" ? e.target.checked : e.target.value,
-    };
+  const handleSettingChange = (e) => {
+    const { name, value, type, checked } = e.target;
 
-    console.log(
-      "MapSettings before: " + mapSettings + " | " + JSON.stringify(mapSettings)
-    );
-    setMapSettings(updatedSettings);
-    console.log(
-      "MapSettings after: " + mapSettings + " | " + JSON.stringify(mapSettings)
-    );
-    console.log("Updated Settings: " + JSON.stringify(updatedSettings));
+    if (type === "checkbox") {
+      const updatedSettings = {
+        ...tempMapSettings,
+        [name]: checked,
+      };
 
+      setMapSettings(updatedSettings);
+
+      if (connection) {
+        connection
+          .invoke("UpdateLobbySettings", lobby.lobbyId, updatedSettings)
+          .catch((err) => console.error(err));
+      }
+    } else {
+      setTempMapSettings({
+        ...tempMapSettings,
+        [name]: value,
+      });
+    }
+  };
+
+  const handleSettingBlur = () => {
+    setMapSettings(tempMapSettings); // Update the actual map settings state
     if (connection) {
       connection
-        .invoke("UpdateLobbySettings", lobby.lobbyId, mapSettings)
+        .invoke("UpdateLobbySettings", lobby.lobbyId, tempMapSettings)
         .catch((err) => console.error(err));
     }
   };
+
+  // const handleMapSettingChange = (e) => {
+  //   const updatedSettings = {
+  //     ...mapSettings,
+  //     [e.target.name]:
+  //       e.target.type === "checkbox" ? e.target.checked : e.target.value,
+  //   };
+
+  //   console.log("MapSettings before: " + JSON.stringify(mapSettings));
+  //   setMapSettings(updatedSettings);
+  //   console.log("MapSettings after: " + JSON.stringify(mapSettings));
+  //   console.log("Updated Settings: " + JSON.stringify(updatedSettings));
+
+  //   if (connection) {
+  //     connection
+  //       .invoke("UpdateLobbySettings", lobby.lobbyId, updatedSettings)
+  //       .catch((err) => console.error(err));
+  //   }
+  // };
 
   const handleLeave = async (e) => {
     e.preventDefault();
@@ -160,11 +191,13 @@ export default function CreatePrivateLobby() {
                   <p className="text-color-red">{lobby.player1.losses}</p>
                 </div>
               </div>
-              <img
-                src={greenWormFull}
-                alt="Player 1 Snake"
-                className="cpl-player-info-snake-image pixel-art flip-horizontal"
-              />
+              <div className="container-center">
+                <img
+                  src={greenWormFull}
+                  alt="Player 1 Snake"
+                  className="cpl-player-info-snake-image pixel-art"
+                />
+              </div>
               <div className="abilities">
                 <button
                   onClick={() => handleAbilityClick(1)}
@@ -230,11 +263,13 @@ export default function CreatePrivateLobby() {
                   <p className="text-color-red">{lobby.player2.losses}</p>
                 </div>
               </div>
-              <img
-                src={redWormFull}
-                alt="Player 2 Snake"
-                className="cpl-player-info-snake-image pixel-art flip-horizontal"
-              />
+              <div className="container-center">
+                <img
+                  src={redWormFull}
+                  alt="Player 2 Snake"
+                  className="cpl-player-info-snake-image pixel-art flip-horizontal"
+                />
+              </div>
               <div className="abilities">
                 <button
                   onClick={() => handleAbilityClick(1)}
@@ -254,66 +289,74 @@ export default function CreatePrivateLobby() {
         </div>
       </div>
       <div className="cpl-map-settings border-gradient-normal">
-        <label className="cpl-label">
-          Map Height
+        <div className="cpl-setting-container">
+          <p className="cpl-label">Map Height</p>
           <input
             className="cpl-input"
             type="number"
             name="height"
-            value={lobby.gameSettings.height}
-            onChange={handleMapSettingChange}
+            value={tempMapSettings.height}
+            onChange={handleSettingChange}
+            onBlur={handleSettingBlur}
           />
-        </label>
-        <label className="cpl-label">
-          Time Limit
+        </div>
+        <div className="cpl-setting-container">
+          <p className="cpl-label">Time Limit</p>
           <input
             className="cpl-input"
             type="number"
-            name="timeLimit"
-            value={lobby.gameSettings.time}
-            onChange={handleMapSettingChange}
+            name="time"
+            value={tempMapSettings.time}
+            onChange={handleSettingChange}
+            onBlur={handleSettingBlur}
           />
-        </label>
-        <label className="cpl-label">
-          Borders
-          <input
-            className="cpl-checkbox"
-            type="checkbox"
-            name="borders"
-            checked={lobby.gameSettings.borders}
-            onChange={handleMapSettingChange}
-          />
-        </label>
-        <label className="cpl-label">
-          Map Width
+        </div>
+        <div className="cpl-setting-container">
+          <p className="cpl-label">Enable Borders</p>
+          <div className="checkbox_wrapper">
+            <input
+              type="checkbox"
+              name="borders"
+              checked={tempMapSettings.borders}
+              onChange={handleSettingChange}
+            />
+            <label></label>
+          </div>
+        </div>
+        <div className="cpl-setting-container">
+          <p className="cpl-label">Map Width</p>
           <input
             className="cpl-input"
             type="number"
             name="width"
-            value={lobby.gameSettings.width}
-            onChange={handleMapSettingChange}
+            value={tempMapSettings.width}
+            onChange={handleSettingChange}
+            onBlur={handleSettingBlur}
           />
-        </label>
-        <label className="cpl-label">
-          Speed
+        </div>
+        <div className="cpl-setting-container">
+          <p className="cpl-label">Speed</p>
           <input
             className="cpl-input"
             type="number"
             name="speed"
-            value={lobby.gameSettings.speed}
-            onChange={handleMapSettingChange}
+            value={tempMapSettings.speed}
+            onChange={handleSettingChange}
+            onBlur={handleSettingBlur}
           />
-        </label>
-        <label className="cpl-label">
-          Abilities
-          <input
-            className="cpl-checkbox"
-            type="checkbox"
-            name="specials"
-            checked={lobby.gameSettings.abilities}
-            onChange={handleMapSettingChange}
-          />
-        </label>
+        </div>
+        <div className="cpl-setting-container">
+          <p className="cpl-label">Enable Abilities</p>
+          <div className="checkbox_wrapper">
+            <input
+              type="checkbox"
+              name="abilities"
+              checked={tempMapSettings.abilities}
+              onChange={handleSettingChange}
+            />
+            <label></label>
+          </div>
+        </div>
       </div>
       <div className="buttons-login-container container-center">
         <button

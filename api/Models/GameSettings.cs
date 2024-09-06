@@ -21,46 +21,11 @@ namespace api.Models
             if (settings is JsonElement jsonElement)
             {
                 var gameSettings = new GameSettings();
-                Console.WriteLine("Constructing Game Settings");
-                if (jsonElement.TryGetProperty("speed", out var speedProperty) && speedProperty.TryGetInt32(out var speed))
-                    gameSettings.Speed = speed;
-
-                if (jsonElement.TryGetProperty("width", out var widthProperty) && widthProperty.TryGetInt32(out var width))
-                    gameSettings.Width = width;
-
-                if (jsonElement.TryGetProperty("height", out var heightProperty))
-                {
-                    //Console.WriteLine(1);
-                    //if (heightProperty.TryGetInt32(out var height)) ;
-                    //Console.WriteLine(heightProperty == null)
-                    //if (heightProperty.TryGetInt32(out var height)) ;
-                    //Console.WriteLine(2);
-                    //gameSettings.Height = height;
-                    //Console.WriteLine(3);
-                }
-
-
-                // if (jsonElement.TryGetProperty("height", out var heightProperty))
-                // {
-                //     Console.WriteLine("Height 1");
-                //     if (heightProperty.ValueKind == JsonValueKind.String && int.TryParse(heightProperty.GetString(), out var heightFromString))
-                //     {
-                //         Console.WriteLine("Height 2");
-                //         gameSettings.Height = heightFromString;
-                //         Console.WriteLine("Height 3");
-                //     }
-
-                //     else if (heightProperty.TryGetInt32(out var height))
-                //     {
-                //         Console.WriteLine("Height 4");
-                //         gameSettings.Height = height;
-                //         Console.WriteLine("Height 5");
-                //     }
-                //     Console.WriteLine("Height 6");
-                // }
-
-                if (jsonElement.TryGetProperty("time", out var timeProperty) && timeProperty.TryGetInt32(out var time))
-                    gameSettings.Time = time;
+                gameSettings.Speed = ProcessGameSetting(jsonElement, "speed", gameSettings.Speed, 1, 10);
+                gameSettings.Width = ProcessGameSetting(jsonElement, "width", gameSettings.Width, 10, 50);
+                gameSettings.Height = ProcessGameSetting(jsonElement, "height", gameSettings.Height, 10, 50);
+                gameSettings.Time = ProcessGameSetting(jsonElement, "time", gameSettings.Time, 10, 999);
+                gameSettings.Map = ProcessGameSetting(jsonElement, "map", gameSettings.Map, 0, 1);
 
                 if (jsonElement.TryGetProperty("borders", out var bordersProperty) &&
                    (bordersProperty.ValueKind == JsonValueKind.True || bordersProperty.ValueKind == JsonValueKind.False))
@@ -74,9 +39,6 @@ namespace api.Models
                     gameSettings.Abilities = abilitiesProperty.GetBoolean();
                 }
 
-                if (jsonElement.TryGetProperty("map", out var mapProperty) && mapProperty.TryGetInt32(out var map))
-                    gameSettings.Map = map;
-
                 Console.WriteLine($"New GameSettings: Speed={gameSettings.Speed}, Width={gameSettings.Width}, Height={gameSettings.Height}, Time={gameSettings.Time}, Borders={gameSettings.Borders}, Abilities={gameSettings.Abilities}, Map={gameSettings.Map}");
 
                 return gameSettings;
@@ -85,5 +47,25 @@ namespace api.Models
             Console.WriteLine("Settings object is not a JsonElement.");
             return null;
         }
+
+        public static int ProcessGameSetting(JsonElement jsonElement, string propertyName, int defaultValue, int minValue, int maxValue)
+        {
+            if (jsonElement.TryGetProperty(propertyName, out var property))
+            {
+                if (property.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(property.GetString()) &&
+                    int.TryParse(property.GetString(), out var value))
+                {
+                    // Clamp the value within the allowed range
+                    return Math.Clamp(value, minValue, maxValue);
+                }
+                else if (property.ValueKind == JsonValueKind.Number && property.TryGetInt32(out var numericValue))
+                {
+                    // Handle case where the property is an actual number
+                    return Math.Clamp(numericValue, minValue, maxValue);
+                }
+            }
+            return defaultValue; // Use the default if property doesn't exist, is null, or invalid
+        }
+
     }
 }

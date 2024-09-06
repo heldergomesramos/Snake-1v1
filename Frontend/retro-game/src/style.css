@@ -13,11 +13,10 @@
   --color-text-purple: #9c27b0;
   --color-text-green: #39ff14; /* Neon green, symbolizing the toxic/poisonous theme */
   --color-border-input: #39ff14; /* Matching neon green for inputs */
-  --color-border-input-shadow: rgba(
-    57,
-    255,
+  --color-border-input-shadow: rgb(
+    130,
     20,
-    0.25
+    255
   ); /* Soft shadow for input borders */
   --color-text-title: #9c27b0; /* Deep purple, keeping in line with the snake theme */
   --color-border-gradient-1: #6aff14; /* Gradient start with neon green */
@@ -225,7 +224,7 @@ input[type="number"] {
 .button-square {
   height: 3rem;
   width: 3rem;
-  margin: 1rem;
+  margin: 0rem;
   padding: 0rem;
   display: flex;
   justify-content: center;
@@ -321,6 +320,7 @@ input[type="number"] {
 .cpl-player-stats {
   display: flex;
   flex-direction: row;
+  justify-content: center;
   gap: 1rem;
 }
 
@@ -395,7 +395,7 @@ input[type="number"] {
 }
 
 .cpl-map-name {
-  padding: 0.5rem;
+  padding: 0.2rem;
   font-size: var(--fs-600);
 }
 
@@ -410,26 +410,13 @@ input[type="number"] {
   padding-right: 20%;
 }
 
-.cpl-checkbox {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-
-  background-color: var(--color-background);
-  border: 2px solid var(--color-border-gradient-1);
-}
-
-.cpl-checkbox:checked {
-  border-color: var(--color-border-input);
-  box-shadow: 0 0 0 3px var(--color-border-input-shadow);
-}
-
-.cpl-checkbox:hover {
-  border-color: var(--color-border-input);
+.cpl-setting-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-content: center;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .cpl-label {
@@ -443,5 +430,47 @@ input[type="number"] {
 }
 
 .cpl-input {
-  width: 80px;
+  width: 60px;
+  margin-bottom: 0;
+}
+
+.cpl-checkbox {
+  display: none;
+}
+
+.checkbox_wrapper {
+  position: relative;
+  height: 48px;
+  width: 48px;
+}
+
+input[type="checkbox"] {
+  opacity: 0;
+  height: 48px;
+  width: 48px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  cursor: pointer;
+}
+
+input[type="checkbox"] + label {
+  background: url(/src/assets/images/CustomCheckbox-Off.png) no-repeat;
+  height: 48px;
+  width: 48px;
+  display: inline-block;
+  padding: 0 0 0 0px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+input[type="checkbox"]:checked + label {
+  background: url(/src/assets/images/CustomCheckbox-On.png) no-repeat;
+  height: 48px;
+  width: 48px;
+  display: inline-block;
+  padding: 0 0 0 0px;
 }
