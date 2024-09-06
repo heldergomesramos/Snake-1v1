@@ -1,15 +1,24 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { HubConnectionBuilder } from "@microsoft/signalr";
 import { BASE_URL } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
 import { useSignalR } from "../context/SignalRContext";
 
-import greenWormFull from "../assets/images/GreenWormFull.png";
-import redWormFull from "../assets/images/RedWormFull.png";
+import redSnake from "../assets/images/SnakeFull-red.png";
+import orangeSnake from "../assets/images/SnakeFull-orange.png";
+import yellowSnake from "../assets/images/SnakeFull-yellow.png";
+import greenSnake from "../assets/images/SnakeFull-green.png";
+import lightBlueSnake from "../assets/images/SnakeFull-blue-light.png";
+import darkBlueSnake from "../assets/images/SnakeFull-blue-dark.png";
+import purpleSnake from "../assets/images/SnakeFull-purple.png";
+import pinkSnake from "../assets/images/SnakeFull-pink.png";
+
 import mapTest from "../assets/images/MapTest.png";
 import trophy from "../assets/images/Trophy.png";
 import skull from "../assets/images/Skull.png";
+import palette from "../assets/images/PaletteIcon.png";
+import powerup from "../assets/images/AbilityIcon.png";
 
 export default function CreatePrivateLobby() {
   const [activeAbility, setActiveAbility] = useState(null);
@@ -23,6 +32,17 @@ export default function CreatePrivateLobby() {
   const [lobby, setLobby] = useState(initialLobby);
   const [mapSettings, setMapSettings] = useState(lobby.gameSettings);
   const [tempMapSettings, setTempMapSettings] = useState(mapSettings);
+
+  const GetSnakeSprite = {
+    0: redSnake,
+    1: orangeSnake,
+    2: yellowSnake,
+    3: greenSnake,
+    4: lightBlueSnake,
+    5: darkBlueSnake,
+    6: purpleSnake,
+    7: pinkSnake,
+  };
 
   useEffect(() => {
     if (connection) {
@@ -80,24 +100,51 @@ export default function CreatePrivateLobby() {
     }
   };
 
-  // const handleMapSettingChange = (e) => {
-  //   const updatedSettings = {
-  //     ...mapSettings,
-  //     [e.target.name]:
-  //       e.target.type === "checkbox" ? e.target.checked : e.target.value,
-  //   };
+  const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const colorMenuRef = useRef(null);
 
-  //   console.log("MapSettings before: " + JSON.stringify(mapSettings));
-  //   setMapSettings(updatedSettings);
-  //   console.log("MapSettings after: " + JSON.stringify(mapSettings));
-  //   console.log("Updated Settings: " + JSON.stringify(updatedSettings));
+  // List of colors
+  const colors = [
+    "#FF0000",
+    "#00FF00",
+    "#0000FF",
+    "#FFFF00",
+    "#FF00FF",
+    "#00FFFF",
+    "#FFA500",
+    "#A52A2A",
+  ];
 
-  //   if (connection) {
-  //     connection
-  //       .invoke("UpdateLobbySettings", lobby.lobbyId, updatedSettings)
-  //       .catch((err) => console.error(err));
-  //   }
-  // };
+  const toggleColorMenu = () => {
+    setIsColorMenuOpen(!isColorMenuOpen);
+  };
+
+  const handleColorSelect = (color) => {
+    setSelectedColor(color);
+  };
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        colorMenuRef.current &&
+        !colorMenuRef.current.contains(event.target)
+      ) {
+        setIsColorMenuOpen(false);
+      }
+    };
+
+    if (isColorMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isColorMenuOpen]);
 
   const handleLeave = async (e) => {
     e.preventDefault();
@@ -161,7 +208,7 @@ export default function CreatePrivateLobby() {
           {lobby.player1 == null ? (
             <div>
               <div>
-                <p className="title gradient-text">Invite</p>
+                <p className="cpl-player-name gradient-text">Invite</p>
               </div>
               <div className="cpl-code-container">
                 <p className="text-color-weaker">Code: </p>
@@ -171,7 +218,9 @@ export default function CreatePrivateLobby() {
           ) : (
             <div className="player-info">
               <div>
-                <p className="title gradient-text">{lobby.player1.username}</p>
+                <p className="cpl-player-name gradient-text">
+                  {lobby.player1.username}
+                </p>
               </div>
               <div className="cpl-player-stats">
                 <div className="cpl-player-stats-group">
@@ -193,24 +242,52 @@ export default function CreatePrivateLobby() {
               </div>
               <div className="container-center">
                 <img
-                  src={greenWormFull}
+                  src={GetSnakeSprite[lobby.player1.ability]}
                   alt="Player 1 Snake"
                   className="cpl-player-info-snake-image pixel-art"
                 />
               </div>
-              <div className="abilities">
-                <button
-                  onClick={() => handleAbilityClick(1)}
-                  className={activeAbility === 1 ? "active" : ""}
-                ></button>
-                <button
-                  onClick={() => handleAbilityClick(2)}
-                  className={activeAbility === 2 ? "active" : ""}
-                ></button>
-                <button
-                  onClick={() => handleAbilityClick(3)}
-                  className={activeAbility === 3 ? "active" : ""}
-                ></button>
+              <div className="container-center cpl-player-buttons-container">
+                <div className="cpl-player-pallete-container">
+                  <img
+                    src={palette}
+                    alt="Palette"
+                    className="pixel-art cpl-player-button"
+                    onClick={toggleColorMenu}
+                    style={{ cursor: "pointer" }}
+                  />
+                  {/* Conditional rendering of color menu */}
+                  {isColorMenuOpen && (
+                    <div className="color-menu-container" ref={colorMenuRef}>
+                      <div className="color-menu">
+                        {colors.map((color) => (
+                          <label
+                            key={color}
+                            className="color-button"
+                            style={{ backgroundColor: color }}
+                          >
+                            <input
+                              type="radio"
+                              name="color"
+                              value={color}
+                              checked={selectedColor === color}
+                              onChange={() => handleColorSelect(color)}
+                              style={{ display: "none" }}
+                            />
+                            {selectedColor === color && (
+                              <div className="color-selected-indicator" />
+                            )}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <img
+                  src={powerup}
+                  alt="Powerup"
+                  className="pixel-art cpl-player-button"
+                />
               </div>
             </div>
           )}
@@ -233,7 +310,7 @@ export default function CreatePrivateLobby() {
           {lobby.player2 == null ? (
             <div>
               <div>
-                <p className="title gradient-text">Invite</p>
+                <p className="cpl-player-name gradient-text">Invite</p>
               </div>
               <div className="cpl-code-container">
                 <p className="text-color-weaker">Code: </p>
@@ -243,7 +320,9 @@ export default function CreatePrivateLobby() {
           ) : (
             <div className="player-info">
               <div>
-                <p className="title gradient-text">{lobby.player2.username}</p>
+                <p className="cpl-player-name gradient-text">
+                  {lobby.player2.username}
+                </p>
               </div>
               <div className="cpl-player-stats">
                 <div className="cpl-player-stats-group">
@@ -265,24 +344,10 @@ export default function CreatePrivateLobby() {
               </div>
               <div className="container-center">
                 <img
-                  src={redWormFull}
+                  src={GetSnakeSprite[lobby.player2.ability]}
                   alt="Player 2 Snake"
                   className="cpl-player-info-snake-image pixel-art flip-horizontal"
                 />
-              </div>
-              <div className="abilities">
-                <button
-                  onClick={() => handleAbilityClick(1)}
-                  className={activeAbility === 1 ? "active" : ""}
-                ></button>
-                <button
-                  onClick={() => handleAbilityClick(2)}
-                  className={activeAbility === 2 ? "active" : ""}
-                ></button>
-                <button
-                  onClick={() => handleAbilityClick(3)}
-                  className={activeAbility === 3 ? "active" : ""}
-                ></button>
               </div>
             </div>
           )}
@@ -312,7 +377,7 @@ export default function CreatePrivateLobby() {
           />
         </div>
         <div className="cpl-setting-container">
-          <p className="cpl-label">Enable Borders</p>
+          <p className="cpl-label">Borders</p>
           <div className="checkbox_wrapper">
             <input
               type="checkbox"
@@ -346,7 +411,7 @@ export default function CreatePrivateLobby() {
           />
         </div>
         <div className="cpl-setting-container">
-          <p className="cpl-label">Enable Abilities</p>
+          <p className="cpl-label">Abilities</p>
           <div className="checkbox_wrapper">
             <input
               type="checkbox"

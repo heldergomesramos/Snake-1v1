@@ -191,8 +191,8 @@ input[type="number"] {
   font-size: var(--fs-400);
   font-weight: 10;
 
-  width: 12rem;
-  height: 6rem;
+  width: 16rem;
+  height: 4rem;
   color: var(--color-text);
   background: none;
 
@@ -219,6 +219,10 @@ input[type="number"] {
 
 .button-height-less {
   height: 3rem;
+}
+
+.button-width-less {
+  width: 12rem;
 }
 
 .button-square {
@@ -317,6 +321,12 @@ input[type="number"] {
   justify-content: space-around;
 }
 
+.cpl-player-name {
+  font-size: var(--fs-600);
+  text-align: center;
+  padding: 0.5rem;
+}
+
 .cpl-player-stats {
   display: flex;
   flex-direction: row;
@@ -338,35 +348,91 @@ input[type="number"] {
 .cpl-player-info-snake-image {
   width: 100%;
   height: auto;
-  max-width: 50%;
-  max-height: 50%;
+  max-width: 100%;
+  max-height: 100%;
 
   user-select: none;
   margin: 1rem;
 }
 
-.abilities {
+.cpl-player-buttons-container {
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
-  align-items: center;
+  gap: 1rem;
 }
 
-.abilities button {
+.cpl-player-button {
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  transition-duration: 200ms;
+}
+
+.cpl-player-button:hover {
+  scale: 1.2;
+}
+
+/* Color Menu */
+.cpl-player-pallete-container {
+  display: flex;
+  flex-direction: column;
+}
+.color-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.color-menu {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 columns */
+  grid-gap: 10px; /* Optional spacing between buttons */
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  background-color: var(--color-background);
+  padding: 10px;
+  z-index: 100;
+
+  margin-top: 10px;
+  border: 10px solid;
+  border-image-slice: 1;
+  border-width: 3px;
+  border-image-source: linear-gradient(
+    to bottom,
+    var(--color-text-purple),
+    var(--color-border-gradient-2)
+  );
+
+  transform: translateX(-50%);
+}
+
+.color-button {
   width: 40px;
   height: 40px;
-  border: 2px solid transparent;
+  margin: 5px;
+  border-radius: 50%;
+  position: relative;
   cursor: pointer;
-  margin: 1rem;
-
-  background-color: var(--color-background);
-  border: 2px solid var(--color-border-gradient-1);
+  border: 2px solid transparent;
+  transition: border 0.2s ease;
 }
 
-.abilities button.active {
-  border-color: var(--color-border-input);
-  box-shadow: 0 0 0 3px var(--color-border-input-shadow);
+.color-button:hover {
+  border: 2px solid #000; /* Highlight on hover */
 }
+
+.color-selected-indicator {
+  width: 100%;
+  height: 100%;
+  border: 2px solid black;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Back to cpl */
 
 .cpl-code-container {
   display: flex;

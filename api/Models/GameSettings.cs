@@ -26,18 +26,9 @@ namespace api.Models
                 gameSettings.Height = ProcessGameSetting(jsonElement, "height", gameSettings.Height, 10, 50);
                 gameSettings.Time = ProcessGameSetting(jsonElement, "time", gameSettings.Time, 10, 999);
                 gameSettings.Map = ProcessGameSetting(jsonElement, "map", gameSettings.Map, 0, 1);
+                gameSettings.Borders = ProcessGameBooleanSetting(jsonElement, "borders", gameSettings.Borders);
+                gameSettings.Abilities = ProcessGameBooleanSetting(jsonElement, "abilities", gameSettings.Abilities);
 
-                if (jsonElement.TryGetProperty("borders", out var bordersProperty) &&
-                   (bordersProperty.ValueKind == JsonValueKind.True || bordersProperty.ValueKind == JsonValueKind.False))
-                {
-                    gameSettings.Borders = bordersProperty.GetBoolean();
-                }
-
-                if (jsonElement.TryGetProperty("abilities", out var abilitiesProperty) &&
-                   (abilitiesProperty.ValueKind == JsonValueKind.True || abilitiesProperty.ValueKind == JsonValueKind.False))
-                {
-                    gameSettings.Abilities = abilitiesProperty.GetBoolean();
-                }
 
                 Console.WriteLine($"New GameSettings: Speed={gameSettings.Speed}, Width={gameSettings.Width}, Height={gameSettings.Height}, Time={gameSettings.Time}, Borders={gameSettings.Borders}, Abilities={gameSettings.Abilities}, Map={gameSettings.Map}");
 
@@ -54,17 +45,18 @@ namespace api.Models
             {
                 if (property.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(property.GetString()) &&
                     int.TryParse(property.GetString(), out var value))
-                {
-                    // Clamp the value within the allowed range
                     return Math.Clamp(value, minValue, maxValue);
-                }
                 else if (property.ValueKind == JsonValueKind.Number && property.TryGetInt32(out var numericValue))
-                {
-                    // Handle case where the property is an actual number
                     return Math.Clamp(numericValue, minValue, maxValue);
-                }
             }
             return defaultValue; // Use the default if property doesn't exist, is null, or invalid
+        }
+        public static bool ProcessGameBooleanSetting(JsonElement jsonElement, string propertyName, bool currentValue)
+        {
+            if (jsonElement.TryGetProperty(propertyName, out var property) &&
+                (property.ValueKind == JsonValueKind.True || property.ValueKind == JsonValueKind.False))
+                return property.GetBoolean();
+            return currentValue;
         }
 
     }

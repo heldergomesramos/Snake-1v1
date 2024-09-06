@@ -105,12 +105,12 @@ export default function MainMenu() {
       <br />
       <br />
       <div className="buttons-main-menu-container">
-        <Link to="/profile">
+        {/* <Link to="/profile">
           <button className="button-default button-height-less">Profile</button>
-        </Link>
+        </Link> */}
         <Link>
           <button
-            className="button-default button-height-less"
+            className="button-default button-width-less"
             onClick={handleLogout}
           >
             Log Out
