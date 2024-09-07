@@ -1,6 +1,8 @@
+using api.Dtos.Player;
+
 namespace api.Models
 {
-    public class PrivateLobby(Player player) : Lobby(player)
+    public class PrivateLobby(PlayerSimplified player) : Lobby(player)
     {
         public string Code { get; private set; } = GenerateCode();
 

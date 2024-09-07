@@ -1,5 +1,4 @@
 using api.Dtos.Lobby;
-using api.Dtos.Player;
 using api.Models;
 
 namespace api.Mappers
@@ -11,8 +10,8 @@ namespace api.Mappers
             return new PrivateLobbyResponseDto
             {
                 LobbyId = lobby.LobbyId,
-                Player1 = lobby.Player1 == null ? null : PlayerMappers.ToResponseDto(lobby.Player1),
-                Player2 = lobby.Player2 == null ? null : PlayerMappers.ToResponseDto(lobby.Player2),
+                Player1 = lobby.Player1,
+                Player2 = lobby.Player2,
                 GameStarted = lobby.GameStarted,
                 GameSettings = lobby.GameSettings,
                 Code = lobby.Code

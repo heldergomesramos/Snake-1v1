@@ -82,6 +82,8 @@ a:hover {
   image-rendering: crisp-edges;
   image-rendering: -moz-crisp-edges;
   image-rendering: -o-pixelated;
+
+  user-select: none;
 }
 
 /* Forms */
@@ -414,18 +416,18 @@ input[type="number"] {
   border-radius: 50%;
   position: relative;
   cursor: pointer;
-  border: 2px solid transparent;
+  border: 3px solid transparent;
   transition: border 0.2s ease;
 }
 
 .color-button:hover {
-  border: 2px solid #000; /* Highlight on hover */
+  border: 3px solid var(--color-text);
 }
 
 .color-selected-indicator {
   width: 100%;
   height: 100%;
-  border: 2px solid black;
+  /* border: 3px solid black; */
   border-radius: 50%;
   position: absolute;
   top: 0;

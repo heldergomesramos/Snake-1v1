@@ -33,24 +33,20 @@ namespace api.Controllers
         [HttpGet("all")]
         public async Task<IActionResult> GetAllPlayers()
         {
-            var players = await _playerService.GetAllPlayersAsync();
-
-            var playerDtos = players.Select(player => PlayerMappers.ToResponseDto(player)).ToList();
-            return Ok(playerDtos);
+            var players = await _playerService.GetAllPlayersSimplifiedAsync();
+            return Ok(players);
         }
 
-        [HttpGet("details/{username}")]
-        public async Task<IActionResult> GetPlayerDetails(string username)
+        [HttpGet("details/{id}")]
+        public async Task<IActionResult> GetPlayerDetails(string id)
         {
-            var player = await _playerService.GetPlayerByUsernameAsync(username);
+            var player = await _playerService.GetPlayerSimplifiedByIdAsync(id);
 
             if (player == null)
                 return NotFound("Player not found.");
 
-            var playerDto = PlayerMappers.ToResponseDto(player);
-            return Ok(playerDto);
+            return Ok(player);
         }
-
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] PlayerRegisterRequestDto dto)
@@ -75,8 +71,7 @@ namespace api.Controllers
                     {
                         var token = _tokenService.CreateToken(user);
 
-                        var responseDto = PlayerMappers.ToResponseDto(user);
-                        responseDto.Token = token;
+                        var responseDto = PlayerMappers.ToResponseDto(user, token);
 
                         return Ok(new { player = responseDto });
                     }

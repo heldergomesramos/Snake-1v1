@@ -24,12 +24,20 @@ namespace api.Services
             _tokenService = tokenService;
         }
 
-        public async Task UpdatePlayerAsync(Player player)
+        public async Task UpdatePlayerAsync(PlayerSimplified playerSimplified)
         {
-            ArgumentNullException.ThrowIfNull(player);
+            ArgumentNullException.ThrowIfNull(playerSimplified);
+
+            var player = await _userManager.FindByIdAsync(playerSimplified.PlayerId);
+            if (player == null)
+                throw new InvalidOperationException($"Player with ID {playerSimplified.PlayerId} not found.");
+
+            player.Ability = playerSimplified.Ability;
+            player.Color = playerSimplified.Color;
+            player.Wins = playerSimplified.Wins;
+            player.Losses = playerSimplified.Losses;
 
             var result = await _userManager.UpdateAsync(player);
-
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
@@ -37,20 +45,20 @@ namespace api.Services
             }
         }
 
-        public async Task<Player?> GetPlayerByIdAsync(string id)
+        public async Task<PlayerSimplified?> GetPlayerSimplifiedByIdAsync(string id)
         {
-            return await _userManager.Users.FirstOrDefaultAsync(x => x.Id == id);
+            var player = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (player == null)
+                return null;
+            return PlayerMappers.ToSimplifiedResponseDto(player);
         }
 
-        public async Task<Player?> GetPlayerByUsernameAsync(string username)
+        public async Task<List<PlayerSimplified>> GetAllPlayersSimplifiedAsync()
         {
-            return await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == username);
+            var players = await _userManager.Users.ToListAsync();
+            return players.Select(PlayerMappers.ToSimplifiedResponseDto).ToList();
         }
 
-        public async Task<List<Player>> GetAllPlayersAsync()
-        {
-            return await _userManager.Users.ToListAsync();
-        }
 
         public async Task<PlayerRegisterResponseDto?> RegisterPlayerAsync(PlayerRegisterRequestDto dto)
         {
@@ -77,8 +85,7 @@ namespace api.Services
 
             var token = _tokenService.CreateToken(newPlayer);
 
-            var responseDto = PlayerMappers.ToResponseDto(newPlayer);
-            responseDto.Token = token;
+            var responseDto = PlayerMappers.ToResponseDto(newPlayer, token);
 
             return responseDto;
         }
@@ -95,13 +102,11 @@ namespace api.Services
                 return null;
 
             player.LastLogin = DateTime.UtcNow;
-            player.LobbyId = string.Empty;
-            player.GameId = string.Empty;
             await _userManager.UpdateAsync(player);
 
             var token = _tokenService.CreateToken(player);
 
-            var responseDto = PlayerMappers.ToResponseDto(player);
+            var responseDto = PlayerMappers.ToResponseDto(player, token);
             responseDto.Token = token;
 
             return responseDto;
@@ -128,8 +133,7 @@ namespace api.Services
 
             var token = _tokenService.CreateToken(guestPlayer);
 
-            var guestPlayerDto = PlayerMappers.ToResponseDto(guestPlayer);
-            guestPlayerDto.Token = token;
+            var guestPlayerDto = PlayerMappers.ToResponseDto(guestPlayer, token);
 
             return guestPlayerDto;
         }

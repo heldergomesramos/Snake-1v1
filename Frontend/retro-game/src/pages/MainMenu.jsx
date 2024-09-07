@@ -45,13 +45,9 @@ export default function MainMenu() {
         const lobby = await response.json();
         navigate("/create-private-lobby", { state: { lobby } });
       } else {
-        console.log("Got Here!");
         const errorData = await response.json();
-        console.log("Got Here 2!");
         const errorMessage = errorData.message;
-        console.log("Got Here 3!");
         console.log(errorMessage);
-        console.log("Got Here 4!");
 
         switch (response.status) {
           case 400:

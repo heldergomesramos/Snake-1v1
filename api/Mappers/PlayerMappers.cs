@@ -16,14 +16,41 @@ namespace api.Mappers
                 Ability = 0,
                 LastLogin = DateTime.UtcNow,
                 IsGuest = false,
-                LobbyId = string.Empty,
-                GameId = string.Empty
             };
         }
 
-        public static PlayerRegisterResponseDto ToResponseDto(Player player)
+        public static Player ToPlayerEntity(PlayerSimplified dto)
+        {
+            return new Player
+            {
+                UserName = dto.Username,
+                Wins = 0,
+                Losses = 0,
+                Color = 0,
+                Ability = 0,
+                LastLogin = DateTime.UtcNow,
+                IsGuest = false,
+            };
+        }
+
+        public static PlayerRegisterResponseDto ToResponseDto(Player player, string token)
         {
             return new PlayerRegisterResponseDto
+            {
+                PlayerId = player.Id,
+                Username = player.UserName,
+                IsGuest = player.IsGuest,
+                Wins = player.Wins,
+                Losses = player.Losses,
+                Color = player.Color,
+                Ability = player.Ability,
+                Token = token
+            };
+        }
+
+        public static PlayerSimplified ToSimplifiedResponseDto(Player player)
+        {
+            return new PlayerSimplified
             {
                 PlayerId = player.Id,
                 Username = player.UserName,

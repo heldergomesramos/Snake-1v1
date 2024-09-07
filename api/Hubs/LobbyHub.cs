@@ -1,4 +1,5 @@
 using api.Dtos.Lobby;
+using api.Mappers;
 using api.Models;
 using api.Services;
 using api.Singletons;
@@ -43,7 +44,7 @@ namespace api.Hubs
             var playerId = _playerConnections.FirstOrDefault(x => x.Value == Context.ConnectionId).Key;
             if (!string.IsNullOrEmpty(playerId))
             {
-                var player = await _playerService.GetPlayerByIdAsync(playerId);
+                var player = await _playerService.GetPlayerSimplifiedByIdAsync(playerId);
                 if (player != null)
                 {
                     await LobbyManager.LeavePrivateLobby(playerId, player.LobbyId, _hubContext);
@@ -66,6 +67,25 @@ namespace api.Hubs
 
             if (updatedLobby != null)
                 await Clients.Group(lobbyId).SendAsync("LobbyUpdated", updatedLobby);
+        }
+
+        public async Task UpdatePlayerInLobby(string playerId, string lobbyId, int color, int ability)
+        {
+            Console.WriteLine("\nReceived UpdatePlayerInLobby for player: " + playerId + " in lobby: " + lobbyId + " color: " + color + " ability: " + ability);
+
+            var lobby = LobbyManager.GetPrivateLobbyById(lobbyId);
+            if (lobby == null)
+                return;
+
+            var player = LobbyManager.GetPlayerInLobbyByLobbyObj(playerId, lobby);
+            if (player == null)
+                return;
+
+            player.Ability = Math.Clamp(ability, 0, 2);
+            player.Color = Math.Clamp(color, 0, 7);
+
+            await Clients.Group(lobbyId).SendAsync("LobbyUpdated", LobbyMappers.ToResponseDto(lobby));
+            await _playerService.UpdatePlayerAsync(player);
         }
 
         /* Static Methods */

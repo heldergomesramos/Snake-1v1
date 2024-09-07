@@ -104,24 +104,37 @@ export default function CreatePrivateLobby() {
   const [selectedColor, setSelectedColor] = useState(null);
   const colorMenuRef = useRef(null);
 
-  // List of colors
   const colors = [
-    "#FF0000",
-    "#00FF00",
-    "#0000FF",
-    "#FFFF00",
-    "#FF00FF",
-    "#00FFFF",
-    "#FFA500",
-    "#A52A2A",
+    "#cf3636",
+    "#da6f2a",
+    "#e2c019",
+    "#7de219",
+    "#3adfba",
+    "#3245df",
+    "#50237d",
+    "#b541b5",
   ];
 
   const toggleColorMenu = () => {
-    setIsColorMenuOpen(!isColorMenuOpen);
+    if (!isColorMenuOpen) {
+      setIsColorMenuOpen(true);
+    }
   };
 
   const handleColorSelect = (color) => {
+    const colorIndex = colors.indexOf(color);
     setSelectedColor(color);
+    if (connection) {
+      connection
+        .invoke(
+          "UpdatePlayerInLobby",
+          playerData.playerId,
+          lobby.lobbyId,
+          colorIndex,
+          playerData.ability
+        )
+        .catch((err) => console.error(err));
+    }
   };
 
   // Close menu when clicking outside
@@ -242,7 +255,7 @@ export default function CreatePrivateLobby() {
               </div>
               <div className="container-center">
                 <img
-                  src={GetSnakeSprite[lobby.player1.ability]}
+                  src={GetSnakeSprite[lobby.player1.color]}
                   alt="Player 1 Snake"
                   className="cpl-player-info-snake-image pixel-art"
                 />
@@ -253,8 +266,15 @@ export default function CreatePrivateLobby() {
                     src={palette}
                     alt="Palette"
                     className="pixel-art cpl-player-button"
-                    onClick={toggleColorMenu}
-                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      if (!isColorMenuOpen) {
+                        toggleColorMenu();
+                      }
+                    }}
+                    style={{
+                      cursor: "pointer",
+                      pointerEvents: isColorMenuOpen ? "none" : "auto",
+                    }}
                   />
                   {/* Conditional rendering of color menu */}
                   {isColorMenuOpen && (
@@ -344,7 +364,7 @@ export default function CreatePrivateLobby() {
               </div>
               <div className="container-center">
                 <img
-                  src={GetSnakeSprite[lobby.player2.ability]}
+                  src={GetSnakeSprite[lobby.player2.color]}
                   alt="Player 2 Snake"
                   className="cpl-player-info-snake-image pixel-art flip-horizontal"
                 />

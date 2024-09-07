@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 
 namespace api.Models
@@ -14,8 +10,6 @@ namespace api.Models
         public int Ability { get; set; } = 0;
         public DateTime LastLogin { get; set; } = DateTime.Now;
         public bool IsGuest { get; set; } = false;
-        public string LobbyId { get; set; } = string.Empty;
-        public string GameId { get; set; } = string.Empty;
 
         public Player() { }
 
@@ -30,8 +24,6 @@ namespace api.Models
                 Ability = 0,
                 LastLogin = DateTime.Now,
                 IsGuest = true,
-                LobbyId = string.Empty,
-                GameId = string.Empty
             };
         }
     }

@@ -51,50 +51,74 @@ namespace api.Singletons
             return _privateLobbies.Find(x => x.LobbyId == id);
         }
 
+        public static PlayerSimplified? GetPlayerInLobbyByLobbyId(string playerId, string lobbyId)
+        {
+            var lobby = _privateLobbies.Find(x => x.LobbyId == lobbyId);
+            if (lobby == null)
+                return null;
+            if (lobby.Player1 != null && lobby.Player1.PlayerId == playerId)
+                return lobby.Player1;
+            else if (lobby.Player2 != null && lobby.Player2.PlayerId == playerId)
+                return lobby.Player2;
+            return null;
+        }
+
+        public static PlayerSimplified? GetPlayerInLobbyByLobbyObj(string playerId, Lobby lobby)
+        {
+            if (lobby == null)
+                return null;
+            if (lobby.Player1 != null && lobby.Player1.PlayerId == playerId)
+                return lobby.Player1;
+            else if (lobby.Player2 != null && lobby.Player2.PlayerId == playerId)
+                return lobby.Player2;
+            return null;
+        }
+
         public static Lobby? JoinPublicLobby(PlayerRegisterResponseDto dto)
         {
             Console.WriteLine("Join Function Executed by " + dto.Username);
-            lock (_lock)
-            {
-                if (string.IsNullOrWhiteSpace(dto.Username) || IsPlayerInLobby(dto.PlayerId, _currentLobby))
-                    return null;
+            return null;
+            // lock (_lock)
+            // {
+            //     if (string.IsNullOrWhiteSpace(dto.Username) || IsPlayerInLobby(dto.PlayerId, _currentLobby))
+            //         return null;
 
-                if (_currentLobby == null)
-                {
-                    //_currentLobby = new Lobby(dto);
-                    //dto.LobbyId = _currentLobby.LobbyId;
-                    //_publicLobbies.Add(_currentLobby);
-                }
-                else
-                {
-                    //_currentLobby.AddPlayer(dto);
-                }
+            //     if (_currentLobby == null)
+            //     {
+            //         //_currentLobby = new Lobby(dto);
+            //         //dto.LobbyId = _currentLobby.LobbyId;
+            //         //_publicLobbies.Add(_currentLobby);
+            //     }
+            //     else
+            //     {
+            //         //_currentLobby.AddPlayer(dto);
+            //     }
 
-                if (_currentLobby.IsFull)
-                {
-                    _currentLobby.GameStarted = true;
-                    var lobbyToReturn = _currentLobby;
-                    _currentLobby = null;
-                    return lobbyToReturn;
-                }
+            //     if (_currentLobby.IsFull)
+            //     {
+            //         _currentLobby.GameStarted = true;
+            //         var lobbyToReturn = _currentLobby;
+            //         _currentLobby = null;
+            //         return lobbyToReturn;
+            //     }
 
-                return _currentLobby;
-            }
+            //     return _currentLobby;
+            // }
         }
 
-        public static async Task<PrivateLobbyResponseDto?> CreatePrivateLobby(Player player, IHubContext<LobbyHub> hubContext)
+        public static async Task<PrivateLobbyResponseDto?> CreatePrivateLobby(PlayerSimplified player, IHubContext<LobbyHub> hubContext)
         {
             var newLobby = new PrivateLobby(player);
             _privateLobbies.Add(newLobby);
             player.LobbyId = newLobby.LobbyId;
             var lobbyDto = LobbyMappers.ToResponseDto(newLobby);
 
-            await LobbyHub.AddPlayerToLobby(player.Id, lobbyDto.LobbyId, lobbyDto, hubContext);
+            await LobbyHub.AddPlayerToLobby(player.PlayerId, lobbyDto.LobbyId, lobbyDto, hubContext);
 
             return lobbyDto;
         }
 
-        public static async Task<PrivateLobbyResponseDto?> JoinPrivateLobby(Player player, string code, IHubContext<LobbyHub> hubContext)
+        public static async Task<PrivateLobbyResponseDto?> JoinPrivateLobby(PlayerSimplified player, string code, IHubContext<LobbyHub> hubContext)
         {
             var lobbyFound = _privateLobbies.Find(x => x.Code == code);
             if (lobbyFound == null)
@@ -108,7 +132,7 @@ namespace api.Singletons
 
             var lobbyDto = LobbyMappers.ToResponseDto(lobbyFound);
 
-            await LobbyHub.AddPlayerToLobby(player.Id, lobbyDto.LobbyId, lobbyDto, hubContext);
+            await LobbyHub.AddPlayerToLobby(player.PlayerId, lobbyDto.LobbyId, lobbyDto, hubContext);
 
             return lobbyDto;
         }
@@ -118,9 +142,9 @@ namespace api.Singletons
             var lobbyFound = GetPrivateLobbyById(lobbyId);
             if (lobbyFound == null)
                 return;
-            if (lobbyFound.Player1 != null && lobbyFound.Player1.Id == playerId)
+            if (lobbyFound.Player1 != null && lobbyFound.Player1.PlayerId == playerId)
                 lobbyFound.Player1 = null;
-            else if (lobbyFound.Player2 != null && lobbyFound.Player2.Id == playerId)
+            else if (lobbyFound.Player2 != null && lobbyFound.Player2.PlayerId == playerId)
                 lobbyFound.Player2 = null;
             else
                 return;
@@ -182,7 +206,7 @@ namespace api.Singletons
         {
             if (lobby == null)
                 return false;
-            return (lobby.Player1?.Id == playerId || lobby.Player2?.Id == playerId);
+            return lobby.Player1?.PlayerId == playerId || lobby.Player2?.PlayerId == playerId;
         }
     }
 }

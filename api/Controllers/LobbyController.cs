@@ -63,13 +63,13 @@ namespace api.Controllers
                 return BadRequest(new { status = "error", message = "Request body cannot be null." });
             if (string.IsNullOrEmpty(dto.PlayerId))
                 return BadRequest(new { status = "error", message = "Player Id is required." });
-            var player = await _playerService.GetPlayerByIdAsync(dto.PlayerId);
+            var player = await _playerService.GetPlayerSimplifiedByIdAsync(dto.PlayerId);
             if (player == null)
                 return NotFound(new { status = "error", message = $"Player with id '{dto.PlayerId}' not found." });
             if (player.LobbyId != string.Empty)
                 return Conflict(new { status = "error", message = "Player is already in a lobby." });
 
-            Console.WriteLine("\nCreate Private Lobby from: " + player.UserName);
+            Console.WriteLine("\nCreate Private Lobby from: " + player.Username);
             var lobbyToReturn = await LobbyManager.CreatePrivateLobby(player, _hubContext);
             if (lobbyToReturn == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to create lobby. Please try again later." });
@@ -91,7 +91,7 @@ namespace api.Controllers
                 return BadRequest(new { status = "error", message = "Request body cannot be null." });
             if (string.IsNullOrEmpty(dto.PlayerId))
                 return BadRequest(new { status = "error", message = "Player Id is required." });
-            var player = await _playerService.GetPlayerByIdAsync(dto.PlayerId);
+            var player = await _playerService.GetPlayerSimplifiedByIdAsync(dto.PlayerId);
             if (player == null)
                 return NotFound(new { status = "error", message = $"Player with id '{dto.PlayerId}' not found." });
             if (player.LobbyId != string.Empty)
@@ -119,13 +119,13 @@ namespace api.Controllers
                 return BadRequest(new { status = "error", message = "Request body cannot be null." });
             if (string.IsNullOrEmpty(dto.PlayerId))
                 return BadRequest(new { status = "error", message = "Player Id is required." });
-            var player = await _playerService.GetPlayerByIdAsync(dto.PlayerId);
+            var player = await _playerService.GetPlayerSimplifiedByIdAsync(dto.PlayerId);
             if (player == null)
                 return NotFound(new { status = "error", message = $"Player with id '{dto.PlayerId}' not found." });
             if (player.LobbyId == string.Empty)
                 return Conflict(new { status = "error", message = "Player is not in a lobby." });
 
-            await LobbyManager.LeavePrivateLobby(player.Id, player.LobbyId, _hubContext);
+            await LobbyManager.LeavePrivateLobby(player.PlayerId, player.LobbyId, _hubContext);
 
             player.LobbyId = string.Empty;
             await _playerService.UpdatePlayerAsync(player);
