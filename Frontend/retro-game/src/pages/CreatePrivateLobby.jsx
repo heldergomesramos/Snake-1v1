@@ -14,6 +14,10 @@ import darkBlueSnake from "../assets/images/SnakeFull-blue-dark.png";
 import purpleSnake from "../assets/images/SnakeFull-purple.png";
 import pinkSnake from "../assets/images/SnakeFull-pink.png";
 
+import headTailSwap from "../assets/images/AbilityIcons-HeadTailSwap.png";
+import freezeTime from "../assets/images/AbilityIcons-FreezeTime.png";
+import ghost from "../assets/images/AbilityIcons-Ghost.png";
+
 import mapTest from "../assets/images/MapTest.png";
 import trophy from "../assets/images/Trophy.png";
 import skull from "../assets/images/Skull.png";
@@ -32,6 +36,9 @@ export default function CreatePrivateLobby() {
   const [lobby, setLobby] = useState(initialLobby);
   const [mapSettings, setMapSettings] = useState(lobby.gameSettings);
   const [tempMapSettings, setTempMapSettings] = useState(mapSettings);
+  const [isPlayer1] = useState(
+    initialLobby.player1.playerId == playerData.playerId
+  );
 
   const GetSnakeSprite = {
     0: redSnake,
@@ -100,6 +107,8 @@ export default function CreatePrivateLobby() {
     }
   };
 
+  /* Color stuff */
+
   const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState(null);
   const colorMenuRef = useRef(null);
@@ -159,6 +168,59 @@ export default function CreatePrivateLobby() {
     };
   }, [isColorMenuOpen]);
 
+  /* Ability Stuff */
+  const [isAbilityMenuOpen, setIsAbilityMenuOpen] = useState(false);
+  const [selectedAbility, setSelectedAbility] = useState(null);
+  const abilityMenuRef = useRef(null);
+
+  const abilities = [
+    { id: 0, name: "Ability HeadTailSwap", img: headTailSwap },
+    { id: 1, name: "Ability FreezeTime", img: freezeTime },
+    { id: 2, name: "Ability Ghost", img: ghost },
+  ];
+
+  const toggleAbilityMenu = () => {
+    setIsAbilityMenuOpen(!isAbilityMenuOpen);
+  };
+
+  const handleAbilitySelect = (ability) => {
+    setSelectedAbility(ability);
+    if (connection) {
+      connection
+        .invoke(
+          "UpdatePlayerInLobby",
+          playerData.playerId,
+          lobby.lobbyId,
+          playerData.colorIndex,
+          ability.id
+        )
+        .catch((err) => console.error(err));
+    }
+  };
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        abilityMenuRef.current &&
+        !abilityMenuRef.current.contains(event.target)
+      ) {
+        setIsAbilityMenuOpen(false);
+      }
+    };
+
+    if (isAbilityMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isAbilityMenuOpen]);
+
+  /* Leave Button */
   const handleLeave = async (e) => {
     e.preventDefault();
     setError("");
@@ -260,55 +322,96 @@ export default function CreatePrivateLobby() {
                   className="cpl-player-info-snake-image pixel-art"
                 />
               </div>
-              <div className="container-center cpl-player-buttons-container">
-                <div className="cpl-player-pallete-container">
-                  <img
-                    src={palette}
-                    alt="Palette"
-                    className="pixel-art cpl-player-button"
-                    onClick={() => {
-                      if (!isColorMenuOpen) {
-                        toggleColorMenu();
-                      }
-                    }}
-                    style={{
-                      cursor: "pointer",
-                      pointerEvents: isColorMenuOpen ? "none" : "auto",
-                    }}
-                  />
-                  {/* Conditional rendering of color menu */}
-                  {isColorMenuOpen && (
-                    <div className="color-menu-container" ref={colorMenuRef}>
-                      <div className="color-menu">
-                        {colors.map((color) => (
-                          <label
-                            key={color}
-                            className="color-button"
-                            style={{ backgroundColor: color }}
-                          >
-                            <input
-                              type="radio"
-                              name="color"
-                              value={color}
-                              checked={selectedColor === color}
-                              onChange={() => handleColorSelect(color)}
-                              style={{ display: "none" }}
-                            />
-                            {selectedColor === color && (
-                              <div className="color-selected-indicator" />
-                            )}
-                          </label>
-                        ))}
+              {/* Conditionally render buttons based on what player the user is */}
+              {isPlayer1 && (
+                <div className="container-center cpl-player-buttons-container">
+                  <div className="cpl-player-pallete-container">
+                    <img
+                      src={palette}
+                      alt="Palette"
+                      className="pixel-art cpl-player-button"
+                      onClick={() => {
+                        if (!isColorMenuOpen) {
+                          toggleColorMenu();
+                        }
+                      }}
+                      style={{
+                        cursor: "pointer",
+                        pointerEvents: isColorMenuOpen ? "none" : "auto",
+                      }}
+                    />
+                    {/* Conditional rendering of color menu */}
+                    {isColorMenuOpen && (
+                      <div className="color-menu-container" ref={colorMenuRef}>
+                        <div className="color-menu">
+                          {colors.map((color) => (
+                            <label
+                              key={color}
+                              className="color-button"
+                              style={{ backgroundColor: color }}
+                            >
+                              <input
+                                type="radio"
+                                name="color"
+                                value={color}
+                                checked={selectedColor === color}
+                                onChange={() => handleColorSelect(color)}
+                                style={{ display: "none" }}
+                              />
+                              {selectedColor === color && (
+                                <div className="color-selected-indicator" />
+                              )}
+                            </label>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                  {/* Ability Button */}
+                  <div className="cpl-player-pallete-container">
+                    <img
+                      src={powerup}
+                      alt="Powerup"
+                      className="pixel-art cpl-player-button"
+                      onClick={toggleAbilityMenu}
+                      style={{
+                        cursor: "pointer",
+                        pointerEvents: isAbilityMenuOpen ? "none" : "auto",
+                      }}
+                    />
+                    {isAbilityMenuOpen && (
+                      <div
+                        className="color-menu-container"
+                        ref={abilityMenuRef}
+                      >
+                        <div className="color-menu">
+                          {abilities.map((ability) => (
+                            <label
+                              key={ability.id}
+                              style={{
+                                backgroundImage: `url(${ability.img})`,
+                              }}
+                              className="ability-button pixel-art"
+                            >
+                              <input
+                                type="radio"
+                                name="ability"
+                                value={ability.id}
+                                checked={selectedAbility === ability.id}
+                                onChange={() => handleAbilitySelect(ability)}
+                                style={{ display: "none" }}
+                              />
+                              {selectedAbility === ability.id && (
+                                <div className="ability-selected-indicator" />
+                              )}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <img
-                  src={powerup}
-                  alt="Powerup"
-                  className="pixel-art cpl-player-button"
-                />
-              </div>
+              )}
             </div>
           )}
         </div>
@@ -325,7 +428,6 @@ export default function CreatePrivateLobby() {
             <button className="button-default button-square">&gt;</button>
           </div>
         </div>
-
         <div className="cpl-player-info cpl-player-info-right border-gradient-normal">
           {lobby.player2 == null ? (
             <div>
@@ -369,6 +471,86 @@ export default function CreatePrivateLobby() {
                   className="cpl-player-info-snake-image pixel-art flip-horizontal"
                 />
               </div>
+              {/* Conditionally render buttons based on what player the user is */}
+              {!isPlayer1 && (
+                <div className="container-center cpl-player-buttons-container">
+                  <div className="cpl-player-pallete-container">
+                    <img
+                      src={palette}
+                      alt="Palette"
+                      className="pixel-art cpl-player-button"
+                      onClick={() => {
+                        if (!isColorMenuOpen) {
+                          toggleColorMenu();
+                        }
+                      }}
+                      style={{
+                        cursor: "pointer",
+                        pointerEvents: isColorMenuOpen ? "none" : "auto",
+                      }}
+                    />
+                    {/* Conditional rendering of color menu */}
+                    {isColorMenuOpen && (
+                      <div className="color-menu-container" ref={colorMenuRef}>
+                        <div className="color-menu">
+                          {colors.map((color) => (
+                            <label
+                              key={color}
+                              className="color-button"
+                              style={{ backgroundColor: color }}
+                            >
+                              <input
+                                type="radio"
+                                name="color"
+                                value={color}
+                                checked={selectedColor === color}
+                                onChange={() => handleColorSelect(color)}
+                                style={{ display: "none" }}
+                              />
+                              {selectedColor === color && (
+                                <div className="color-selected-indicator" />
+                              )}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="cpl-player-pallete-container">
+                    <img
+                      src={powerup}
+                      alt="Powerup"
+                      className="pixel-art cpl-player-button"
+                    />
+                    {/* Conditional rendering of color menu */}
+                    {isColorMenuOpen && (
+                      <div className="color-menu-container" ref={colorMenuRef}>
+                        <div className="color-menu">
+                          {colors.map((color) => (
+                            <label
+                              key={color}
+                              className="color-button"
+                              style={{ backgroundColor: color }}
+                            >
+                              <input
+                                type="radio"
+                                name="color"
+                                value={color}
+                                checked={selectedColor === color}
+                                onChange={() => handleColorSelect(color)}
+                                style={{ display: "none" }}
+                              />
+                              {selectedColor === color && (
+                                <div className="color-selected-indicator" />
+                              )}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
