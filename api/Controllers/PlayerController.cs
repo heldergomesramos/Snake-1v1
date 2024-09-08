@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using api.Data;
 using api.Dtos.Player;
 using api.Mappers;
 using api.Models;
 using api.Services;
+using api.Singletons;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +30,13 @@ namespace api.Controllers
         public async Task<IActionResult> GetAllPlayers()
         {
             var players = await _playerService.GetAllPlayersSimplifiedAsync();
+            return Ok(players);
+        }
+
+        [HttpGet("all-connected")]
+        public IActionResult GetAllConnectedPlayers()
+        {
+            var players = PlayerManager.GetAllConnectedPlayers();
             return Ok(players);
         }
 
@@ -100,6 +103,8 @@ namespace api.Controllers
             if (response == null)
                 return Unauthorized(new { message = "Invalid username or password." });
 
+            if (PlayerManager.IsPlayerConnected(response.PlayerId))
+                return StatusCode(403, new { message = "Player is alredy connected." });
             return Ok(response);
         }
 

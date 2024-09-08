@@ -68,7 +68,7 @@ export default function HomePage() {
             setError("Wrong Credentials");
             break;
           case 403:
-            setError("Forbidden, you do not have permission");
+            setError("Player is already logged in");
             break;
           case 409:
             setError("Username already exists");

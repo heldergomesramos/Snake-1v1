@@ -18,11 +18,17 @@ namespace api.Services
         public TokenService(IConfiguration config)
         {
             _config = config;
-            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:SigningKey"]));
+            var cfg = _config["JWT:SigningKey"];
+            if (cfg != null)
+                _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(cfg));
+            else
+                _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("a")); // This will never happen (its only here to avoid warnings)
         }
 
         public string CreateToken(Player user)
         {
+            if (user == null || string.IsNullOrEmpty(user.UserName))
+                return string.Empty;
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.GivenName, user.UserName)

@@ -50,7 +50,7 @@ export default function JoinPrivateLobby() {
             setError("Forbidden, you do not have permission");
             break;
           case 409:
-            setError("Conflict, possibly the lobby is full");
+            setError("The lobby is full");
             break;
           case 500:
             setError("Server error, please try again later");

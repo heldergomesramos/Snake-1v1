@@ -2,8 +2,6 @@ using api.Dtos.Lobby;
 using api.Dtos.Player;
 using api.Hubs;
 using api.Mappers;
-using api.Models;
-using api.Services;
 using api.Singletons;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -14,14 +12,12 @@ namespace api.Controllers
     [ApiController]
     public class LobbyController : ControllerBase
     {
-        private readonly IPlayerService _playerService;
         private readonly ILogger<LobbyController> _logger;
         private readonly IHubContext<LobbyHub> _hubContext;
 
-        public LobbyController(ILogger<LobbyController> logger, IPlayerService playerService, IHubContext<LobbyHub> hubContext)
+        public LobbyController(ILogger<LobbyController> logger, IHubContext<LobbyHub> hubContext)
         {
             _logger = logger;
-            _playerService = playerService;
             _hubContext = hubContext;
         }
 
@@ -29,6 +25,13 @@ namespace api.Controllers
         public IActionResult GetAll()
         {
             var lobbies = LobbyManager.AllLobbiesCopy;
+            return Ok(lobbies);
+        }
+
+        [HttpGet("all-private")]
+        public IActionResult GetAllPrivateLobbies()
+        {
+            var lobbies = LobbyManager.GetAllPrivateLobbies();
             return Ok(lobbies);
         }
 
@@ -63,7 +66,7 @@ namespace api.Controllers
                 return BadRequest(new { status = "error", message = "Request body cannot be null." });
             if (string.IsNullOrEmpty(dto.PlayerId))
                 return BadRequest(new { status = "error", message = "Player Id is required." });
-            var player = await _playerService.GetPlayerSimplifiedByIdAsync(dto.PlayerId);
+            var player = PlayerManager.GetPlayerSimplifiedByPlayerId(dto.PlayerId);
             if (player == null)
                 return NotFound(new { status = "error", message = $"Player with id '{dto.PlayerId}' not found." });
             if (player.LobbyId != string.Empty)
@@ -75,7 +78,6 @@ namespace api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to create lobby. Please try again later." });
 
             player.LobbyId = lobbyToReturn.LobbyId;
-            await _playerService.UpdatePlayerAsync(player);
 
             return Ok(new
             {
@@ -91,18 +93,18 @@ namespace api.Controllers
                 return BadRequest(new { status = "error", message = "Request body cannot be null." });
             if (string.IsNullOrEmpty(dto.PlayerId))
                 return BadRequest(new { status = "error", message = "Player Id is required." });
-            var player = await _playerService.GetPlayerSimplifiedByIdAsync(dto.PlayerId);
+            var player = PlayerManager.GetPlayerSimplifiedByPlayerId(dto.PlayerId);
             if (player == null)
                 return NotFound(new { status = "error", message = $"Player with id '{dto.PlayerId}' not found." });
             if (player.LobbyId != string.Empty)
                 return Conflict(new { status = "error", message = "Player is already in a lobby." });
 
+            Console.WriteLine("Join Private Lobby");
             var lobbyToReturn = await LobbyManager.JoinPrivateLobby(player, dto.LobbyCode, _hubContext);
             if (lobbyToReturn == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to join lobby. Please try again later." });
 
             player.LobbyId = lobbyToReturn.LobbyId;
-            await _playerService.UpdatePlayerAsync(player);
 
             return Ok(new
             {
@@ -119,7 +121,7 @@ namespace api.Controllers
                 return BadRequest(new { status = "error", message = "Request body cannot be null." });
             if (string.IsNullOrEmpty(dto.PlayerId))
                 return BadRequest(new { status = "error", message = "Player Id is required." });
-            var player = await _playerService.GetPlayerSimplifiedByIdAsync(dto.PlayerId);
+            var player = PlayerManager.GetPlayerSimplifiedByPlayerId(dto.PlayerId);
             if (player == null)
                 return NotFound(new { status = "error", message = $"Player with id '{dto.PlayerId}' not found." });
             if (player.LobbyId == string.Empty)
@@ -128,7 +130,6 @@ namespace api.Controllers
             await LobbyManager.LeavePrivateLobby(player.PlayerId, player.LobbyId, _hubContext);
 
             player.LobbyId = string.Empty;
-            await _playerService.UpdatePlayerAsync(player);
 
             Console.WriteLine("Everything good, return left_lobby status.");
             return Ok(new

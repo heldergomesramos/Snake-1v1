@@ -46,6 +46,11 @@ namespace api.Singletons
             }
         }
 
+        public static List<PrivateLobby> GetAllPrivateLobbies()
+        {
+            return _privateLobbies;
+        }
+
         public static PrivateLobby? GetPrivateLobbyById(string id)
         {
             return _privateLobbies.Find(x => x.LobbyId == id);
@@ -131,7 +136,6 @@ namespace api.Singletons
                 return null;
 
             var lobbyDto = LobbyMappers.ToResponseDto(lobbyFound);
-
             await LobbyHub.AddPlayerToLobby(player.PlayerId, lobbyDto.LobbyId, lobbyDto, hubContext);
 
             return lobbyDto;
@@ -156,6 +160,10 @@ namespace api.Singletons
             else
             {
                 var updatedLobbyDto = LobbyMappers.ToResponseDto(lobbyFound);
+                var connectionId = PlayerManager.GetConnectionIdByPlayerId(playerId);
+                if (string.IsNullOrEmpty(connectionId))
+                    return;
+                await hubContext.Groups.RemoveFromGroupAsync(connectionId, lobbyId);
                 await hubContext.Clients.Group(lobbyId).SendAsync("LobbyUpdated", updatedLobbyDto);
             }
 

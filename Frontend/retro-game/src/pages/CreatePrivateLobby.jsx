@@ -25,10 +25,9 @@ import palette from "../assets/images/PaletteIcon.png";
 import powerup from "../assets/images/AbilityIcon.png";
 
 export default function CreatePrivateLobby() {
-  const [activeAbility, setActiveAbility] = useState(null);
   const navigate = useNavigate();
   const [error, setError] = useState("");
-  const { playerData } = useContext(PlayerContext);
+  const { playerData, setPlayerDataFields } = useContext(PlayerContext);
   const { connection } = useSignalR();
 
   const location = useLocation();
@@ -55,6 +54,8 @@ export default function CreatePrivateLobby() {
     if (connection) {
       connection.on("LobbyUpdated", (updatedLobbyData) => {
         console.log("Lobby Updated:", updatedLobbyData);
+        if (isPlayer1) setPlayerDataFields(updatedLobbyData.player1);
+        else setPlayerDataFields(updatedLobbyData.player2);
         setLobby(updatedLobbyData);
         setMapSettings(updatedLobbyData.gameSettings);
         setTempMapSettings(updatedLobbyData.gameSettings);
@@ -69,10 +70,6 @@ export default function CreatePrivateLobby() {
       console.log("Lobby Id: " + lobby.lobbyId);
     }
   }, [lobby]);
-
-  const handleAbilityClick = (ability) => {
-    setActiveAbility(ability);
-  };
 
   const handleSettingChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -170,7 +167,7 @@ export default function CreatePrivateLobby() {
 
   /* Ability Stuff */
   const [isAbilityMenuOpen, setIsAbilityMenuOpen] = useState(false);
-  const [selectedAbility, setSelectedAbility] = useState(null);
+  const [selectedAbility, setSelectedAbility] = useState(playerData.ability);
   const abilityMenuRef = useRef(null);
 
   const abilities = [
@@ -191,7 +188,7 @@ export default function CreatePrivateLobby() {
           "UpdatePlayerInLobby",
           playerData.playerId,
           lobby.lobbyId,
-          playerData.colorIndex,
+          playerData.color,
           ability.id
         )
         .catch((err) => console.error(err));

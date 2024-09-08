@@ -32,6 +32,9 @@ builder.Services.AddIdentity<Player, IdentityRole>(options =>
 
 builder.Services.AddAuthentication().AddJwtBearer(options =>
 {
+    var x = builder.Configuration["JWT:SigningKey"];
+    if (x == null)
+        x = "A"; /* Only here because null warning */
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -39,7 +42,7 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>
         ValidateAudience = true,
         ValidAudience = builder.Configuration["JWT:Audience"],
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"]))
+        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(x))
     };
 });
 
@@ -51,6 +54,9 @@ builder.Services.AddCors(options =>
                           .AllowAnyHeader()
                           .AllowCredentials());
 });
+
+builder.Logging.ClearProviders();
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
 
 var app = builder.Build();
 

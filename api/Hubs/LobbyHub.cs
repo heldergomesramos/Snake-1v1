@@ -10,7 +10,6 @@ namespace api.Hubs
 {
     public class LobbyHub : Hub
     {
-        private static Dictionary<string, string> _playerConnections = new();
         private readonly IPlayerService _playerService;
         private readonly IHubContext<LobbyHub> _hubContext;
 
@@ -22,14 +21,11 @@ namespace api.Hubs
 
         public override async Task OnConnectedAsync()
         {
-            Console.WriteLine($"\nConnection from: {Context.ConnectionId}");
             var httpContext = Context.GetHttpContext();
             if (httpContext != null)
             {
                 var playerId = httpContext.Request.Query["playerId"].ToString();
-                if (_playerConnections == null)
-                    _playerConnections = new();
-                _playerConnections[playerId] = Context.ConnectionId;
+                await PlayerManager.AddConnectionAsync(playerId, Context.ConnectionId, _playerService);
                 Console.WriteLine($"Player {playerId} connected with ConnectionId: {Context.ConnectionId}");
             }
             else
@@ -41,19 +37,17 @@ namespace api.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var playerId = _playerConnections.FirstOrDefault(x => x.Value == Context.ConnectionId).Key;
-            if (!string.IsNullOrEmpty(playerId))
+            var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
+            if (player != null)
             {
-                var player = await _playerService.GetPlayerSimplifiedByIdAsync(playerId);
-                if (player != null)
-                {
-                    await LobbyManager.LeavePrivateLobby(playerId, player.LobbyId, _hubContext);
-                    player.LobbyId = string.Empty;
-                    await _playerService.UpdatePlayerAsync(player);
-                    _playerConnections.Remove(playerId);
-                    Console.WriteLine($"Player {playerId} disconnected\n");
-                }
+                await LobbyManager.LeavePrivateLobby(player.PlayerId, player.LobbyId, _hubContext);
+                player.LobbyId = string.Empty;
+                await _playerService.UpdatePlayerAsync(player);
+                PlayerManager.RemoveConnection(Context.ConnectionId);
+                Console.WriteLine($"Player {player.PlayerId} disconnected\n");
             }
+            else
+                Console.WriteLine("PROBLEM!!! player disconnected is null whaaaat");
             await base.OnDisconnectedAsync(exception);
         }
 
@@ -93,35 +87,16 @@ namespace api.Hubs
         public static async Task AddPlayerToLobby(string playerId, string lobbyId, object lobbyDto, IHubContext<LobbyHub> hubContext)
         {
             Console.WriteLine($"\n[HUB] Add {playerId} To {lobbyId}");
-            if (_playerConnections.TryGetValue(playerId, out var connectionId))
-            {
-                await hubContext.Groups.AddToGroupAsync(connectionId, lobbyId);
-                await hubContext.Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyDto);
-            }
+            var connectionId = PlayerManager.GetConnectionIdByPlayerId(playerId);
+            if (string.IsNullOrEmpty(connectionId))
+                return;
+            await hubContext.Groups.AddToGroupAsync(connectionId, lobbyId);
+            await hubContext.Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyDto);
         }
 
         public static async Task UpdateLobby(string lobbyId, object lobbyDto, IHubContext<LobbyHub> hubContext)
         {
             await hubContext.Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyDto);
-        }
-
-        public static async Task RemovePlayerFromLobby(string playerId, string lobbyId, object lobbyUpdated, IHubContext<LobbyHub> hubContext)
-        {
-            if (_playerConnections.TryGetValue(playerId, out var connectionId))
-            {
-                await hubContext.Groups.RemoveFromGroupAsync(connectionId, lobbyId);
-                Console.WriteLine($"[DEBUG] Removed player {playerId} from group {lobbyId}");
-
-                if (lobbyUpdated != null)
-                {
-                    await hubContext.Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyUpdated);
-                    Console.WriteLine($"[DEBUG] Sent LobbyUpdated to group {lobbyId}");
-                }
-                else
-                {
-                    Console.WriteLine($"[DEBUG] No players left in lobby {lobbyId}. No updates will be sent.");
-                }
-            }
         }
     }
 }
