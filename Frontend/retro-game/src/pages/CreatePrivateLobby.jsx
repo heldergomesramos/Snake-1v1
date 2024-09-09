@@ -18,7 +18,9 @@ import headTailSwap from "../assets/images/AbilityIcons-HeadTailSwap.png";
 import freezeTime from "../assets/images/AbilityIcons-FreezeTime.png";
 import ghost from "../assets/images/AbilityIcons-Ghost.png";
 
-import mapTest from "../assets/images/MapTest.png";
+import mapPlains from "../assets/images/Maps-Plains.png";
+import mapJungle from "../assets/images/Maps-Jungle.png";
+
 import trophy from "../assets/images/Trophy.png";
 import skull from "../assets/images/Skull.png";
 import palette from "../assets/images/PaletteIcon.png";
@@ -232,6 +234,12 @@ export default function CreatePrivateLobby() {
     };
   }, [isAbilityMenuOpen]);
 
+  /* Map Stuff */
+  const mapData = [
+    { name: "Plains", img: mapPlains },
+    { name: "Jungle", img: mapJungle },
+  ];
+
   /* Leave Button */
   const handleLeave = async (e) => {
     e.preventDefault();
@@ -438,12 +446,14 @@ export default function CreatePrivateLobby() {
         <div className="cpl-map-preview-container">
           <img
             className="pixel-art cpl-map-preview-image border-gradient-normal"
-            src={mapTest}
+            src={mapData[mapSettings.map].img}
             alt="Map Image"
           />
           <div className="cpl-map-navigation-container">
             <button className="button-default button-square">&lt;</button>
-            <p className="cpl-map-name gradient-text">Forest</p>
+            <p className="cpl-map-name gradient-text">
+              {mapData[mapSettings.map].name}
+            </p>
             <button className="button-default button-square">&gt;</button>
           </div>
         </div>
