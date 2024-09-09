@@ -24,7 +24,7 @@ namespace api.Models
                 gameSettings.Width = ProcessGameSetting(jsonElement, "width", gameSettings.Width, 10, 50);
                 gameSettings.Height = ProcessGameSetting(jsonElement, "height", gameSettings.Height, 10, 50);
                 gameSettings.Time = ProcessGameSetting(jsonElement, "time", gameSettings.Time, 10, 999);
-                gameSettings.Map = ProcessGameSetting(jsonElement, "map", gameSettings.Map, 0, 1);
+                gameSettings.Map = ProcessGameSettingLoop(jsonElement, "map", 2);
                 gameSettings.Borders = ProcessGameBooleanSetting(jsonElement, "borders", gameSettings.Borders);
                 gameSettings.Abilities = ProcessGameBooleanSetting(jsonElement, "abilities", gameSettings.Abilities);
 
@@ -50,6 +50,20 @@ namespace api.Models
             }
             return defaultValue; // Use the default if property doesn't exist, is null, or invalid
         }
+
+        public static int ProcessGameSettingLoop(JsonElement jsonElement, string propertyName, int maxValue)
+        {
+            if (jsonElement.TryGetProperty(propertyName, out var property))
+            {
+                if (property.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(property.GetString()) &&
+                    int.TryParse(property.GetString(), out var value))
+                    return (value % maxValue + maxValue) % maxValue;
+                else if (property.ValueKind == JsonValueKind.Number && property.TryGetInt32(out var numericValue))
+                    return (numericValue % maxValue + maxValue) % maxValue;
+            }
+            return 0; // Use the default if property doesn't exist, is null, or invalid
+        }
+
         public static bool ProcessGameBooleanSetting(JsonElement jsonElement, string propertyName, bool currentValue)
         {
             if (jsonElement.TryGetProperty(propertyName, out var property) &&

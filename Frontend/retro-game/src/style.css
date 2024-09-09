@@ -562,6 +562,8 @@ input[type="number"] {
 .cpl-map-name {
   padding: 0.2rem;
   font-size: var(--fs-600);
+  min-width: 120px;
+  text-align: center;
 }
 
 .cpl-map-settings {

@@ -240,6 +240,23 @@ export default function CreatePrivateLobby() {
     { name: "Jungle", img: mapJungle },
   ];
 
+  const handleMapNavigation = (direction) => {
+    console.log("Handle Navigation: " + direction);
+    const currentIndex = mapSettings.map;
+    const newIndex = direction === "left" ? currentIndex - 1 : currentIndex + 1;
+
+    const updatedSettings = {
+      ...mapSettings,
+      map: newIndex,
+    };
+
+    if (connection) {
+      connection
+        .invoke("UpdateLobbySettings", lobby.lobbyId, updatedSettings)
+        .catch((err) => console.error(err));
+    }
+  };
+
   /* Leave Button */
   const handleLeave = async (e) => {
     e.preventDefault();
@@ -450,11 +467,21 @@ export default function CreatePrivateLobby() {
             alt="Map Image"
           />
           <div className="cpl-map-navigation-container">
-            <button className="button-default button-square">&lt;</button>
+            <button
+              className="button-default button-square"
+              onClick={() => handleMapNavigation("left")}
+            >
+              &lt;
+            </button>
             <p className="cpl-map-name gradient-text">
               {mapData[mapSettings.map].name}
             </p>
-            <button className="button-default button-square">&gt;</button>
+            <button
+              className="button-default button-square"
+              onClick={() => handleMapNavigation("right")}
+            >
+              &gt;
+            </button>
           </div>
         </div>
         <div className="cpl-player-info cpl-player-info-right border-gradient-normal">
