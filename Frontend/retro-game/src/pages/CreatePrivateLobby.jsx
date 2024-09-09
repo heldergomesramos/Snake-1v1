@@ -171,9 +171,24 @@ export default function CreatePrivateLobby() {
   const abilityMenuRef = useRef(null);
 
   const abilities = [
-    { id: 0, name: "Ability HeadTailSwap", img: headTailSwap },
-    { id: 1, name: "Ability FreezeTime", img: freezeTime },
-    { id: 2, name: "Ability Ghost", img: ghost },
+    {
+      id: 0,
+      name: "Head-Tail Swap",
+      img: headTailSwap,
+      description: "Swaps the snake's head and tail.",
+    },
+    {
+      id: 1,
+      name: "Freeze Time",
+      img: freezeTime,
+      description: "Freezes the opponent for a few turns.",
+    },
+    {
+      id: 2,
+      name: "Ghost",
+      img: ghost,
+      description: "Allows the snake to pass through obstacles.",
+    },
   ];
 
   const toggleAbilityMenu = () => {
@@ -381,27 +396,34 @@ export default function CreatePrivateLobby() {
                         className="color-menu-container"
                         ref={abilityMenuRef}
                       >
-                        <div className="color-menu">
+                        <div className="ability-menu">
                           {abilities.map((ability) => (
-                            <label
-                              key={ability.id}
-                              style={{
-                                backgroundImage: `url(${ability.img})`,
-                              }}
-                              className="ability-button pixel-art"
-                            >
-                              <input
-                                type="radio"
-                                name="ability"
-                                value={ability.id}
-                                checked={selectedAbility === ability.id}
-                                onChange={() => handleAbilitySelect(ability)}
-                                style={{ display: "none" }}
-                              />
-                              {selectedAbility === ability.id && (
-                                <div className="ability-selected-indicator" />
-                              )}
-                            </label>
+                            <div className="ability-container" key={ability.id}>
+                              <label
+                                style={{
+                                  backgroundImage: `url(${ability.img})`,
+                                }}
+                                className="ability-button pixel-art"
+                              >
+                                <input
+                                  type="radio"
+                                  name="ability"
+                                  value={ability.id}
+                                  checked={playerData.ability === ability.id}
+                                  onChange={() => handleAbilitySelect(ability)}
+                                  style={{ display: "none" }}
+                                />
+                                {playerData.ability === ability.id && (
+                                  <div className="ability-selected-indicator" />
+                                )}
+                              </label>
+                              <div className="tooltip border-gradient-normal">
+                                <p className="tooltip-name">{ability.name}</p>
+                                <p className="tooltip-description">
+                                  {ability.description}
+                                </p>
+                              </div>
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -513,34 +535,55 @@ export default function CreatePrivateLobby() {
                       </div>
                     )}
                   </div>
+                  {/* Ability Button */}
                   <div className="cpl-player-pallete-container">
                     <img
                       src={powerup}
                       alt="Powerup"
                       className="pixel-art cpl-player-button"
+                      onClick={toggleAbilityMenu}
+                      style={{
+                        cursor: "pointer",
+                        pointerEvents: isAbilityMenuOpen ? "none" : "auto",
+                      }}
                     />
-                    {/* Conditional rendering of color menu */}
-                    {isColorMenuOpen && (
-                      <div className="color-menu-container" ref={colorMenuRef}>
-                        <div className="color-menu">
-                          {colors.map((color) => (
-                            <label
-                              key={color}
-                              className="color-button"
-                              style={{ backgroundColor: color }}
-                            >
-                              <input
-                                type="radio"
-                                name="color"
-                                value={color}
-                                checked={selectedColor === color}
-                                onChange={() => handleColorSelect(color)}
-                                style={{ display: "none" }}
-                              />
-                              {selectedColor === color && (
-                                <div className="color-selected-indicator" />
-                              )}
-                            </label>
+                    {isAbilityMenuOpen && (
+                      <div
+                        className="color-menu-container"
+                        ref={abilityMenuRef}
+                      >
+                        <div className="ability-menu">
+                          {abilities.map((ability) => (
+                            <div className="ability-container" key={ability.id}>
+                              <label
+                                style={{
+                                  backgroundImage: `url(${ability.img})`,
+                                }}
+                                className="ability-button pixel-art"
+                              >
+                                <input
+                                  type="radio"
+                                  name="ability"
+                                  value={ability.id}
+                                  checked={playerData.ability === ability.id}
+                                  onChange={() => handleAbilitySelect(ability)}
+                                  style={{ display: "none" }}
+                                />
+                                {playerData.ability === ability.id && (
+                                  <div className="ability-selected-indicator" />
+                                )}
+                              </label>
+                              <div
+                                className={`tooltip border-gradient-normal ${
+                                  ability.id === 2 ? "tooltip-shift-left" : ""
+                                }`}
+                              >
+                                <p className="tooltip-name">{ability.name}</p>
+                                <p className="tooltip-description">
+                                  {ability.description}
+                                </p>
+                              </div>
+                            </div>
                           ))}
                         </div>
                       </div>

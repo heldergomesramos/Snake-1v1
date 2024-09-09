@@ -10,7 +10,7 @@
 :root {
   --color-background: #161616; /* A deeper black for a more immersive dark background */
   --color-text: #e0e0e0; /* Off-white for better contrast with the dark background */
-  --color-text-purple: #9c27b0;
+  --color-text-purple: #af37c4;
   --color-text-green: #39ff14; /* Neon green, symbolizing the toxic/poisonous theme */
   --color-border-input: #39ff14; /* Matching neon green for inputs */
   --color-border-input-shadow: rgb(
@@ -18,7 +18,7 @@
     20,
     255
   ); /* Soft shadow for input borders */
-  --color-text-title: #9c27b0; /* Deep purple, keeping in line with the snake theme */
+  --color-text-title: #af37c4; /* Deep purple, keeping in line with the snake theme */
   --color-border-gradient-1: #6aff14; /* Gradient start with neon green */
   --color-border-gradient-2: #27b077; /* Gradient end with deep purple */
   --color-red: #ff1744; /* Bright red for danger alerts, keeping a toxic feel */
@@ -436,10 +436,77 @@ input[type="number"] {
 
 /* Ability Stuff */
 
-.ability-button {
-  width: 64px;
-  height: 64px;
+.ability-container {
+  position: relative;
+  display: inline-block;
+  width: 56px; /* Ensure the width of the container matches the button size */
+  height: 56px; /* Ensure the height of the container matches the button size */
   margin: 5px;
+}
+
+.ability-container:hover .tooltip {
+  display: block;
+}
+
+.tooltip {
+  display: none;
+  position: absolute;
+  bottom: 100%; /* Show above the button */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 1);
+  text-align: center;
+  border-radius: 0px;
+  z-index: 1;
+  min-width: 120px;
+  width: 200px;
+  margin-bottom: 10px;
+  padding: 5px;
+}
+
+.tooltip-name {
+  margin: 0;
+  font-size: var(--fs-400);
+  color: var(--color-text-purple);
+}
+
+.tooltip-description {
+  margin: 0;
+  font-size: var(--fs-200);
+}
+
+.tooltip-shift-left {
+  transform: translateX(-80%);
+}
+
+.ability-menu {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 4 columns */
+  grid-gap: 10px; /* Optional spacing between buttons */
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  background-color: var(--color-background);
+  padding: 10px;
+  z-index: 100;
+
+  margin-top: 10px;
+  border: 10px solid;
+  border-image-slice: 1;
+  border-width: 3px;
+  border-image-source: linear-gradient(
+    to bottom,
+    var(--color-text-purple),
+    var(--color-border-gradient-2)
+  );
+
+  transform: translateX(-50%);
+}
+
+.ability-button {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
   position: relative;
   cursor: pointer;
   border: 3px solid transparent;
@@ -457,10 +524,11 @@ input[type="number"] {
 .ability-selected-indicator {
   width: 100%;
   height: 100%;
-  border: 30px solid var(--color-text-purple);
+  border: 5px solid var(--color-text-purple);
   position: absolute;
   top: 0;
   left: 0;
+  box-sizing: border-box;
 }
 
 /* Back to cpl */
