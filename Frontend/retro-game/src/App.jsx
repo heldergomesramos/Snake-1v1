@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import React, { useContext, useEffect } from "react";
 
+import Game from "./pages/Game";
 import HomePage from "./pages/HomePage";
 import MainMenu from "./pages/MainMenu";
 import CreatePrivateLobby from "./pages/CreatePrivateLobby";
@@ -43,6 +44,7 @@ function ProtectedRoutes() {
       <Route path="/create-private-lobby" element={<CreatePrivateLobby />} />
       <Route path="/join-private-lobby" element={<JoinPrivateLobby />} />
       <Route path="/public-queue" element={<PublicQueue />} />
+      <Route path="/game" element={<Game />} />
     </Routes>
   );
 }

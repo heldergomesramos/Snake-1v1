@@ -62,6 +62,12 @@ export default function CreatePrivateLobby() {
         setMapSettings(updatedLobbyData.gameSettings);
         setTempMapSettings(updatedLobbyData.gameSettings);
       });
+
+      connection.on("StartGame", () => {
+        console.log("Start Game");
+        // navigate("/game", { state: { game } });
+        navigate("/game");
+      });
     }
   }, [connection]);
 
@@ -305,12 +311,21 @@ export default function CreatePrivateLobby() {
       }
     } catch (err) {
       console.log(err);
-      setError("Failed to connect to the server.");
+      setError("Failed to connect to the server");
     }
   };
 
-  const handleStart = () => {
-    // Start game logic
+  /* Leave Button */
+  const handleStart = async (e) => {
+    // if (lobby.player1 == null || lobby.player2 == null) {
+    //   setError("Lobby is not full");
+    //   return;
+    // }
+    if (connection) {
+      connection
+        .invoke("StartGame", lobby.lobbyId)
+        .catch((err) => console.error(err));
+    }
   };
 
   return (

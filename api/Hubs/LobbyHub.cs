@@ -82,6 +82,17 @@ namespace api.Hubs
             await _playerService.UpdatePlayerAsync(player);
         }
 
+        public async Task StartGame(string lobbyId)
+        {
+            Console.WriteLine("\nStart Game of lobby: " + lobbyId);
+
+            var lobby = LobbyManager.GetPrivateLobbyById(lobbyId);
+            if (lobby == null)
+                return;
+
+            await Clients.Group(lobbyId).SendAsync("StartGame", LobbyMappers.ToResponseDto(lobby));
+        }
+
         /* Static Methods */
 
         public static async Task AddPlayerToLobby(string playerId, string lobbyId, object lobbyDto, IHubContext<LobbyHub> hubContext)
