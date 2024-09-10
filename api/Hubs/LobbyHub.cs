@@ -89,8 +89,9 @@ namespace api.Hubs
             var lobby = LobbyManager.GetPrivateLobbyById(lobbyId);
             if (lobby == null)
                 return;
-
-            await Clients.Group(lobbyId).SendAsync("StartGame", LobbyMappers.ToResponseDto(lobby));
+            var game = GameManager.CreateGame(lobby);
+            Console.WriteLine("Send this game: " + game.GameId);
+            await Clients.Group(lobbyId).SendAsync("StartGame", game);
         }
 
         /* Static Methods */

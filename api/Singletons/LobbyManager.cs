@@ -9,9 +9,6 @@ namespace api.Singletons
 {
     public class LobbyManager
     {
-        private static readonly Lazy<LobbyManager> instance = new(() => new LobbyManager());
-        public static LobbyManager Instance => instance.Value;
-
         private static readonly object _lock = new();
         private static Lobby? _currentLobby = null;
         private static readonly List<PrivateLobby> _privateLobbies = new();

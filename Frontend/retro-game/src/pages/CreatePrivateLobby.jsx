@@ -63,10 +63,9 @@ export default function CreatePrivateLobby() {
         setTempMapSettings(updatedLobbyData.gameSettings);
       });
 
-      connection.on("StartGame", () => {
+      connection.on("StartGame", (gameData) => {
         console.log("Start Game");
-        // navigate("/game", { state: { game } });
-        navigate("/game");
+        navigate("/game", { state: { gameData } });
       });
     }
   }, [connection]);
