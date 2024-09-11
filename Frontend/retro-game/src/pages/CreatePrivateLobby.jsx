@@ -37,9 +37,13 @@ export default function CreatePrivateLobby() {
   const [lobby, setLobby] = useState(initialLobby);
   const [mapSettings, setMapSettings] = useState(lobby.gameSettings);
   const [tempMapSettings, setTempMapSettings] = useState(mapSettings);
-  const [isPlayer1] = useState(
-    initialLobby.player1.playerId == playerData.playerId
+  const [isPlayer1, setIsPlayer1] = useState(
+    initialLobby.player1.playerId === playerData.playerId
   );
+
+  useEffect(() => {
+    setIsPlayer1(lobby.player1.playerId === playerData.playerId);
+  }, [lobby]);
 
   const GetSnakeSprite = {
     0: redSnake,
@@ -56,8 +60,13 @@ export default function CreatePrivateLobby() {
     if (connection) {
       connection.on("LobbyUpdated", (updatedLobbyData) => {
         console.log("Lobby Updated:", updatedLobbyData);
-        if (isPlayer1) setPlayerDataFields(updatedLobbyData.player1);
-        else setPlayerDataFields(updatedLobbyData.player2);
+        if (
+          updatedLobbyData.player1 != null &&
+          updatedLobbyData.player1.playerId === playerData.playerId
+        )
+          setPlayerDataFields(updatedLobbyData.player1);
+        else if (updatedLobbyData.player2 != null)
+          setPlayerDataFields(updatedLobbyData.player2);
         setLobby(updatedLobbyData);
         setMapSettings(updatedLobbyData.gameSettings);
         setTempMapSettings(updatedLobbyData.gameSettings);

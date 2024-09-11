@@ -14,35 +14,6 @@ namespace api.Singletons
         private static readonly List<PrivateLobby> _privateLobbies = new();
         private static readonly List<Lobby> _publicLobbies = new();
 
-        public static List<Lobby> AllLobbiesCopy
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _publicLobbies.Concat(_privateLobbies).ToList();
-                }
-            }
-        }
-
-        public static Lobby? CurrentLobby
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _currentLobby;
-                }
-            }
-            set
-            {
-                lock (_lock)
-                {
-                    _currentLobby = value;
-                }
-            }
-        }
-
         public static List<PrivateLobby> GetAllPrivateLobbies()
         {
             return _privateLobbies;
@@ -125,6 +96,8 @@ namespace api.Singletons
             var lobbyFound = _privateLobbies.Find(x => x.Code == code);
             if (lobbyFound == null)
                 return null;
+            if (lobbyFound.GameStarted)
+                return null;
             if (lobbyFound.Player1 == null)
                 lobbyFound.Player1 = player;
             else if (lobbyFound.Player2 == null)
@@ -152,7 +125,7 @@ namespace api.Singletons
 
             if (lobbyFound.IsEmpty)
             {
-                DeletePrivateLobby(lobbyFound);
+                RemovePrivateLobby(lobbyFound);
             }
             else
             {
@@ -163,7 +136,6 @@ namespace api.Singletons
                 await hubContext.Groups.RemoveFromGroupAsync(connectionId, lobbyId);
                 await hubContext.Clients.Group(lobbyId).SendAsync("LobbyUpdated", updatedLobbyDto);
             }
-
         }
 
         public static PrivateLobbyResponseDto? UpdateLobbySettings(string lobbyId, GameSettings newSettings)
@@ -176,35 +148,26 @@ namespace api.Singletons
             return LobbyMappers.ToResponseDto(lobby);
         }
 
-        public static void DeletePrivateLobby(string lobbyId)
+        public static void RemovePrivateLobby(string lobbyId)
         {
-            lock (_lock)
-            {
-                var lobby = _privateLobbies.FirstOrDefault(x => x.LobbyId == lobbyId);
-                if (lobby != null)
-                    _privateLobbies.Remove(lobby);
-            }
+            var lobby = _privateLobbies.FirstOrDefault(x => x.LobbyId == lobbyId);
+            if (lobby != null)
+                _privateLobbies.Remove(lobby);
         }
 
 
-        public static void DeletePrivateLobby(PrivateLobby lobby)
+        public static void RemovePrivateLobby(PrivateLobby lobby)
         {
-            lock (_lock)
-            {
-                if (lobby != null && _privateLobbies.Contains(lobby))
-                    _privateLobbies.Remove(lobby);
-            }
+            if (lobby != null)
+                _privateLobbies.Remove(lobby);
         }
 
 
         public static void DeleteAllLobbies()
         {
-            lock (_lock)
-            {
-                _privateLobbies.Clear();
-                _publicLobbies.Clear();
-                _currentLobby = null;
-            }
+            _privateLobbies.Clear();
+            _publicLobbies.Clear();
+            _currentLobby = null;
         }
 
         public static bool IsPlayerInLobby(string playerId, Lobby? lobby)

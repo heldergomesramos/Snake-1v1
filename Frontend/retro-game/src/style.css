@@ -660,11 +660,6 @@ input[type="checkbox"]:checked + label {
   align-items: center;
 }
 
-.game-board {
-  height: 60vh;
-  width: 80vw;
-}
-
 .game-ability {
   height: 10vh;
   width: 80vw;
@@ -677,4 +672,26 @@ input[type="checkbox"]:checked + label {
 .game-buttons {
   height: 10vh;
   width: 80vw;
+}
+
+.game-board {
+  height: 60vh;
+  width: 80vw;
+}
+
+.game-grid {
+  display: grid;
+  gap: 0px;
+
+  min-width: 20%;
+  min-height: 20%;
+  max-width: 100%;
+  max-height: 100%;
+  place-items: center;
+}
+
+.tile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background-repeat: no-repeat;
 }

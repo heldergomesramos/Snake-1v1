@@ -6,6 +6,11 @@ namespace api.Singletons
     {
         private static readonly List<Game> _games = new();
 
+        public static Game? GetGameByGameId(string gameId)
+        {
+            return _games.Find(x => x.GameId == gameId);
+        }
+
         public static Game CreateGame(Lobby lobby)
         {
             var game = new Game(lobby);

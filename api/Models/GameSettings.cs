@@ -5,8 +5,8 @@ namespace api.Models
     public class GameSettings
     {
         public int Speed { get; set; } = 2;
-        public int Width { get; set; } = 14;
-        public int Height { get; set; } = 14;
+        public int Width { get; set; } = 10;
+        public int Height { get; set; } = 10;
         public int Time { get; set; } = 150;
         public bool Borders { get; set; } = false;
         public bool Abilities { get; set; } = true;

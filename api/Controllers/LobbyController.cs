@@ -21,13 +21,6 @@ namespace api.Controllers
             _hubContext = hubContext;
         }
 
-        [HttpGet("all")]
-        public IActionResult GetAll()
-        {
-            var lobbies = LobbyManager.AllLobbiesCopy;
-            return Ok(lobbies);
-        }
-
         [HttpGet("all-private")]
         public IActionResult GetAllPrivateLobbies()
         {

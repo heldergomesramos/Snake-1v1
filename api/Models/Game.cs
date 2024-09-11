@@ -2,7 +2,7 @@ namespace api.Models
 {
     public class Game
     {
-        private static int tileVariations = 8;
+        private static int tileVariations = 16;
         public string GameId { get; private set; } = string.Empty;
         public Lobby Lobby { get; private set; }
 

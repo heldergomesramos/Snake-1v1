@@ -5,6 +5,7 @@ using api.Services;
 using api.Singletons;
 using Microsoft.AspNetCore.SignalR;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace api.Hubs
 {
@@ -89,9 +90,47 @@ namespace api.Hubs
             var lobby = LobbyManager.GetPrivateLobbyById(lobbyId);
             if (lobby == null)
                 return;
+            lobby.GameStarted = true;
             var game = GameManager.CreateGame(lobby);
+
+            if (lobby.Player1 != null)
+                lobby.Player1.GameId = game.GameId;
+
+            if (lobby.Player2 != null)
+                lobby.Player2.GameId = game.GameId;
+
             Console.WriteLine("Send this game: " + game.GameId);
             await Clients.Group(lobbyId).SendAsync("StartGame", game);
+        }
+
+        public async Task LeaveGame(string playerId, string gameId)
+        {
+            Console.WriteLine("Leave Game: " + gameId + " by: " + playerId);
+            var game = GameManager.GetGameByGameId(gameId);
+            if (game == null)
+                return;
+            var lobby = game.Lobby;
+            await Clients.Group(lobby.LobbyId).SendAsync("LeaveGame");
+            var player1 = lobby.Player1;
+            if (player1 != null)
+            {
+                player1.LobbyId = string.Empty;
+                player1.GameId = string.Empty;
+                var connectionId = PlayerManager.GetConnectionIdByPlayerId(player1.PlayerId);
+                if (connectionId != null)
+                    await Groups.RemoveFromGroupAsync(connectionId, lobby.LobbyId);
+            }
+            var player2 = lobby.Player2;
+            if (player2 != null)
+            {
+                player2.LobbyId = string.Empty;
+                player2.GameId = string.Empty;
+                var connectionId = PlayerManager.GetConnectionIdByPlayerId(player2.PlayerId);
+                if (connectionId != null)
+                    await Groups.RemoveFromGroupAsync(connectionId, lobby.LobbyId);
+            }
+            GameManager.RemoveGame(gameId);
+            LobbyManager.RemovePrivateLobby(lobby.LobbyId);
         }
 
         /* Static Methods */
