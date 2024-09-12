@@ -100,7 +100,7 @@ namespace api.Hubs
                 lobby.Player2.GameId = game.GameId;
 
             Console.WriteLine("Send this game: " + game.GameId);
-            await Clients.Group(lobbyId).SendAsync("StartGame", game);
+            await Clients.Group(lobbyId).SendAsync("StartGame", game.ToResponseDto());
         }
 
         public async Task LeaveGame(string playerId, string gameId)

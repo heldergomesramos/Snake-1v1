@@ -15,6 +15,8 @@ export default function Game() {
   const boardRef = useRef(null);
   const [tileSize, setTileSize] = useState(16); // Dynamically calculated tile size
 
+  console.log(JSON.stringify(initialGameData));
+
   const TILESET_COLUMNS = 4; // Number of columns in the tileset (64px / 16px = 4)
   const TILESET_TILE_SIZE = 16; // Size of each tile in the tileset (16x16 px)
   const TILESET_SIZE = 64; // Size of each tile in the tileset (16x16 px)
