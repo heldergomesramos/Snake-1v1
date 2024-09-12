@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import { useSignalR } from "../context/SignalRContext";
-import { useLocation, useNavigate } from "react-router-dom";
 import headTailSwap from "../assets/images/AbilityIcons-HeadTailSwap.png";
 import tileset from "../assets/images/Maps-Plains.png";
 
 export default function Game() {
   const navigate = useNavigate();
-  const { connection } = useSignalR();
   const { playerData, setPlayerData } = useContext(PlayerContext);
+  const { connection } = useSignalR();
   const location = useLocation();
   const initialGameData = location.state?.gameData;
   const [gameData, setGameData] = useState(initialGameData);
@@ -18,6 +18,30 @@ export default function Game() {
   const TILESET_COLUMNS = 4; // Number of columns in the tileset (64px / 16px = 4)
   const TILESET_TILE_SIZE = 16; // Size of each tile in the tileset (16x16 px)
   const TILESET_SIZE = 64; // Size of each tile in the tileset (16x16 px)
+
+  useEffect(() => {
+    const resizeBoard = () => {
+      if (!boardRef.current) return;
+
+      const { clientWidth, clientHeight } = boardRef.current;
+      const rows = gameData.lobby.gameSettings.height;
+      const columns = gameData.lobby.gameSettings.width;
+
+      // Calculate the maximum possible tile size while maintaining the aspect ratio
+      const tileSizeWidth = Math.floor(clientWidth / columns);
+      const tileSizeHeight = Math.floor(clientHeight / rows);
+
+      // Set the tile size based on the smaller dimension to maintain aspect ratio
+      const newTileSize = Math.min(tileSizeWidth, tileSizeHeight);
+      setTileSize(newTileSize);
+    };
+
+    // Recalculate tile size on initial load and window resize
+    resizeBoard();
+    window.addEventListener("resize", resizeBoard);
+
+    return () => window.removeEventListener("resize", resizeBoard);
+  }, [gameData]);
 
   useEffect(() => {
     if (connection) {
@@ -37,15 +61,29 @@ export default function Game() {
     }
   };
 
-  const getTileOffset = (tileIndex) => {
-    const TILE_SIZE = 16; // Tile size in pixels
+  const getTileClipPathAndPosition = (tileIndex) => {
+    const TILESET_COLUMNS = 4; // 4 columns and 4 rows
+    const TILE_SIZE_PERCENT = 25; // Each tile is 25% of the total image
+    const HALF_TILE_SIZE_PERCENT = TILE_SIZE_PERCENT / 2; // 12.5% for centering
 
-    const row = Math.floor(tileIndex / TILESET_COLUMNS);
-    const col = tileIndex % TILESET_COLUMNS;
+    // Calculate row and column for the given tile index
+    const row = Math.floor(tileIndex / TILESET_COLUMNS); // Row index (0 to 3)
+    const col = tileIndex % TILESET_COLUMNS; // Column index (0 to 3)
 
+    // Calculate top-left and bottom-right coordinates for the tile in percentages
+    const topLeftX = col * TILE_SIZE_PERCENT;
+    const topLeftY = row * TILE_SIZE_PERCENT;
+    const bottomRightX = topLeftX + TILE_SIZE_PERCENT;
+    const bottomRightY = topLeftY + TILE_SIZE_PERCENT;
+
+    // To center the tile, we use transform: translate to shift the image
+    const translateX = HALF_TILE_SIZE_PERCENT - topLeftX; // Horizontal centering
+    const translateY = HALF_TILE_SIZE_PERCENT - topLeftY; // Vertical centering
+
+    // Return the clip-path and translation for centering the tile
     return {
-      backgroundPositionX: -col * TILE_SIZE,
-      backgroundPositionY: -row * TILE_SIZE,
+      clipPath: `polygon(${topLeftX}% ${topLeftY}%, ${bottomRightX}% ${topLeftY}%, ${bottomRightX}% ${bottomRightY}%, ${topLeftX}% ${bottomRightY}%)`,
+      transform: `translate(${translateX}%, ${translateY}%)`,
     };
   };
 
@@ -58,24 +96,26 @@ export default function Game() {
         ref={boardRef}
         className="game-grid container-center"
         style={{
-          gridTemplateRows: `repeat(${rows}, 1fr)`,
-          gridTemplateColumns: `repeat(${columns}, 1fr)`,
+          display: "grid",
+          gridTemplateRows: `repeat(${rows}, ${tileSize}px)`,
+          gridTemplateColumns: `repeat(${columns}, ${tileSize}px)`,
+          transform: `translate(${-tileSize / 2}px, ${tileSize}px)`, // Offset 1 cell down and half a cell left
         }}
       >
         {gameData.groundLayer.map((row, rowIndex) =>
           row.map((tileIndex, colIndex) => {
-            const { backgroundPositionX, backgroundPositionY } =
-              getTileOffset(tileIndex);
+            const { clipPath, transform } =
+              getTileClipPathAndPosition(tileIndex);
 
             return (
-              <div
+              <img
+                className="tile pixel-art"
                 key={`${rowIndex}-${colIndex}`}
-                className="tile"
+                src={tileset}
+                alt={`Tile ${tileIndex}`}
                 style={{
-                  width: `100%`,
-                  height: `100%`,
-                  backgroundImage: `url(${tileset})`,
-                  backgroundPosition: `${backgroundPositionX}px ${backgroundPositionY}px`,
+                  clipPath: clipPath,
+                  transform: transform,
                 }}
               />
             );
@@ -101,7 +141,7 @@ export default function Game() {
           <p>Score: 1440</p>
         </div>
       </div>
-      <div className="game-board container-center">
+      <div className="game-board">
         <Board />
       </div>
       <div className="game-ability container-center">
