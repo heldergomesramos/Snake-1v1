@@ -645,19 +645,29 @@ input[type="checkbox"]:checked + label {
 /* Game */
 
 .game-info {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  align-content: center;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  width: 100vw;
+  width: 60vw;
   height: 15vh;
 }
 
+.game-player-info.left {
+  justify-self: start;
+}
+
+.game-player-info.right {
+  justify-self: end;
+}
+
 .game-timer {
+  text-align: center;
+}
+
+.game-players {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: space-evenly;
+  width: 100%;
 }
 
 .game-ability {
@@ -677,6 +687,7 @@ input[type="checkbox"]:checked + label {
 .game-board {
   height: 65vh;
   width: 80vw;
+  display: relative;
 }
 
 .game-grid {

@@ -125,24 +125,78 @@ export default function Game() {
     );
   };
 
+  const EntityLayer = () => {
+    const rows = gameData.lobby.gameSettings.height;
+    const columns = gameData.lobby.gameSettings.width;
+
+    return (
+      <div
+        className="game-grid container-center"
+        style={{
+          display: "grid",
+          gridTemplateRows: `repeat(${rows}, ${tileSize}px)`,
+          gridTemplateColumns: `repeat(${columns}, ${tileSize}px)`,
+          position: "absolute",
+          top: 0,
+          left: 0,
+        }}
+      >
+        {/* {gameData.entityLayer.map((row, rowIndex) =>
+          row.map((entity, colIndex) => {
+            const entitySprite = getEntitySprite(entity);
+
+            return (
+              <img
+                className="entity pixel-art"
+                key={`${rowIndex}-${colIndex}`}
+                src={entitySprite || ""}
+                alt={`Entity ${entity}`}
+                style={{
+                  width: tileSize,
+                  height: tileSize,
+                }}
+              />
+            );
+          })
+        )} */}
+      </div>
+    );
+  };
+
+  const player1 = gameData.lobby.player1;
+  const player2 = gameData.lobby.player2;
+  const player1Score = gameData.player1Score;
+  const player2Score = gameData.player2Score;
+
   return (
     <div className="container-center">
       <div className="game-info">
-        <div className="game-player-info">
-          <p>Pofinho</p>
-          <p>Score: 1440</p>
-        </div>
+        {player1 ? (
+          <div className="game-player-info left">
+            <p>{player1.username}</p>
+            <p>Score: {player1Score || 0}</p>
+          </div>
+        ) : (
+          <div className="empty"></div>
+        )}
+
         <div className="game-timer">
-          <p>00:45</p>
-          <p>354</p>
+          <p>00:00</p>
+          <p>0</p>
         </div>
-        <div className="game-player-info">
-          <p>Pofinho</p>
-          <p>Score: 1440</p>
-        </div>
+
+        {player2 ? (
+          <div className="game-player-info right">
+            <p>{player2.username}</p>
+            <p>Score: {player2Score || 0}</p>
+          </div>
+        ) : (
+          <div className="empty"></div>
+        )}
       </div>
       <div className="game-board">
         <Board />
+        {/* <EntityLayer /> */}
       </div>
       <div className="game-ability container-center">
         <img

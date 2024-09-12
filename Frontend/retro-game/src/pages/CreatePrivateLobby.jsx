@@ -42,7 +42,9 @@ export default function CreatePrivateLobby() {
   );
 
   useEffect(() => {
-    setIsPlayer1(lobby.player1.playerId === playerData.playerId);
+    setIsPlayer1(
+      lobby.player1 != null && lobby.player1.playerId === playerData.playerId
+    );
   }, [lobby]);
 
   const GetSnakeSprite = {
