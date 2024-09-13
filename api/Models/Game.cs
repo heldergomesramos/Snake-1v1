@@ -96,7 +96,7 @@ namespace api.Models
 
                 // Create the segments for the snake
                 Tail = new SnakeSegment(tailX, y, playerNumber == 1 ? "r" : "l", "tail", playerNumber);
-                var body = new SnakeSegment(bodyX, y, playerNumber == 1 ? "r" : "l", "body", playerNumber);
+                var body = new SnakeSegment(bodyX, y, "h", "body", playerNumber);
                 Head = new SnakeSegment(headX, y, playerNumber == 1 ? "r" : "l", "head", playerNumber);
 
                 Segments.Add(Head);

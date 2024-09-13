@@ -208,6 +208,8 @@ input[type="number"] {
     var(--color-border-gradient-1),
     var(--color-border-gradient-2)
   );
+
+  z-index: 100;
 }
 
 .button-default:hover {
@@ -698,7 +700,4 @@ input[type="checkbox"]:checked + label {
 }
 
 .tile {
-  /*clip-path: polygon(0% 0%, 25% 0%, 25% 25%, 0% 25%);*/
-  width: 400%;
-  height: 400%;
 }

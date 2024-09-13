@@ -4,6 +4,15 @@ import { PlayerContext } from "../context/PlayerContext";
 import { useSignalR } from "../context/SignalRContext";
 import headTailSwap from "../assets/images/AbilityIcons-HeadTailSwap.png";
 import tileset from "../assets/images/Maps-Plains.png";
+import redSnake from "../assets/images/Snake-red.png";
+import orangeSnake from "../assets/images/Snake-orange.png";
+import yellowSnake from "../assets/images/Snake-yellow.png";
+import greenSnake from "../assets/images/Snake-green.png";
+import lightBlueSnake from "../assets/images/Snake-blue-light.png";
+import darkBlueSnake from "../assets/images/Snake-blue-dark.png";
+import purpleSnake from "../assets/images/Snake-purple.png";
+import pinkSnake from "../assets/images/Snake-pink.png";
+import miscSprite from "../assets/images/Misc.png";
 
 export default function Game() {
   const navigate = useNavigate();
@@ -15,11 +24,23 @@ export default function Game() {
   const boardRef = useRef(null);
   const [tileSize, setTileSize] = useState(16); // Dynamically calculated tile size
 
+  const snakeTilesets = [
+    redSnake,
+    orangeSnake,
+    yellowSnake,
+    greenSnake,
+    lightBlueSnake,
+    darkBlueSnake,
+    purpleSnake,
+    pinkSnake,
+  ];
+
+  const miscTilset = miscSprite;
+
   console.log(JSON.stringify(initialGameData));
 
-  const TILESET_COLUMNS = 4; // Number of columns in the tileset (64px / 16px = 4)
-  const TILESET_TILE_SIZE = 16; // Size of each tile in the tileset (16x16 px)
-  const TILESET_SIZE = 64; // Size of each tile in the tileset (16x16 px)
+  const TILE_SIZE_PERCENT = 25;
+  const HALF_TILE_SIZE_PERCENT = 12.5;
 
   useEffect(() => {
     const resizeBoard = () => {
@@ -101,7 +122,8 @@ export default function Game() {
           display: "grid",
           gridTemplateRows: `repeat(${rows}, ${tileSize}px)`,
           gridTemplateColumns: `repeat(${columns}, ${tileSize}px)`,
-          transform: `translate(${-tileSize / 2}px, ${tileSize}px)`, // Offset 1 cell down and half a cell left
+          transform: `translate(${-tileSize / 2}px, ${tileSize}px)`,
+          zIndex: 0,
         }}
       >
         {gameData.groundLayer.map((row, rowIndex) =>
@@ -118,6 +140,8 @@ export default function Game() {
                 style={{
                   clipPath: clipPath,
                   transform: transform,
+                  width: `${tileSize * 4.1}px`,
+                  height: `${tileSize * 4.1}px`,
                 }}
               />
             );
@@ -130,6 +154,123 @@ export default function Game() {
   const EntityLayer = () => {
     const rows = gameData.lobby.gameSettings.height;
     const columns = gameData.lobby.gameSettings.width;
+    const player1 = gameData.lobby.player1;
+    const player2 = gameData.lobby.player2;
+    const player1SnakeSprite =
+      player1 == null ? null : snakeTilesets[player1.color];
+    const player2SnakeSprite =
+      player2 == null ? null : snakeTilesets[player2.color];
+
+    console.log(player1SnakeSprite);
+    console.log(player2SnakeSprite);
+
+    const GetEntityData = (entity) => {
+      let sprite = null;
+      let topLeftX = 0;
+      let topLeftY = 0;
+
+      switch (entity) {
+        case "empty":
+          sprite = miscTilset;
+          topLeftX = 3;
+          topLeftY = 3;
+          break;
+
+        // Snake 1 cases
+        case "snake1-head-l":
+          sprite = player1SnakeSprite;
+          topLeftX = 0;
+          topLeftY = 0;
+          break;
+
+        case "snake1-head-u":
+          sprite = player1SnakeSprite;
+          topLeftX = 3;
+          topLeftY = 0;
+          break;
+
+        case "snake1-head-r":
+          sprite = player1SnakeSprite;
+          topLeftX = 1;
+          topLeftY = 1;
+          break;
+
+        case "snake1-head-d":
+          sprite = player1SnakeSprite;
+          topLeftX = 2;
+          topLeftY = 2;
+          break;
+        case "snake1-body-h":
+          sprite = player1SnakeSprite;
+          topLeftX = 1;
+          topLeftY = 0;
+          break;
+        case "snake1-body-v":
+          sprite = player1SnakeSprite;
+          topLeftX = 3;
+          topLeftY = 1;
+          break;
+        case "snake1-body-lu":
+          sprite = player1SnakeSprite;
+          topLeftX = 0;
+          topLeftY = 3;
+          break;
+        case "snake1-body-ld":
+          sprite = player1SnakeSprite;
+          topLeftX = 0;
+          topLeftY = 2;
+          break;
+        case "snake1-body-ru":
+          sprite = p;
+          topLeftX = 1;
+          topLeftY = 3 * TILE_SIZE_PERCENT;
+          break;
+        case "snake1-body-rd":
+          sprite = player1SnakeSprite;
+          topLeftX = 1;
+          topLeftY = 2;
+          break;
+        case "snake1-tail-l":
+          sprite = player1SnakeSprite;
+          topLeftX = 2;
+          topLeftY = 0;
+          break;
+        case "snake1-tail-u":
+          sprite = player1SnakeSprite;
+          topLeftX = 3;
+          topLeftY = 2;
+          break;
+        case "snake1-tail-r":
+          sprite = player1SnakeSprite;
+          topLeftX = 0;
+          topLeftY = 1;
+          break;
+        case "snake1-tail-d":
+          sprite = player1SnakeSprite;
+          topLeftX = 2;
+          topLeftY = 1;
+          break;
+        case "apple":
+          sprite = miscTilset;
+          topLeftX = 0;
+          topLeftY = 0;
+          break;
+      }
+
+      topLeftX = topLeftX * TILE_SIZE_PERCENT;
+      topLeftY = topLeftY * TILE_SIZE_PERCENT;
+      let bottomRightX = topLeftX + TILE_SIZE_PERCENT;
+      let bottomRightY = topLeftY + TILE_SIZE_PERCENT;
+
+      let translateX = HALF_TILE_SIZE_PERCENT - topLeftX;
+      let translateY = HALF_TILE_SIZE_PERCENT - topLeftY;
+
+      return {
+        sprite,
+        clipPath: `polygon(${topLeftX}% ${topLeftY}%, ${bottomRightX}% ${topLeftY}%, ${bottomRightX}% ${bottomRightY}%, ${topLeftX}% ${bottomRightY}%)`,
+        transform: `translate(${translateX}%, ${translateY}%)`,
+      };
+    };
 
     return (
       <div
@@ -139,28 +280,31 @@ export default function Game() {
           gridTemplateRows: `repeat(${rows}, ${tileSize}px)`,
           gridTemplateColumns: `repeat(${columns}, ${tileSize}px)`,
           position: "absolute",
-          top: 0,
-          left: 0,
+          top: `${tileSize / 2}px`,
+          left: `${-tileSize / 2}px`,
+          zIndex: 1,
         }}
       >
-        {/* {gameData.entityLayer.map((row, rowIndex) =>
+        {gameData.entityLayer.map((row, rowIndex) =>
           row.map((entity, colIndex) => {
-            const entitySprite = getEntitySprite(entity);
+            const { sprite, clipPath, transform } = GetEntityData(entity);
 
             return (
               <img
-                className="entity pixel-art"
+                className="tile pixel-art"
                 key={`${rowIndex}-${colIndex}`}
-                src={entitySprite || ""}
+                src={sprite}
                 alt={`Entity ${entity}`}
                 style={{
-                  width: tileSize,
-                  height: tileSize,
+                  clipPath: clipPath,
+                  transform: transform,
+                  width: `${tileSize * 4}px`,
+                  height: `${tileSize * 4}px`,
                 }}
               />
             );
           })
-        )} */}
+        )}
       </div>
     );
   };
@@ -198,7 +342,7 @@ export default function Game() {
       </div>
       <div className="game-board">
         <Board />
-        {/* <EntityLayer /> */}
+        <EntityLayer />
       </div>
       <div className="game-ability container-center">
         <img
