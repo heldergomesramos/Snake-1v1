@@ -140,8 +140,8 @@ export default function Game() {
                 style={{
                   clipPath: clipPath,
                   transform: transform,
-                  width: `${tileSize * 4.1}px`,
-                  height: `${tileSize * 4.1}px`,
+                  width: `${tileSize * 4}px`,
+                  height: `${tileSize * 4}px`,
                 }}
               />
             );
@@ -200,56 +200,151 @@ export default function Game() {
           topLeftX = 2;
           topLeftY = 2;
           break;
+
         case "snake1-body-h":
           sprite = player1SnakeSprite;
           topLeftX = 1;
           topLeftY = 0;
           break;
+
         case "snake1-body-v":
           sprite = player1SnakeSprite;
           topLeftX = 3;
           topLeftY = 1;
           break;
+
         case "snake1-body-lu":
           sprite = player1SnakeSprite;
           topLeftX = 0;
           topLeftY = 3;
           break;
+
         case "snake1-body-ld":
           sprite = player1SnakeSprite;
           topLeftX = 0;
           topLeftY = 2;
           break;
+
         case "snake1-body-ru":
           sprite = p;
           topLeftX = 1;
           topLeftY = 3 * TILE_SIZE_PERCENT;
           break;
+
         case "snake1-body-rd":
           sprite = player1SnakeSprite;
           topLeftX = 1;
           topLeftY = 2;
           break;
+
         case "snake1-tail-l":
           sprite = player1SnakeSprite;
           topLeftX = 2;
           topLeftY = 0;
           break;
+
         case "snake1-tail-u":
           sprite = player1SnakeSprite;
           topLeftX = 3;
           topLeftY = 2;
           break;
+
         case "snake1-tail-r":
           sprite = player1SnakeSprite;
           topLeftX = 0;
           topLeftY = 1;
           break;
+
         case "snake1-tail-d":
           sprite = player1SnakeSprite;
           topLeftX = 2;
           topLeftY = 1;
           break;
+
+        case "snake2-head-l":
+          sprite = player2SnakeSprite;
+          topLeftX = 0;
+          topLeftY = 0;
+          break;
+
+        case "snake2-head-u":
+          sprite = player2SnakeSprite;
+          topLeftX = 3;
+          topLeftY = 0;
+          break;
+
+        case "snake2-head-r":
+          sprite = player2SnakeSprite;
+          topLeftX = 1;
+          topLeftY = 1;
+          break;
+
+        case "snake2-head-d":
+          sprite = player2SnakeSprite;
+          topLeftX = 2;
+          topLeftY = 2;
+          break;
+
+        case "snake2-body-h":
+          sprite = player2SnakeSprite;
+          topLeftX = 1;
+          topLeftY = 0;
+          break;
+
+        case "snake2-body-v":
+          sprite = player2SnakeSprite;
+          topLeftX = 3;
+          topLeftY = 1;
+          break;
+
+        case "snake2-body-lu":
+          sprite = player2SnakeSprite;
+          topLeftX = 0;
+          topLeftY = 3;
+          break;
+
+        case "snake2-body-ld":
+          sprite = player2SnakeSprite;
+          topLeftX = 0;
+          topLeftY = 2;
+          break;
+
+        case "snake2-body-ru":
+          sprite = player2SnakeSprite;
+          topLeftX = 1;
+          topLeftY = 3;
+          break;
+
+        case "snake2-body-rd":
+          sprite = player2SnakeSprite;
+          topLeftX = 1;
+          topLeftY = 2;
+          break;
+
+        case "snake2-tail-l":
+          sprite = player2SnakeSprite;
+          topLeftX = 2;
+          topLeftY = 0;
+          break;
+
+        case "snake2-tail-u":
+          sprite = player2SnakeSprite;
+          topLeftX = 3;
+          topLeftY = 2;
+          break;
+
+        case "snake2-tail-r":
+          sprite = player2SnakeSprite;
+          topLeftX = 0;
+          topLeftY = 1;
+          break;
+
+        case "snake2-tail-d":
+          sprite = player2SnakeSprite;
+          topLeftX = 2;
+          topLeftY = 1;
+          break;
+
         case "apple":
           sprite = miscTilset;
           topLeftX = 0;
@@ -279,9 +374,7 @@ export default function Game() {
           display: "grid",
           gridTemplateRows: `repeat(${rows}, ${tileSize}px)`,
           gridTemplateColumns: `repeat(${columns}, ${tileSize}px)`,
-          position: "absolute",
-          top: `${tileSize / 2}px`,
-          left: `${-tileSize / 2}px`,
+          transform: `translate(${-tileSize / 2}px, ${tileSize}px)`,
           zIndex: 1,
         }}
       >
