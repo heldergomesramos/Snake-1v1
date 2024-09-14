@@ -16,11 +16,13 @@ namespace api.Models
         public int Player1Score { get; private set; } = 0;
         public int Player2Score { get; private set; } = 0;
         public int GameTick { get; private set; } = 0;
+        public int Time { get; private set; } = 3000;
+        public int TickInterval { get; private set; } = 0;
 
         // Maps <playerId, Snake>
         public Dictionary<string, Snake> Snakes { get; set; } = [];
         // Listens and changes direction based on player input (example: "Press A -> "l", dictionary maps<playerId,direction>)
-        public Dictionary<string, string> DirectionCommand { get; set; } = [];
+        public Dictionary<string, char> DirectionCommand { get; set; } = [];
 
         public enum GameState
         {
@@ -59,12 +61,14 @@ namespace api.Models
 
         public class Snake
         {
+            public string PlayerId { get; set; } = string.Empty;
             public List<SnakeSegment> Segments { get; set; } = [];
             public SnakeSegment Head { get; set; }
             public SnakeSegment Tail { get; set; }
 
-            public Snake(int playerNumber, int gameHeight, int gameWidth)
+            public Snake(string playerId, int playerNumber, int gameHeight, int gameWidth)
             {
+                PlayerId = playerId;
                 int y; // Vertical position (row)
                 int tailX, bodyX, headX; // Horizontal positions (columns)
                 // Determine the vertical position based on the board height (center-ish)
@@ -116,6 +120,7 @@ namespace api.Models
             Lobby = lobby;
             var height = Lobby.GameSettings.Height;
             var width = Lobby.GameSettings.Width;
+            TickInterval = 1000 / Lobby.GameSettings.Speed;
 
             GroundLayer = new int[height][];
             for (int i = 0; i < height; i++)
@@ -130,9 +135,17 @@ namespace api.Models
                 EntityLayer[i] = new IEntity[width];
 
             if (lobby.Player1 != null)
-                Snakes[lobby.Player1.PlayerId] = new Snake(1, Lobby.GameSettings.Height, Lobby.GameSettings.Width);
+            {
+                var playerId = lobby.Player1.PlayerId;
+                Snakes[playerId] = new Snake(playerId, 1, Lobby.GameSettings.Height, Lobby.GameSettings.Width);
+                DirectionCommand[playerId] = 'r';
+            }
             if (lobby.Player2 != null)
-                Snakes[lobby.Player2.PlayerId] = new Snake(2, Lobby.GameSettings.Height, Lobby.GameSettings.Width);
+            {
+                var playerId = lobby.Player2.PlayerId;
+                Snakes[playerId] = new Snake(playerId, 2, Lobby.GameSettings.Height, Lobby.GameSettings.Width);
+                DirectionCommand[playerId] = 'l';
+            }
 
             foreach (var sn in Snakes)
                 AddSnakeToEntityLayer(sn.Value);
@@ -142,21 +155,99 @@ namespace api.Models
             GameTick = 0;
         }
 
+        public async Task StartGameLoop(Func<Game, Task> onTick)
+        {
+            Console.WriteLine("Start Game Loop");
+            Time = 3000;
+            while (Time > 0)
+            {
+                await Task.Delay(1000);
+                Time -= 1000;
+                Console.WriteLine("1 second passed: " + Time);
+                try
+                {
+                    Console.WriteLine("Before Sent onTick");
+                    await onTick(this);
+                    Console.WriteLine("After Sent onTick");
+                }
+                catch
+                {
+                    Console.WriteLine("Something went wrong uwu");
+                }
+            }
+            State = GameState.InProgress;
+            while (State == GameState.InProgress)
+            {
+                Console.WriteLine("Update Game State");
+                UpdateGameState();
+                Console.WriteLine("Before Sent onTick");
+                await onTick(this);
+                Console.WriteLine("After Sent onTick");
+                await Task.Delay(TickInterval);
+                Time += TickInterval;
+                Console.WriteLine(TickInterval + "ms has passed: " + Time);
+            }
+        }
+
+        public void MoveSnake(Snake snake)
+        {
+            char currentDirection = DirectionCommand[snake.PlayerId];
+
+            for (int i = snake.Segments.Count - 1; i > 0; i--)
+            {
+                snake.Segments[i].X = snake.Segments[i - 1].X;
+                snake.Segments[i].Y = snake.Segments[i - 1].Y;
+                snake.Segments[i].Direction = snake.Segments[i - 1].Direction;
+            }
+
+            switch (currentDirection)
+            {
+                case 'l':
+                    snake.Head.X -= 1;
+                    snake.Head.Direction = "l";
+                    break;
+                case 'r':
+                    snake.Head.X += 1;
+                    snake.Head.Direction = "r";
+                    break;
+                case 'u':
+                    snake.Head.Y -= 1;
+                    snake.Head.Direction = "u";
+                    break;
+                case 'd':
+                    snake.Head.Y += 1;
+                    snake.Head.Direction = "d";
+                    break;
+            }
+
+            // The tail will now take the position of the second-to-last segment
+            // snake.Tail.X = snake.Segments[snake.Segments.Count - 2].X;
+            // snake.Tail.Y = snake.Segments[snake.Segments.Count - 2].Y;
+            // snake.Tail.Direction = snake.Segments[snake.Segments.Count - 2].Direction;
+
+            // Update the EntityLayer to reflect the new position of the snake
+            foreach (var segment in snake.Segments)
+            {
+                EntityLayer[segment.Y][segment.X] = segment;
+            }
+        }
+
         public void AddSnakeToEntityLayer(Snake snake)
         {
             foreach (IEntity segment in snake.Segments)
                 EntityLayer[segment.Y][segment.X] = segment;
         }
 
-        public void ReceiveDirectionCommand(string playerId, string command)
+        public void ReceiveDirectionCommand(string playerId, char command)
         {
-            DirectionCommand[playerId] = command;
-        }
+            var curDirection = DirectionCommand[playerId];
 
-        // Handle player direction command
-        public void HandleDirectionCommand(string playerId, string direction)
-        {
-            DirectionCommand[playerId] = direction;
+            if ((curDirection == 'l' && command == 'r') ||
+                (curDirection == 'r' && command == 'l') ||
+                (curDirection == 'u' && command == 'd') ||
+                (curDirection == 'd' && command == 'u'))
+                return;
+            DirectionCommand[playerId] = command;
         }
 
         // Update game state
@@ -164,15 +255,9 @@ namespace api.Models
         {
             // Implement game update logic, e.g., move snakes, check for collisions, etc.
             GameTick++;
-            // Example: Update snake positions based on direction commands
-            foreach (var playerId in DirectionCommand.Keys)
-            {
-                if (Snakes.TryGetValue(playerId, out var snake))
-                {
-                    // Move the snake based on DirectionCommand[playerId]
-                    // Implement movement logic here
-                }
-            }
+            foreach (var sn in Snakes)
+                MoveSnake(sn.Value);
+
             // Additional game update logic here
         }
 
@@ -192,6 +277,7 @@ namespace api.Models
             public int Player1Score { get; private set; } = 0;
             public int Player2Score { get; private set; } = 0;
             public int GameTick { get; private set; } = 0;
+            public int Time { get; private set; } = 3;
 
             public GameData(Game game)
             {
@@ -202,6 +288,7 @@ namespace api.Models
                 Player1Score = game.Player1Score;
                 Player2Score = game.Player2Score;
                 GameTick = game.GameTick;
+                Time = game.Time / 1000;
             }
 
             private static string[][] EntityLayerToData(IEntity[][] layer)

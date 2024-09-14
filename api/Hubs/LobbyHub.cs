@@ -101,6 +101,26 @@ namespace api.Hubs
 
             Console.WriteLine("Send this game: " + game.GameId);
             await Clients.Group(lobbyId).SendAsync("StartGame", game.ToResponseDto());
+
+            _ = Task.Run(() => game.StartGameLoop(async (gameState) =>
+               {
+                   Console.WriteLine("Broadcast game state: " + gameState);
+                   Console.WriteLine("New Time being sent: " + gameState.ToResponseDto().Time);
+                   try
+                   {
+                       await _hubContext.Clients.Group(lobbyId).SendAsync("UpdateGameState", gameState.ToResponseDto());
+                   }
+                   catch (Exception ex)
+                   {
+                       Console.WriteLine("Exception during SendAsync:");
+                       Console.WriteLine(ex.ToString()); // Print exception details
+                   }
+               }));
+        }
+
+        public void UpdateDirectionCommand(string playerId, string gameId, char direction)
+        {
+            GameManager.UpdateDirectionCommand(playerId, gameId, direction);
         }
 
         public async Task LeaveGame(string playerId, string gameId)

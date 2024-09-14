@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import { useSignalR } from "../context/SignalRContext";
+
 import headTailSwap from "../assets/images/AbilityIcons-HeadTailSwap.png";
 import tileset from "../assets/images/Maps-Plains.png";
 import redSnake from "../assets/images/Snake-red.png";
@@ -13,6 +14,8 @@ import darkBlueSnake from "../assets/images/Snake-blue-dark.png";
 import purpleSnake from "../assets/images/Snake-purple.png";
 import pinkSnake from "../assets/images/Snake-pink.png";
 import miscSprite from "../assets/images/Misc.png";
+
+import { formatTime } from "../functions";
 
 export default function Game() {
   const navigate = useNavigate();
@@ -36,9 +39,6 @@ export default function Game() {
   ];
 
   const miscTilset = miscSprite;
-
-  console.log(JSON.stringify(initialGameData));
-
   const TILE_SIZE_PERCENT = 25;
   const HALF_TILE_SIZE_PERCENT = 12.5;
 
@@ -68,6 +68,10 @@ export default function Game() {
 
   useEffect(() => {
     if (connection) {
+      connection.on("UpdateGameState", (gameState) => {
+        console.log(`Received Game State: ${JSON.stringify(gameState)}`);
+        setGameData(gameState);
+      });
       connection.on("LeaveGame", () => {
         console.log("Leave Game");
         navigate("/main-menu");
@@ -160,9 +164,6 @@ export default function Game() {
       player1 == null ? null : snakeTilesets[player1.color];
     const player2SnakeSprite =
       player2 == null ? null : snakeTilesets[player2.color];
-
-    console.log(player1SnakeSprite);
-    console.log(player2SnakeSprite);
 
     const GetEntityData = (entity) => {
       let sprite = null;
@@ -420,8 +421,16 @@ export default function Game() {
         )}
 
         <div className="game-timer">
-          <p>00:00</p>
-          <p>0</p>
+          {gameData.time === 0 ? (
+            <p>GO!</p>
+          ) : gameData.gameTick === 0 ? (
+            <p>{gameData.time}</p>
+          ) : (
+            <>
+              <p>{formatTime(gameData.time)}</p>
+              <p>{gameData.gameTick}</p>
+            </>
+          )}
         </div>
 
         {player2 ? (

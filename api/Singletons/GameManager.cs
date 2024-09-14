@@ -18,6 +18,11 @@ namespace api.Singletons
             return game;
         }
 
+        public static void UpdateDirectionCommand(string playerId, string gameId, char direction)
+        {
+            GetGameByGameId(gameId)?.ReceiveDirectionCommand(playerId, direction);
+        }
+
         public static void RemoveGame(string gameId)
         {
             _games.RemoveAll(x => x.GameId == gameId);
