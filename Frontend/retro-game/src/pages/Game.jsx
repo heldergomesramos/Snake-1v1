@@ -88,6 +88,50 @@ export default function Game() {
     }
   };
 
+  const handleKeyPress = (event) => {
+    let direction = null;
+
+    switch (event.key) {
+      case "w":
+      case "ArrowUp":
+        direction = "u";
+        break;
+      case "a":
+      case "ArrowLeft":
+        direction = "l";
+        break;
+      case "s":
+      case "ArrowDown":
+        direction = "d";
+        break;
+      case "d":
+      case "ArrowRight":
+        direction = "r";
+        break;
+      default:
+        return;
+    }
+
+    if (direction && connection) {
+      connection
+        .invoke(
+          "UpdateDirectionCommand",
+          playerData.playerId,
+          gameData.gameId,
+          direction
+        )
+        .catch((err) => console.error("Error sending direction command:", err));
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [connection]);
+
   const getTileClipPathAndPosition = (tileIndex) => {
     const TILESET_COLUMNS = 4; // 4 columns and 4 rows
     const TILE_SIZE_PERCENT = 25; // Each tile is 25% of the total image
@@ -216,25 +260,25 @@ export default function Game() {
 
         case "snake1-body-lu":
           sprite = player1SnakeSprite;
-          topLeftX = 0;
+          topLeftX = 1;
           topLeftY = 3;
           break;
 
         case "snake1-body-ld":
           sprite = player1SnakeSprite;
-          topLeftX = 0;
+          topLeftX = 1;
           topLeftY = 2;
           break;
 
         case "snake1-body-ru":
-          sprite = p;
-          topLeftX = 1;
-          topLeftY = 3 * TILE_SIZE_PERCENT;
+          sprite = player1SnakeSprite;
+          topLeftX = 0;
+          topLeftY = 3;
           break;
 
         case "snake1-body-rd":
           sprite = player1SnakeSprite;
-          topLeftX = 1;
+          topLeftX = 0;
           topLeftY = 2;
           break;
 

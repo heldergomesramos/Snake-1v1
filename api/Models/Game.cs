@@ -11,7 +11,7 @@ namespace api.Models
         public Lobby Lobby { get; private set; }
 
         public int[][] GroundLayer { get; private set; }
-        public IEntity[][] EntityLayer { get; private set; }
+        public IEntity?[][] EntityLayer { get; private set; }
 
         public int Player1Score { get; private set; } = 0;
         public int Player2Score { get; private set; } = 0;
@@ -62,7 +62,7 @@ namespace api.Models
         public class Snake
         {
             public string PlayerId { get; set; } = string.Empty;
-            public List<SnakeSegment> Segments { get; set; } = [];
+            public LinkedList<SnakeSegment> Segments { get; set; } = [];
             public SnakeSegment Head { get; set; }
             public SnakeSegment Tail { get; set; }
 
@@ -103,12 +103,9 @@ namespace api.Models
                 var body = new SnakeSegment(bodyX, y, "h", "body", playerNumber);
                 Head = new SnakeSegment(headX, y, playerNumber == 1 ? "r" : "l", "head", playerNumber);
 
-                Segments.Add(Head);
-                Segments.Add(body);
-                Segments.Add(Tail);
+                Segments.AddLast(body);
             }
         }
-
 
         public Game(Lobby lobby)
         {
@@ -187,43 +184,171 @@ namespace api.Models
                 Time += TickInterval;
                 Console.WriteLine(TickInterval + "ms has passed: " + Time);
             }
+            Console.WriteLine("Game has ended");
         }
 
         public void MoveSnake(Snake snake)
         {
             char currentDirection = DirectionCommand[snake.PlayerId];
 
-            for (int i = snake.Segments.Count - 1; i > 0; i--)
+            int prevHeadX = snake.Head.X;
+            int prevHeadY = snake.Head.Y;
+            string afterHeadSegmentDirection = "";
+            var gameSettings = Lobby.GameSettings;
+            if (gameSettings == null)
             {
-                snake.Segments[i].X = snake.Segments[i - 1].X;
-                snake.Segments[i].Y = snake.Segments[i - 1].Y;
-                snake.Segments[i].Direction = snake.Segments[i - 1].Direction;
+                Console.WriteLine("Game Settings is null");
+                return;
             }
 
             switch (currentDirection)
             {
                 case 'l':
                     snake.Head.X -= 1;
+                    if (snake.Head.X < 0)
+                    {
+                        if (gameSettings.Borders)
+                        {
+                            Console.WriteLine("Snake hit a border, END");
+                            return;
+                        }
+                        else
+                        {
+                            snake.Head.X = gameSettings.Width - 1;
+                        }
+                    }
+                    if (snake.Head.Direction == "u")
+                        afterHeadSegmentDirection = "ld";
+                    else if (snake.Head.Direction == "d")
+                        afterHeadSegmentDirection = "lu";
+                    else
+                        afterHeadSegmentDirection = "h";
                     snake.Head.Direction = "l";
                     break;
                 case 'r':
                     snake.Head.X += 1;
+                    if (snake.Head.X > gameSettings.Width - 1)
+                    {
+                        if (gameSettings.Borders)
+                        {
+                            Console.WriteLine("Snake hit a border, END");
+                            return;
+                        }
+                        else
+                        {
+                            snake.Head.X = 0;
+                        }
+                    }
+                    if (snake.Head.Direction == "u")
+                        afterHeadSegmentDirection = "rd";
+                    else if (snake.Head.Direction == "d")
+                        afterHeadSegmentDirection = "ru";
+                    else
+                        afterHeadSegmentDirection = "h";
                     snake.Head.Direction = "r";
                     break;
                 case 'u':
                     snake.Head.Y -= 1;
+                    if (snake.Head.Y < 0)
+                    {
+                        if (gameSettings.Borders)
+                        {
+                            Console.WriteLine("Snake hit a border, END");
+                            return;
+                        }
+                        else
+                        {
+                            snake.Head.Y = gameSettings.Width - 1;
+                        }
+                    }
+                    if (snake.Head.Direction == "l")
+                        afterHeadSegmentDirection = "ru";
+                    else if (snake.Head.Direction == "r")
+                        afterHeadSegmentDirection = "lu";
+                    else
+                        afterHeadSegmentDirection = "v";
                     snake.Head.Direction = "u";
                     break;
                 case 'd':
                     snake.Head.Y += 1;
+                    if (snake.Head.Y > gameSettings.Height - 1)
+                    {
+                        if (gameSettings.Borders)
+                        {
+                            Console.WriteLine("Snake hit a border, END");
+                            return;
+                        }
+                        else
+                        {
+                            snake.Head.Y = 0;
+                        }
+                    }
+                    if (snake.Head.Direction == "l")
+                        afterHeadSegmentDirection = "rd";
+                    else if (snake.Head.Direction == "r")
+                        afterHeadSegmentDirection = "ld";
+                    else
+                        afterHeadSegmentDirection = "v";
                     snake.Head.Direction = "d";
                     break;
             }
 
-            // The tail will now take the position of the second-to-last segment
-            // snake.Tail.X = snake.Segments[snake.Segments.Count - 2].X;
-            // snake.Tail.Y = snake.Segments[snake.Segments.Count - 2].Y;
-            // snake.Tail.Direction = snake.Segments[snake.Segments.Count - 2].Direction;
+            // Check for apple
+            // If apple, create new Segment, add it to List and put it at the previous Head position
+            // For now assume, no apple
+            var lastSegment = snake.Segments.Last?.Value;
+            if (lastSegment == null)
+                return;
+
+            int prevLastSegmentX = lastSegment.X;
+            int prevLastSegmentY = lastSegment.Y;
+            string prevLastSegmentDirection = lastSegment.Direction;
+
+            lastSegment.X = prevHeadX;
+            lastSegment.Y = prevHeadY;
+            lastSegment.Direction = afterHeadSegmentDirection;
+
+            snake.Segments.RemoveLast();
+            snake.Segments.AddFirst(lastSegment);
+
+            // If apple, keep tail equal
+            // Else update new tail position to be the previous last segment.
+            snake.Tail.X = prevLastSegmentX;
+            snake.Tail.Y = prevLastSegmentY;
+
+            if ((prevLastSegmentDirection == "ru" || prevLastSegmentDirection == "lu") && (snake.Tail.Direction == "l" || snake.Tail.Direction == "r"))
+            {
+                snake.Tail.Direction = "u";
+            }
+            else if (prevLastSegmentDirection == "ru" && snake.Tail.Direction == "d")
+            {
+                snake.Tail.Direction = "r";
+            }
+            else if (prevLastSegmentDirection == "lu" && snake.Tail.Direction == "d")
+            {
+                snake.Tail.Direction = "l";
+            }
+
+            else if ((prevLastSegmentDirection == "rd" || prevLastSegmentDirection == "ld") && (snake.Tail.Direction == "l" || snake.Tail.Direction == "r"))
+            {
+                snake.Tail.Direction = "d";
+            }
+            else if (prevLastSegmentDirection == "rd" && snake.Tail.Direction == "u")
+            {
+                snake.Tail.Direction = "r";
+            }
+            else if (prevLastSegmentDirection == "ld" && snake.Tail.Direction == "u")
+            {
+                snake.Tail.Direction = "l";
+            }
+
+            // -If the last segment has a normal direction, make it equal.
+            // -If the last segment has a turn, compare current direction with turn and find the correct new direction.
+
+            // Do this with the other snake
+
+            // Check for object / snake collisions and end the game if necessary
+            // If everything good and the game hasnt ended, update the grid and pass it to the players
 
             // Update the EntityLayer to reflect the new position of the snake
             foreach (var segment in snake.Segments)
@@ -234,8 +359,10 @@ namespace api.Models
 
         public void AddSnakeToEntityLayer(Snake snake)
         {
+            EntityLayer[snake.Head.Y][snake.Head.X] = snake.Head;
             foreach (IEntity segment in snake.Segments)
                 EntityLayer[segment.Y][segment.X] = segment;
+            EntityLayer[snake.Tail.Y][snake.Tail.X] = snake.Tail;
         }
 
         public void ReceiveDirectionCommand(string playerId, char command)
@@ -258,7 +385,15 @@ namespace api.Models
             foreach (var sn in Snakes)
                 MoveSnake(sn.Value);
 
-            // Additional game update logic here
+            if (EntityLayer == null || EntityLayer[0] == null)
+                return;
+
+            for (int i = 0; i < EntityLayer.Length; i++)
+                for (int j = 0; j < EntityLayer[i].Length; j++)
+                    EntityLayer[i][j] = null;
+
+            foreach (var sn in Snakes)
+                AddSnakeToEntityLayer(sn.Value);
         }
 
         public GameData ToResponseDto()
@@ -291,7 +426,7 @@ namespace api.Models
                 Time = game.Time / 1000;
             }
 
-            private static string[][] EntityLayerToData(IEntity[][] layer)
+            private static string[][] EntityLayerToData(IEntity?[][] layer)
             {
                 int height = layer.Length;
                 int width = layer[0].Length;
@@ -304,7 +439,7 @@ namespace api.Models
                     for (int j = 0; j < width; j++)
                     {
                         if (layer[i][j] != null)
-                            dataLayer[i][j] = layer[i][j].ToData();
+                            dataLayer[i][j] = layer[i][j]!.ToData();
                         else
                             dataLayer[i][j] = "empty";
                     }
