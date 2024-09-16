@@ -283,7 +283,7 @@ namespace api.Models
                         }
                         else
                         {
-                            snake.Head.Y = gameSettings.Width - 1;
+                            snake.Head.Y = gameSettings.Height - 1;
                         }
                     }
                     if (snake.Head.Direction == "l")
