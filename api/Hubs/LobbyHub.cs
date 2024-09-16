@@ -43,16 +43,16 @@ namespace api.Hubs
             {
                 await LobbyManager.LeavePrivateLobby(player.PlayerId, player.LobbyId, _hubContext);
                 player.LobbyId = string.Empty;
-                await _playerService.UpdatePlayerAsync(player);
                 if (player.GameId != string.Empty)
                 {
                     await LeaveGame(player.PlayerId, player.GameId);
                 }
+                await _playerService.UpdatePlayerAsync(player);
                 PlayerManager.RemoveConnection(Context.ConnectionId);
                 Console.WriteLine($"Player {player.PlayerId} disconnected\n");
             }
             else
-                Console.WriteLine("PROBLEM!!! player disconnected is null whaaaat");
+                Console.WriteLine("PROBLEM!!! player disconnected is null");
             await base.OnDisconnectedAsync(exception);
         }
 
@@ -133,27 +133,40 @@ namespace api.Hubs
             var game = GameManager.GetGameByGameId(gameId);
             if (game == null)
                 return;
-            game.State = Game.GameState.Finished;
+
+            game.HandleDisconnection(playerId);
             var lobby = game.Lobby;
-            await Clients.Group(lobby.LobbyId).SendAsync("LeaveGame");
-            var player1 = lobby.Player1;
-            if (player1 != null)
+            var leavingPlayer = lobby.Player1?.PlayerId == playerId ? lobby.Player1 : lobby.Player2;
+            var remainingPlayer = lobby.Player1?.PlayerId != playerId ? lobby.Player1 : lobby.Player2;
+
+            // Notify the player who is leaving
+            if (leavingPlayer != null)
             {
-                player1.LobbyId = string.Empty;
-                player1.GameId = string.Empty;
-                var connectionId = PlayerManager.GetConnectionIdByPlayerId(player1.PlayerId);
+                var connectionId = PlayerManager.GetConnectionIdByPlayerId(leavingPlayer.PlayerId);
                 if (connectionId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("LeaveGame");
                     await Groups.RemoveFromGroupAsync(connectionId, lobby.LobbyId);
+                }
+
+                leavingPlayer.LobbyId = string.Empty;
+                leavingPlayer.GameId = string.Empty;
             }
-            var player2 = lobby.Player2;
-            if (player2 != null)
+
+            // Notify the remaining player with the updated game state
+            if (remainingPlayer != null)
             {
-                player2.LobbyId = string.Empty;
-                player2.GameId = string.Empty;
-                var connectionId = PlayerManager.GetConnectionIdByPlayerId(player2.PlayerId);
+                var connectionId = PlayerManager.GetConnectionIdByPlayerId(remainingPlayer.PlayerId);
                 if (connectionId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("UpdateGameState", game.ToResponseDto());
                     await Groups.RemoveFromGroupAsync(connectionId, lobby.LobbyId);
+                }
+
+                remainingPlayer.LobbyId = string.Empty;
+                remainingPlayer.GameId = string.Empty;
             }
+
             GameManager.RemoveGame(gameId);
             LobbyManager.RemovePrivateLobby(lobby.LobbyId);
         }

@@ -9,6 +9,7 @@ namespace api.Models
         private static readonly int tileVariations = 16;
         public string GameId { get; private set; } = string.Empty;
         public Lobby Lobby { get; private set; }
+        public bool IsSinglePlayer { get; private set; } = false;
 
         public int[][] GroundLayer { get; private set; }
         public IEntity?[][] EntityLayer { get; private set; }
@@ -19,9 +20,7 @@ namespace api.Models
         public int Time { get; private set; } = 3000;
         public int TickInterval { get; private set; } = 0;
 
-        // Maps <playerId, Snake>
         public Dictionary<string, Snake> Snakes { get; private set; } = [];
-        // Listens and changes direction based on player input (example: "Press A -> "l", dictionary maps<playerId,direction>)
         public Dictionary<string, char> DirectionCommand { get; private set; } = [];
         public Apple? CurApple { get; private set; }
 
@@ -31,7 +30,23 @@ namespace api.Models
             InProgress,
             Finished
         }
-        public GameState State { get; set; } = GameState.Waiting;
+        public GameState GState { get; set; } = GameState.Waiting;
+
+        public enum FinishedState
+        {
+            NotFinished,
+            Player1Disconnected,
+            Player2Disconnected,
+            Player1WonByTimeOut,
+            Player2WonByTimeOut,
+            Player1WonByCollision,
+            Player2WonByCollision,
+            DrawByTimeOut,
+            DrawByCollision,
+            SinglePlayerTimeOut,
+            SinglePlayerCollision
+        }
+        public FinishedState FState { get; set; } = FinishedState.NotFinished;
 
         public abstract class IEntity(int x, int y)
         {
@@ -118,6 +133,7 @@ namespace api.Models
             }
             GameId = Guid.NewGuid().ToString();
             Lobby = lobby;
+            IsSinglePlayer = Lobby.Player1 == null || Lobby.Player2 == null;
             var height = Lobby.GameSettings.Height;
             var width = Lobby.GameSettings.Width;
             TickInterval = 1000 / Lobby.GameSettings.Speed;
@@ -164,30 +180,26 @@ namespace api.Models
             while (Time > 0)
             {
                 await Task.Delay(1000);
+                if (GState == GameState.Finished)
+                    break;
                 Time -= 1000;
                 Console.WriteLine("1 second passed: " + Time);
                 try
                 {
-                    Console.WriteLine("Before Sent onTick");
                     await onTick(this);
-                    Console.WriteLine("After Sent onTick");
                 }
                 catch
                 {
-                    Console.WriteLine("Something went wrong uwu");
+                    Console.WriteLine("Something went wrong");
                 }
             }
-            State = GameState.InProgress;
-            while (State == GameState.InProgress)
+            if (GState == GameState.Waiting)
+                GState = GameState.InProgress;
+            while (GState == GameState.InProgress)
             {
-                Console.WriteLine("Update Game State");
-                UpdateGameState();
-                Console.WriteLine("Before Sent onTick");
-                await onTick(this);
-                Console.WriteLine("After Sent onTick");
                 await Task.Delay(TickInterval);
-                Time += TickInterval;
-                Console.WriteLine(TickInterval + "ms has passed: " + Time);
+                UpdateGameState();
+                await onTick(this);
             }
             Console.WriteLine("Game has ended");
         }
@@ -397,7 +409,8 @@ namespace api.Models
 
         public void ReceiveDirectionCommand(string playerId, char command)
         {
-            var curDirection = DirectionCommand[playerId];
+            //var curDirection = DirectionCommand[playerId];
+            char curDirection = Snakes[playerId].Head.Direction[0];
 
             if ((curDirection == 'l' && command == 'r') ||
                 (curDirection == 'r' && command == 'l') ||
@@ -407,11 +420,64 @@ namespace api.Models
             DirectionCommand[playerId] = command;
         }
 
-        // Update game state
+        public void HandleDisconnection(string playerId)
+        {
+            if (Lobby.Player1 != null && Lobby.Player1.PlayerId == playerId)
+                EndGame(FinishedState.Player1Disconnected);
+            else
+                EndGame(FinishedState.Player2Disconnected);
+        }
+
+        public void EndGame(FinishedState newState)
+        {
+            Console.WriteLine("End Game on State: " + newState.ToString());
+            GState = GameState.Finished;
+            FState = newState;
+            if (!IsSinglePlayer)
+            {
+                var player1 = Lobby.Player1!;
+                var player2 = Lobby.Player2!;
+                switch (newState)
+                {
+                    case FinishedState.Player1Disconnected:
+                        player1.Losses++;
+                        player2.Wins++;
+                        break;
+
+                    case FinishedState.Player2Disconnected:
+                        player1.Wins++;
+                        player2.Losses++;
+                        break;
+
+                    case FinishedState.Player1WonByTimeOut:
+                    case FinishedState.Player1WonByCollision:
+                        player1.Wins++;
+                        player2.Losses++;
+                        break;
+
+                    case FinishedState.Player2WonByTimeOut:
+                    case FinishedState.Player2WonByCollision:
+                        player1.Losses++;
+                        player2.Wins++;
+                        break;
+                }
+            }
+        }
+
         public void UpdateGameState()
         {
-            // Implement game update logic, e.g., move snakes, check for collisions, etc.
+            Time += TickInterval;
             GameTick++;
+            if (Time >= Lobby.GameSettings!.Time * 1000)
+            {
+                if (Player1Score > Player2Score)
+                    EndGame(FinishedState.Player1WonByTimeOut);
+                else if (Player1Score < Player2Score)
+                    EndGame(FinishedState.Player2WonByTimeOut);
+                else
+                    EndGame(FinishedState.DrawByTimeOut);
+            }
+
             foreach (var sn in Snakes)
                 MoveSnake(sn.Value);
 
@@ -446,6 +512,8 @@ namespace api.Models
             public int GameTick { get; private set; } = 0;
             public int Time { get; private set; } = 3;
 
+            public string FinishedState { get; private set; } = Game.FinishedState.NotFinished.ToString();
+
             public GameData(Game game)
             {
                 GameId = game.GameId;
@@ -456,6 +524,7 @@ namespace api.Models
                 Player2Score = game.Player2Score;
                 GameTick = game.GameTick;
                 Time = game.Time / 1000;
+                FinishedState = game.FState.ToString();
             }
 
             private static string[][] EntityLayerToData(IEntity?[][] layer)
