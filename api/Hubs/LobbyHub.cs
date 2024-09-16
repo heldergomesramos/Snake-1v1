@@ -44,6 +44,10 @@ namespace api.Hubs
                 await LobbyManager.LeavePrivateLobby(player.PlayerId, player.LobbyId, _hubContext);
                 player.LobbyId = string.Empty;
                 await _playerService.UpdatePlayerAsync(player);
+                if (player.GameId != string.Empty)
+                {
+                    await LeaveGame(player.PlayerId, player.GameId);
+                }
                 PlayerManager.RemoveConnection(Context.ConnectionId);
                 Console.WriteLine($"Player {player.PlayerId} disconnected\n");
             }
