@@ -20,9 +20,10 @@ namespace api.Models
         public int TickInterval { get; private set; } = 0;
 
         // Maps <playerId, Snake>
-        public Dictionary<string, Snake> Snakes { get; set; } = [];
+        public Dictionary<string, Snake> Snakes { get; private set; } = [];
         // Listens and changes direction based on player input (example: "Press A -> "l", dictionary maps<playerId,direction>)
-        public Dictionary<string, char> DirectionCommand { get; set; } = [];
+        public Dictionary<string, char> DirectionCommand { get; private set; } = [];
+        public Apple CurApple { get; private set; }
 
         public enum GameState
         {
@@ -62,6 +63,7 @@ namespace api.Models
         public class Snake
         {
             public string PlayerId { get; set; } = string.Empty;
+            public int PlayerNumber;
             public LinkedList<SnakeSegment> Segments { get; set; } = [];
             public SnakeSegment Head { get; set; }
             public SnakeSegment Tail { get; set; }
@@ -69,6 +71,7 @@ namespace api.Models
             public Snake(string playerId, int playerNumber, int gameHeight, int gameWidth)
             {
                 PlayerId = playerId;
+                PlayerNumber = playerNumber;
                 int y; // Vertical position (row)
                 int tailX, bodyX, headX; // Horizontal positions (columns)
                 // Determine the vertical position based on the board height (center-ish)
@@ -147,6 +150,8 @@ namespace api.Models
             foreach (var sn in Snakes)
                 AddSnakeToEntityLayer(sn.Value);
 
+            SpawnApple();
+
             Player1Score = 0;
             Player2Score = 0;
             GameTick = 0;
@@ -186,6 +191,26 @@ namespace api.Models
             }
             Console.WriteLine("Game has ended");
         }
+
+        public void SpawnApple()
+        {
+            Random random = new();
+            int rows = EntityLayer.Length;
+            int columns = EntityLayer[0].Length;
+
+            int randomRow, randomColumn;
+            do
+            {
+                randomRow = random.Next(0, rows);
+                randomColumn = random.Next(0, columns);
+            }
+            while (EntityLayer[randomRow][randomColumn] != null);
+
+            var newApple = new Apple(randomColumn, randomRow);
+            EntityLayer[randomRow][randomColumn] = newApple;
+            CurApple = newApple;
+        }
+
 
         public void MoveSnake(Snake snake)
         {
@@ -293,59 +318,64 @@ namespace api.Models
                     break;
             }
 
-            // Check for apple
-            // If apple, create new Segment, add it to List and put it at the previous Head position
-            // For now assume, no apple
-            var lastSegment = snake.Segments.Last?.Value;
-            if (lastSegment == null)
-                return;
-
-            int prevLastSegmentX = lastSegment.X;
-            int prevLastSegmentY = lastSegment.Y;
-            string prevLastSegmentDirection = lastSegment.Direction;
-
-            lastSegment.X = prevHeadX;
-            lastSegment.Y = prevHeadY;
-            lastSegment.Direction = afterHeadSegmentDirection;
-
-            snake.Segments.RemoveLast();
-            snake.Segments.AddFirst(lastSegment);
-
-            // If apple, keep tail equal
-            // Else update new tail position to be the previous last segment.
-            snake.Tail.X = prevLastSegmentX;
-            snake.Tail.Y = prevLastSegmentY;
-
-            if ((prevLastSegmentDirection == "ru" || prevLastSegmentDirection == "lu") && (snake.Tail.Direction == "l" || snake.Tail.Direction == "r"))
+            if (EntityLayer[snake.Head.Y][snake.Head.X] is Apple)
             {
-                snake.Tail.Direction = "u";
+                SnakeSegment newSegment = new(prevHeadX, prevHeadY, afterHeadSegmentDirection, "body", snake.PlayerNumber);
+                snake.Segments.AddFirst(newSegment);
+                if (snake.PlayerNumber == 1)
+                    Player1Score += 100;
+                else
+                    Player2Score += 100;
+                SpawnApple();
             }
-            else if (prevLastSegmentDirection == "ru" && snake.Tail.Direction == "d")
+            else
             {
-                snake.Tail.Direction = "r";
-            }
-            else if (prevLastSegmentDirection == "lu" && snake.Tail.Direction == "d")
-            {
-                snake.Tail.Direction = "l";
-            }
+                var lastSegment = snake.Segments.Last?.Value;
+                if (lastSegment == null)
+                    return;
 
-            else if ((prevLastSegmentDirection == "rd" || prevLastSegmentDirection == "ld") && (snake.Tail.Direction == "l" || snake.Tail.Direction == "r"))
-            {
-                snake.Tail.Direction = "d";
-            }
-            else if (prevLastSegmentDirection == "rd" && snake.Tail.Direction == "u")
-            {
-                snake.Tail.Direction = "r";
-            }
-            else if (prevLastSegmentDirection == "ld" && snake.Tail.Direction == "u")
-            {
-                snake.Tail.Direction = "l";
-            }
+                int prevLastSegmentX = lastSegment.X;
+                int prevLastSegmentY = lastSegment.Y;
+                string prevLastSegmentDirection = lastSegment.Direction;
 
-            // -If the last segment has a normal direction, make it equal.
-            // -If the last segment has a turn, compare current direction with turn and find the correct new direction.
+                lastSegment.X = prevHeadX;
+                lastSegment.Y = prevHeadY;
+                lastSegment.Direction = afterHeadSegmentDirection;
 
-            // Do this with the other snake
+                snake.Segments.RemoveLast();
+                snake.Segments.AddFirst(lastSegment);
+
+                // If apple, keep tail equal
+                // Else update new tail position to be the previous last segment.
+                snake.Tail.X = prevLastSegmentX;
+                snake.Tail.Y = prevLastSegmentY;
+
+                if ((prevLastSegmentDirection == "ru" || prevLastSegmentDirection == "lu") && (snake.Tail.Direction == "l" || snake.Tail.Direction == "r"))
+                {
+                    snake.Tail.Direction = "u";
+                }
+                else if (prevLastSegmentDirection == "ru" && snake.Tail.Direction == "d")
+                {
+                    snake.Tail.Direction = "r";
+                }
+                else if (prevLastSegmentDirection == "lu" && snake.Tail.Direction == "d")
+                {
+                    snake.Tail.Direction = "l";
+                }
+
+                else if ((prevLastSegmentDirection == "rd" || prevLastSegmentDirection == "ld") && (snake.Tail.Direction == "l" || snake.Tail.Direction == "r"))
+                {
+                    snake.Tail.Direction = "d";
+                }
+                else if (prevLastSegmentDirection == "rd" && snake.Tail.Direction == "u")
+                {
+                    snake.Tail.Direction = "r";
+                }
+                else if (prevLastSegmentDirection == "ld" && snake.Tail.Direction == "u")
+                {
+                    snake.Tail.Direction = "l";
+                }
+            }
 
             // Check for object / snake collisions and end the game if necessary
             // If everything good and the game hasnt ended, update the grid and pass it to the players
@@ -394,6 +424,7 @@ namespace api.Models
 
             foreach (var sn in Snakes)
                 AddSnakeToEntityLayer(sn.Value);
+            EntityLayer[CurApple.Y][CurApple.X] = CurApple;
         }
 
         public GameData ToResponseDto()
