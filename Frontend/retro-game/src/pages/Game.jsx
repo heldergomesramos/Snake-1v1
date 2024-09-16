@@ -344,25 +344,25 @@ export default function Game() {
 
         case "snake2-body-lu":
           sprite = player2SnakeSprite;
-          topLeftX = 0;
+          topLeftX = 1;
           topLeftY = 3;
           break;
 
         case "snake2-body-ld":
           sprite = player2SnakeSprite;
-          topLeftX = 0;
+          topLeftX = 1;
           topLeftY = 2;
           break;
 
         case "snake2-body-ru":
           sprite = player2SnakeSprite;
-          topLeftX = 1;
+          topLeftX = 0;
           topLeftY = 3;
           break;
 
         case "snake2-body-rd":
           sprite = player2SnakeSprite;
-          topLeftX = 1;
+          topLeftX = 0;
           topLeftY = 2;
           break;
 

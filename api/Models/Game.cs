@@ -23,7 +23,7 @@ namespace api.Models
         public Dictionary<string, Snake> Snakes { get; private set; } = [];
         // Listens and changes direction based on player input (example: "Press A -> "l", dictionary maps<playerId,direction>)
         public Dictionary<string, char> DirectionCommand { get; private set; } = [];
-        public Apple CurApple { get; private set; }
+        public Apple? CurApple { get; private set; }
 
         public enum GameState
         {
@@ -424,7 +424,8 @@ namespace api.Models
 
             foreach (var sn in Snakes)
                 AddSnakeToEntityLayer(sn.Value);
-            EntityLayer[CurApple.Y][CurApple.X] = CurApple;
+            if (CurApple != null)
+                EntityLayer[CurApple.Y][CurApple.X] = CurApple;
         }
 
         public GameData ToResponseDto()

@@ -129,6 +129,7 @@ namespace api.Hubs
             var game = GameManager.GetGameByGameId(gameId);
             if (game == null)
                 return;
+            game.State = Game.GameState.Finished;
             var lobby = game.Lobby;
             await Clients.Group(lobby.LobbyId).SendAsync("LeaveGame");
             var player1 = lobby.Player1;
