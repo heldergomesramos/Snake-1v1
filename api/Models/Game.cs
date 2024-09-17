@@ -246,7 +246,7 @@ namespace api.Models
                     {
                         if (gameSettings.Borders)
                         {
-                            Console.WriteLine("Snake hit a border, END");
+                            EndGameByCollision(snake);
                             return;
                         }
                         else
@@ -268,7 +268,7 @@ namespace api.Models
                     {
                         if (gameSettings.Borders)
                         {
-                            Console.WriteLine("Snake hit a border, END");
+                            EndGameByCollision(snake);
                             return;
                         }
                         else
@@ -290,7 +290,7 @@ namespace api.Models
                     {
                         if (gameSettings.Borders)
                         {
-                            Console.WriteLine("Snake hit a border, END");
+                            EndGameByCollision(snake);
                             return;
                         }
                         else
@@ -312,7 +312,7 @@ namespace api.Models
                     {
                         if (gameSettings.Borders)
                         {
-                            Console.WriteLine("Snake hit a border, END");
+                            EndGameByCollision(snake);
                             return;
                         }
                         else
@@ -389,18 +389,15 @@ namespace api.Models
                 }
             }
 
-            // Check for object / snake collisions and end the game if necessary
-            // If everything good and the game hasnt ended, update the grid and pass it to the players
-
-            // Update the EntityLayer to reflect the new position of the snake
-            foreach (var segment in snake.Segments)
-            {
-                EntityLayer[segment.Y][segment.X] = segment;
-            }
+            // foreach (var segment in snake.Segments)
+            // {
+            //     EntityLayer[segment.Y][segment.X] = segment;
+            // }
         }
 
         public void AddSnakeToEntityLayer(Snake snake)
         {
+            Console.WriteLine("Add Snake to Entity Layer");
             EntityLayer[snake.Head.Y][snake.Head.X] = snake.Head;
             foreach (IEntity segment in snake.Segments)
                 EntityLayer[segment.Y][segment.X] = segment;
@@ -422,6 +419,8 @@ namespace api.Models
 
         public void HandleDisconnection(string playerId)
         {
+            if (GState == GameState.Finished)
+                return;
             if (Lobby.Player1 != null && Lobby.Player1.PlayerId == playerId)
                 EndGame(FinishedState.Player1Disconnected);
             else
@@ -464,13 +463,20 @@ namespace api.Models
             }
         }
 
+        private void EndGameByCollision(Snake snake)
+        {
+            EndGame(IsSinglePlayer ? FinishedState.SinglePlayerCollision : (snake.PlayerNumber == 1 ? FinishedState.Player2WonByCollision : FinishedState.Player1WonByCollision));
+        }
+
         public void UpdateGameState()
         {
             Time += TickInterval;
             GameTick++;
             if (Time >= Lobby.GameSettings!.Time * 1000)
             {
-                if (Player1Score > Player2Score)
+                if (IsSinglePlayer)
+                    EndGame(FinishedState.SinglePlayerTimeOut);
+                else if (Player1Score > Player2Score)
                     EndGame(FinishedState.Player1WonByTimeOut);
                 else if (Player1Score < Player2Score)
                     EndGame(FinishedState.Player2WonByTimeOut);
@@ -480,6 +486,13 @@ namespace api.Models
 
             foreach (var sn in Snakes)
                 MoveSnake(sn.Value);
+
+            DetectCollisions();
+            if (GState == GameState.Finished)
+            {
+                Console.WriteLine("Game Ended in collision");
+                return;
+            }
 
             if (EntityLayer == null || EntityLayer[0] == null)
                 return;
@@ -492,6 +505,73 @@ namespace api.Models
                 AddSnakeToEntityLayer(sn.Value);
             if (CurApple != null)
                 EntityLayer[CurApple.Y][CurApple.X] = CurApple;
+        }
+
+        public void DetectCollisions()
+        {
+            if (IsSinglePlayer)
+            {
+                Snake snake = Snakes.Values.First();
+                foreach (var segment in snake.Segments)
+                {
+                    if (snake.Head.X == segment.X && snake.Head.Y == segment.Y)
+                    {
+                        EndGame(FinishedState.SinglePlayerCollision);
+                        return;
+                    }
+                }
+                if (snake.Head.X == snake.Tail.X && snake.Head.Y == snake.Tail.Y)
+                    EndGame(FinishedState.SinglePlayerCollision);
+            }
+            else
+            {
+                var player1Lost = false;
+                var player2Lost = false;
+                foreach (var snakeHeadEntry in Snakes)
+                {
+                    var snakeHead = snakeHeadEntry.Value.Head;
+                    foreach (var snakeBodyEntry in Snakes)
+                    {
+                        var snakeBody = snakeBodyEntry.Value.Segments;
+                        foreach (var segment in snakeBody)
+                            if (snakeHead.X == segment.X && snakeHead.Y == segment.Y)
+                            {
+                                if (snakeHeadEntry.Value.PlayerNumber == 1)
+                                    player1Lost = true;
+                                else
+                                    player2Lost = true;
+                                break;
+                            }
+                        var snakeTail = snakeBodyEntry.Value.Tail;
+                        if (snakeHead.X == snakeTail.X && snakeHead.Y == snakeTail.Y)
+                        {
+                            if (snakeHeadEntry.Value.PlayerNumber == 1)
+                                player1Lost = true;
+                            else
+                                player2Lost = true;
+                        }
+                    }
+                }
+
+                /* Heads Collision */
+                if (Snakes.Count != 2)
+                    return;
+                var head1 = Snakes.First().Value.Head;
+                var head2 = Snakes.Last().Value.Head;
+                if (head1.X == head2.X && head1.Y == head2.Y)
+                {
+                    player1Lost = true;
+                    player2Lost = true;
+                }
+
+                /* End Game if at least 1 player lost */
+                if (player1Lost && player2Lost)
+                    EndGame(FinishedState.DrawByCollision);
+                else if (player1Lost)
+                    EndGame(FinishedState.Player2WonByCollision);
+                else if (player2Lost)
+                    EndGame(FinishedState.Player1WonByCollision);
+            }
         }
 
         public GameData ToResponseDto()
@@ -512,6 +592,8 @@ namespace api.Models
             public int GameTick { get; private set; } = 0;
             public int Time { get; private set; } = 3;
 
+            public bool IsSinglePlayer { get; private set; }
+
             public string FinishedState { get; private set; } = Game.FinishedState.NotFinished.ToString();
 
             public GameData(Game game)
@@ -525,6 +607,7 @@ namespace api.Models
                 GameTick = game.GameTick;
                 Time = game.Time / 1000;
                 FinishedState = game.FState.ToString();
+                IsSinglePlayer = game.IsSinglePlayer;
             }
 
             private static string[][] EntityLayerToData(IEntity?[][] layer)

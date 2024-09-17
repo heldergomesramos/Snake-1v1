@@ -136,14 +136,14 @@ export default function HomePage() {
           <div className="buttons-login">
             <button
               type="submit"
-              className="button-default button-height-less"
+              className="button-default button-height-less button-width-less"
               onClick={() => setActionType("login")}
             >
               Login
             </button>
             <button
               type="submit"
-              className="button-default button-height-less"
+              className="button-default button-height-less button-width-less"
               onClick={() => setActionType("register")}
             >
               Register

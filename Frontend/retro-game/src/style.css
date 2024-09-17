@@ -8,21 +8,18 @@
 }
 
 :root {
-  --color-background: #161616; /* A deeper black for a more immersive dark background */
-  --color-text: #e0e0e0; /* Off-white for better contrast with the dark background */
+  --color-background-transparent: rgba(0, 0, 0, 0.7);
+  --color-background: #161616;
+  --color-text: #e0e0e0;
   --color-text-purple: #af37c4;
-  --color-text-green: #39ff14; /* Neon green, symbolizing the toxic/poisonous theme */
-  --color-border-input: #39ff14; /* Matching neon green for inputs */
-  --color-border-input-shadow: rgb(
-    130,
-    20,
-    255
-  ); /* Soft shadow for input borders */
-  --color-text-title: #af37c4; /* Deep purple, keeping in line with the snake theme */
-  --color-border-gradient-1: #6aff14; /* Gradient start with neon green */
-  --color-border-gradient-2: #27b077; /* Gradient end with deep purple */
-  --color-red: #ff1744; /* Bright red for danger alerts, keeping a toxic feel */
-  --color-green: #39ff14; /* Consistent neon green across the design */
+  --color-text-green: #39ff14;
+  --color-border-input: #39ff14;
+  --color-border-input-shadow: rgb(130, 20, 255);
+  --color-text-title: #af37c4;
+  --color-border-gradient-1: #6aff14;
+  --color-border-gradient-2: #27b077;
+  --color-red: #ff1744;
+  --color-green: #39ff14;
 
   --fs-xl: clamp(1.8rem, 4vw + 1rem, 2.5rem);
   --fs-600: clamp(1.3rem, 3vw + 0.8rem, 1.5rem);
@@ -701,4 +698,48 @@ input[type="checkbox"]:checked + label {
 }
 
 .tile {
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--color-background-transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.overlay-content {
+  background-color: var(--color-background);
+  padding: 20px;
+  text-align: center;
+}
+
+.overlay-content p {
+  margin-bottom: 0.5rem;
+}
+
+.overlay-cause {
+  font-size: var(--fs-600);
+  color: var(--color-border-gradient-1);
+}
+
+.overlay-result {
+  font-size: var(--fs-600);
+}
+
+.overlay-result.win {
+  color: var(--color-border-gradient-1);
+}
+
+.overlay-result.lose {
+  color: var(--color-red);
+}
+
+.overlay-result.draw {
+  color: var(--color-text-purple);
 }

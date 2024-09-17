@@ -171,6 +171,16 @@ namespace api.Hubs
             LobbyManager.RemovePrivateLobby(lobby.LobbyId);
         }
 
+        public async Task AskRematch(string playerId, string gameId)
+        {
+            Console.WriteLine("Ask Rematch from: " + playerId);
+        }
+
+        public async Task PlayAgain(string playerId, string gameId)
+        {
+            Console.WriteLine("Play Again from: " + playerId);
+        }
+
         /* Static Methods */
 
         public static async Task AddPlayerToLobby(string playerId, string lobbyId, object lobbyDto, IHubContext<LobbyHub> hubContext)

@@ -16,6 +16,7 @@ import pinkSnake from "../assets/images/Snake-pink.png";
 import miscSprite from "../assets/images/Misc.png";
 
 import { formatTime } from "../functions";
+import GameEndOverlay from "../pages/GameEndOverlay";
 
 export default function Game() {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ export default function Game() {
   const [gameData, setGameData] = useState(initialGameData);
   const boardRef = useRef(null);
   const [tileSize, setTileSize] = useState(16); // Dynamically calculated tile size
+  const [rematchState, setRematchState] = useState("normal");
 
   const snakeTilesets = [
     redSnake,
@@ -84,6 +86,25 @@ export default function Game() {
     if (connection) {
       connection
         .invoke("LeaveGame", playerData.playerId, gameData.gameId)
+        .catch((err) => console.error(err));
+    }
+  };
+
+  const handleRematch = async (e) => {
+    e.preventDefault();
+    if (connection) {
+      connection
+        .invoke("AskRematch", playerData.playerId, gameData.gameId)
+        .catch((err) => console.error(err));
+    }
+    setRematchState("lockedIn");
+  };
+
+  const handlePlayAgain = async (e) => {
+    e.preventDefault();
+    if (connection) {
+      connection
+        .invoke("PlayAgain", playerData.playerId, gameData.gameId)
         .catch((err) => console.error(err));
     }
   };
@@ -156,6 +177,55 @@ export default function Game() {
       clipPath: `polygon(${topLeftX}% ${topLeftY}%, ${bottomRightX}% ${topLeftY}%, ${bottomRightX}% ${bottomRightY}%, ${topLeftX}% ${bottomRightY}%)`,
       transform: `translate(${translateX}%, ${translateY}%)`,
     };
+  };
+
+  const ConvertFinishedStateToText = (finishedState) => {
+    switch (finishedState) {
+      case "Player1Disconnected":
+        return `${gameData.lobby.player1.username} disconnected`;
+      case "Player2Disconnected":
+        return `${gameData.lobby.player2.username} disconnected`;
+      case "Player1WonByTimeOut":
+      case "Player2WonByTimeOut":
+        return "Time out!";
+      case "Player1WonByCollision":
+      case "Player2WonByCollision":
+        return "Snake collision!";
+      case "DrawByTimeOut":
+        return "Time out!";
+      case "DrawByCollision":
+        return "Snake collision!";
+      case "SinglePlayerTimeOut":
+        return "Time out!";
+      case "SinglePlayerCollision":
+        return "Snake collision!";
+      default:
+        return "";
+    }
+  };
+
+  const ConvertFinishedStateToResult = (finishedState) => {
+    if (gameData.isSinglePlayer) {
+      return "";
+    }
+
+    switch (finishedState) {
+      case "Player1WonByTimeOut":
+      case "Player1WonByCollision":
+        return playerData.playerId === gameData.lobby.player1.playerId
+          ? "win"
+          : "lose";
+      case "Player2WonByTimeOut":
+      case "Player2WonByCollision":
+        return playerData.playerId === gameData.lobby.player2.playerId
+          ? "win"
+          : "lose";
+      case "DrawByTimeOut":
+      case "DrawByCollision":
+        return "draw";
+      default:
+        return "";
+    }
   };
 
   const Board = () => {
@@ -505,6 +575,39 @@ export default function Game() {
           Leave
         </button>
       </div>
+      {gameData.finishedState != "NotFinished" && (
+        <GameEndOverlay
+          cause={ConvertFinishedStateToText(gameData.finishedState)}
+          result={ConvertFinishedStateToResult(gameData.finishedState)}
+          yourScore={
+            playerData.playerId === gameData.lobby.player1.playerId
+              ? gameData.player1Score
+              : gameData.player2Score
+          }
+          opponentName={
+            gameData.isSinglePlayer
+              ? ""
+              : playerData.playerId === gameData.lobby.player1.playerId
+              ? gameData.lobby.player2.username
+              : gameData.lobby.player1.username
+          }
+          opponentScore={
+            gameData.isSinglePlayer
+              ? null
+              : playerData.playerId === gameData.lobby.player1.playerId
+              ? gameData.player2Score
+              : gameData.player1Score
+          }
+          time={formatTime(gameData.time)}
+          moves={gameData.gameTick}
+          optionalMessage=""
+          onLeave={handleLeave}
+          onRematch={handleRematch}
+          rematchState={rematchState}
+          isSinglePlayer={gameData.isSinglePlayer}
+          onPlayAgain={handlePlayAgain}
+        />
+      )}
     </div>
   );
 }
