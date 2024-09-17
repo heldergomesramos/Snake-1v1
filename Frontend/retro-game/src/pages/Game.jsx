@@ -151,7 +151,7 @@ export default function Game() {
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [connection]);
+  }, [connection, gameData]);
 
   const getTileClipPathAndPosition = (tileIndex) => {
     const TILESET_COLUMNS = 4; // 4 columns and 4 rows

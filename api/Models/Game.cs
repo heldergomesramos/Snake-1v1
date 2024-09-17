@@ -529,7 +529,10 @@ namespace api.Models
 
             Snake snake = Snakes.Values.First();
             if (snake.HasCollided)
+            {
                 EndGame(FinishedState.SinglePlayerCollision);
+                return;
+            }
 
             foreach (var segment in snake.Segments)
             {

@@ -124,6 +124,7 @@ namespace api.Hubs
 
         public void UpdateDirectionCommand(string playerId, string gameId, char direction)
         {
+            Console.WriteLine("Received update direction command from: " + playerId + " for game: " + gameId + " with direction: " + direction);
             GameManager.UpdateDirectionCommand(playerId, gameId, direction);
         }
 
@@ -190,6 +191,14 @@ namespace api.Hubs
         public async Task PlayAgain(string playerId, string gameId)
         {
             Console.WriteLine("Play Again from: " + playerId);
+            var game = GameManager.GetGameByGameId(gameId);
+            if (game == null)
+            {
+                Console.WriteLine("Game is null, there is a problem");
+                return;
+            }
+            GameManager.RemoveGame(gameId);
+            await StartGame(game.Lobby.LobbyId);
         }
 
         /* Static Methods */
