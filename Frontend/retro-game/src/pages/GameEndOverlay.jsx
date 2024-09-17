@@ -22,9 +22,9 @@ const GameEndOverlay = ({
         {!isSinglePlayer && (
           <p className={`overlay-result ${result}`}>
             {result === "win"
-              ? "You Won!"
+              ? "You Win!"
               : result === "lose"
-              ? "You Lost!"
+              ? "You Lose!"
               : "Draw!"}
           </p>
         )}

@@ -82,6 +82,7 @@ namespace api.Models
             public LinkedList<SnakeSegment> Segments { get; set; } = [];
             public SnakeSegment Head { get; set; }
             public SnakeSegment Tail { get; set; }
+            public bool HasCollided { get; set; } = false;
 
             public Snake(string playerId, int playerNumber, int gameHeight, int gameWidth)
             {
@@ -223,7 +224,6 @@ namespace api.Models
             CurApple = newApple;
         }
 
-
         public void MoveSnake(Snake snake)
         {
             char currentDirection = DirectionCommand[snake.PlayerId];
@@ -246,7 +246,7 @@ namespace api.Models
                     {
                         if (gameSettings.Borders)
                         {
-                            EndGameByCollision(snake);
+                            snake.HasCollided = true;
                             return;
                         }
                         else
@@ -268,7 +268,7 @@ namespace api.Models
                     {
                         if (gameSettings.Borders)
                         {
-                            EndGameByCollision(snake);
+                            snake.HasCollided = true;
                             return;
                         }
                         else
@@ -290,7 +290,7 @@ namespace api.Models
                     {
                         if (gameSettings.Borders)
                         {
-                            EndGameByCollision(snake);
+                            snake.HasCollided = true;
                             return;
                         }
                         else
@@ -312,7 +312,7 @@ namespace api.Models
                     {
                         if (gameSettings.Borders)
                         {
-                            EndGameByCollision(snake);
+                            snake.HasCollided = true;
                             return;
                         }
                         else
@@ -463,9 +463,21 @@ namespace api.Models
             }
         }
 
-        private void EndGameByCollision(Snake snake)
+        private void EndGameIfCollisionDetected()
         {
-            EndGame(IsSinglePlayer ? FinishedState.SinglePlayerCollision : (snake.PlayerNumber == 1 ? FinishedState.Player2WonByCollision : FinishedState.Player1WonByCollision));
+            if (IsSinglePlayer || Lobby.Player1 == null || Lobby.Player2 == null || Snakes.Count != 2)
+                return;
+
+            var snake1 = Snakes.First().Value;
+            var snake2 = Snakes.Last().Value;
+
+            /* End Game if at least 1 player lost */
+            if (snake1.HasCollided && snake2.HasCollided)
+                EndGame(FinishedState.DrawByCollision);
+            else if (snake1.HasCollided)
+                EndGame(FinishedState.Player2WonByCollision);
+            else if (snake2.HasCollided)
+                EndGame(FinishedState.Player1WonByCollision);
         }
 
         public void UpdateGameState()
@@ -487,7 +499,10 @@ namespace api.Models
             foreach (var sn in Snakes)
                 MoveSnake(sn.Value);
 
-            DetectCollisions();
+            DetectSinglePlayerCollisions();
+            DetectMultiPlayerCollisions();
+            EndGameIfCollisionDetected();
+
             if (GState == GameState.Finished)
             {
                 Console.WriteLine("Game Ended in collision");
@@ -507,70 +522,67 @@ namespace api.Models
                 EntityLayer[CurApple.Y][CurApple.X] = CurApple;
         }
 
-        public void DetectCollisions()
+        public void DetectSinglePlayerCollisions()
+        {
+            if (!IsSinglePlayer)
+                return;
+
+            Snake snake = Snakes.Values.First();
+            if (snake.HasCollided)
+                EndGame(FinishedState.SinglePlayerCollision);
+
+            foreach (var segment in snake.Segments)
+            {
+                if (snake.Head.X == segment.X && snake.Head.Y == segment.Y)
+                {
+                    snake.HasCollided = true;
+                    break;
+                }
+            }
+            if (snake.Head.X == snake.Tail.X && snake.Head.Y == snake.Tail.Y)
+                snake.HasCollided = true;
+
+            if (snake.HasCollided)
+                EndGame(FinishedState.SinglePlayerCollision);
+        }
+
+        public void DetectMultiPlayerCollisions()
         {
             if (IsSinglePlayer)
+                return;
+
+            foreach (var snakeHeadEntry in Snakes)
             {
-                Snake snake = Snakes.Values.First();
-                foreach (var segment in snake.Segments)
+                /* If border collision has been marked previously on MoveSnake() */
+                if (snakeHeadEntry.Value.HasCollided)
+                    continue;
+
+                var snakeHead = snakeHeadEntry.Value.Head;
+                foreach (var snakeBodyEntry in Snakes)
                 {
-                    if (snake.Head.X == segment.X && snake.Head.Y == segment.Y)
-                    {
-                        EndGame(FinishedState.SinglePlayerCollision);
-                        return;
-                    }
-                }
-                if (snake.Head.X == snake.Tail.X && snake.Head.Y == snake.Tail.Y)
-                    EndGame(FinishedState.SinglePlayerCollision);
-            }
-            else
-            {
-                var player1Lost = false;
-                var player2Lost = false;
-                foreach (var snakeHeadEntry in Snakes)
-                {
-                    var snakeHead = snakeHeadEntry.Value.Head;
-                    foreach (var snakeBodyEntry in Snakes)
-                    {
-                        var snakeBody = snakeBodyEntry.Value.Segments;
-                        foreach (var segment in snakeBody)
-                            if (snakeHead.X == segment.X && snakeHead.Y == segment.Y)
-                            {
-                                if (snakeHeadEntry.Value.PlayerNumber == 1)
-                                    player1Lost = true;
-                                else
-                                    player2Lost = true;
-                                break;
-                            }
-                        var snakeTail = snakeBodyEntry.Value.Tail;
-                        if (snakeHead.X == snakeTail.X && snakeHead.Y == snakeTail.Y)
+                    var snakeBody = snakeBodyEntry.Value.Segments;
+                    foreach (var segment in snakeBody)
+                        if (snakeHead.X == segment.X && snakeHead.Y == segment.Y)
                         {
-                            if (snakeHeadEntry.Value.PlayerNumber == 1)
-                                player1Lost = true;
-                            else
-                                player2Lost = true;
+                            snakeHeadEntry.Value.HasCollided = true;
+                            break;
                         }
-                    }
+                    var snakeTail = snakeBodyEntry.Value.Tail;
+                    if (snakeHead.X == snakeTail.X && snakeHead.Y == snakeTail.Y)
+                        snakeHeadEntry.Value.HasCollided = true;
                 }
+            }
 
-                /* Heads Collision */
-                if (Snakes.Count != 2)
-                    return;
-                var head1 = Snakes.First().Value.Head;
-                var head2 = Snakes.Last().Value.Head;
-                if (head1.X == head2.X && head1.Y == head2.Y)
-                {
-                    player1Lost = true;
-                    player2Lost = true;
-                }
+            /* Heads Collision */
+            if (Snakes.Count != 2)
+                return;
 
-                /* End Game if at least 1 player lost */
-                if (player1Lost && player2Lost)
-                    EndGame(FinishedState.DrawByCollision);
-                else if (player1Lost)
-                    EndGame(FinishedState.Player2WonByCollision);
-                else if (player2Lost)
-                    EndGame(FinishedState.Player1WonByCollision);
+            var snake1 = Snakes.First().Value;
+            var snake2 = Snakes.Last().Value;
+            if (snake1.Head.X == snake2.Head.X && snake1.Head.Y == snake2.Head.Y)
+            {
+                snake1.HasCollided = true;
+                snake2.HasCollided = true;
             }
         }
 

@@ -210,11 +210,13 @@ export default function Game() {
     }
 
     switch (finishedState) {
+      case "Player2Disconnected":
       case "Player1WonByTimeOut":
       case "Player1WonByCollision":
         return playerData.playerId === gameData.lobby.player1.playerId
           ? "win"
           : "lose";
+      case "Player1Disconnected":
       case "Player2WonByTimeOut":
       case "Player2WonByCollision":
         return playerData.playerId === gameData.lobby.player2.playerId

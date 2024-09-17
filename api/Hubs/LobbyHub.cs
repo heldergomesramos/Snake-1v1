@@ -132,7 +132,18 @@ namespace api.Hubs
             Console.WriteLine("Leave Game: " + gameId + " by: " + playerId);
             var game = GameManager.GetGameByGameId(gameId);
             if (game == null)
+            {
+                var connectionId = PlayerManager.GetConnectionIdByPlayerId(playerId);
+                if (connectionId == null)
+                    return;
+                await Clients.Client(connectionId).SendAsync("LeaveGame");
+                var player = PlayerManager.GetPlayerSimplifiedByPlayerId(playerId);
+                if (player == null)
+                    return;
+                player.LobbyId = string.Empty;
+                player.GameId = string.Empty;
                 return;
+            }
 
             game.HandleDisconnection(playerId);
             var lobby = game.Lobby;
