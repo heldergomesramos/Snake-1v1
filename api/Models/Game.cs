@@ -24,6 +24,8 @@ namespace api.Models
         public Dictionary<string, char> DirectionCommand { get; private set; } = [];
         public Apple? CurApple { get; private set; }
 
+        public string[][] EntityLayerDataCopy { get; private set; }
+
         public enum GameState
         {
             Waiting,
@@ -388,14 +390,9 @@ namespace api.Models
                     snake.Tail.Direction = "l";
                 }
             }
-
-            // foreach (var segment in snake.Segments)
-            // {
-            //     EntityLayer[segment.Y][segment.X] = segment;
-            // }
         }
 
-        public void AddSnakeToEntityLayer(Snake snake)
+        private void AddSnakeToEntityLayer(Snake snake)
         {
             Console.WriteLine("Add Snake to Entity Layer");
             EntityLayer[snake.Head.Y][snake.Head.X] = snake.Head;
@@ -427,7 +424,7 @@ namespace api.Models
                 EndGame(FinishedState.Player2Disconnected);
         }
 
-        public void EndGame(FinishedState newState)
+        private void EndGame(FinishedState newState)
         {
             Console.WriteLine("End Game on State: " + newState.ToString());
             GState = GameState.Finished;
@@ -509,6 +506,12 @@ namespace api.Models
                 return;
             }
 
+            UpdateEntityLayer();
+        }
+
+        private void UpdateEntityLayer()
+        {
+            Console.WriteLine("Update Entity Layer");
             if (EntityLayer == null || EntityLayer[0] == null)
                 return;
 
@@ -522,7 +525,7 @@ namespace api.Models
                 EntityLayer[CurApple.Y][CurApple.X] = CurApple;
         }
 
-        public void DetectSinglePlayerCollisions()
+        private void DetectSinglePlayerCollisions()
         {
             if (!IsSinglePlayer)
                 return;
@@ -549,7 +552,7 @@ namespace api.Models
                 EndGame(FinishedState.SinglePlayerCollision);
         }
 
-        public void DetectMultiPlayerCollisions()
+        private void DetectMultiPlayerCollisions()
         {
             if (IsSinglePlayer)
                 return;
@@ -591,7 +594,9 @@ namespace api.Models
 
         public GameData ToResponseDto()
         {
-            return new GameData(this);
+            var newData = new GameData(this);
+            EntityLayerDataCopy = newData.EntityLayer;
+            return newData;
         }
 
         public class GameData
@@ -616,7 +621,7 @@ namespace api.Models
                 GameId = game.GameId;
                 Lobby = LobbyMappers.ToResponseDto((PrivateLobby)game.Lobby); // Change this when making Public option
                 GroundLayer = game.GroundLayer;
-                EntityLayer = EntityLayerToData(game.EntityLayer);
+                EntityLayer = game.GState == GameState.Finished ? game.EntityLayerDataCopy : EntityLayerToData(game.EntityLayer);
                 Player1Score = game.Player1Score;
                 Player2Score = game.Player2Score;
                 GameTick = game.GameTick;
