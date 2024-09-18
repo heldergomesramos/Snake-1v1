@@ -222,6 +222,20 @@ namespace api.Hubs
             await StartGame(game.Lobby.LobbyId);
         }
 
+        public void ActivateAbility(string playerId, string gameId)
+        {
+            Console.WriteLine("ActivateAbility from: " + playerId);
+            var game = GameManager.GetGameByGameId(gameId);
+            if (game == null)
+            {
+                Console.WriteLine("Game is null, there is a problem");
+                return;
+            }
+            if (game.GState == Game.GameState.Finished)
+                return;
+            game.UseAbility(playerId);
+        }
+
         /* Static Methods */
 
         public static async Task AddPlayerToLobby(string playerId, string lobbyId, object lobbyDto, IHubContext<LobbyHub> hubContext)

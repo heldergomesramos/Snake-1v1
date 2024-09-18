@@ -1,5 +1,6 @@
 using api.Controllers;
 using api.Dtos.Lobby;
+using api.Dtos.Player;
 using api.Mappers;
 
 namespace api.Models
@@ -70,6 +71,11 @@ namespace api.Models
             {
                 return $"snake{PlayerNumber}-{Type}-{Direction}";
             }
+
+            public override string ToString()
+            {
+                return ToData() + "-" + X + "-" + Y;
+            }
         }
 
         public class Apple(int x, int y) : IEntity(x, y)
@@ -88,9 +94,12 @@ namespace api.Models
             public SnakeSegment Head { get; set; }
             public SnakeSegment Tail { get; set; }
             public bool HasCollided { get; set; } = false;
+            public bool HasSwapped { get; set; } = false;
+            public Game Game { get; set; }
 
-            public Snake(string playerId, int playerNumber, int gameHeight, int gameWidth)
+            public Snake(string playerId, int playerNumber, int gameHeight, int gameWidth, Game game)
             {
+                Game = game;
                 PlayerId = playerId;
                 PlayerNumber = playerNumber;
                 int y; // Vertical position (row)
@@ -129,6 +138,44 @@ namespace api.Models
 
                 Segments.AddLast(body);
             }
+
+            public void Swap(string playerId)
+            {
+                var headX = Head.X;
+                var headY = Head.Y;
+                var headDir = Head.Direction;
+
+                Head.X = Tail.X;
+                Head.Y = Tail.Y;
+                Head.Direction = GetOppositeDirection(Tail.Direction);
+
+                Tail.X = headX;
+                Tail.Y = headY;
+                Tail.Direction = GetOppositeDirection(headDir);
+
+                if (Segments.Count > 1)
+                {
+                    var reversedSegments = new LinkedList<SnakeSegment>(Segments);
+                    Segments.Clear();
+                    foreach (var segment in reversedSegments.Reverse())
+                        Segments.AddLast(segment);
+                }
+
+                Game.DirectionCommand[playerId] = GetOppositeDirection(Game.DirectionCommand[playerId].ToString())[0];
+                HasSwapped = true;
+            }
+        }
+
+        private static string GetOppositeDirection(string ogDirection)
+        {
+            return ogDirection switch
+            {
+                "l" => "r",
+                "u" => "d",
+                "r" => "l",
+                "d" => "u",
+                _ => " ",
+            };
         }
 
         public Game(Lobby lobby)
@@ -159,13 +206,13 @@ namespace api.Models
             if (lobby.Player1 != null)
             {
                 var playerId = lobby.Player1.PlayerId;
-                Snakes[playerId] = new Snake(playerId, 1, Lobby.GameSettings.Height, Lobby.GameSettings.Width);
+                Snakes[playerId] = new Snake(playerId, 1, Lobby.GameSettings.Height, Lobby.GameSettings.Width, this);
                 DirectionCommand[playerId] = 'r';
             }
             if (lobby.Player2 != null)
             {
                 var playerId = lobby.Player2.PlayerId;
-                Snakes[playerId] = new Snake(playerId, 2, Lobby.GameSettings.Height, Lobby.GameSettings.Width);
+                Snakes[playerId] = new Snake(playerId, 2, Lobby.GameSettings.Height, Lobby.GameSettings.Width, this);
                 DirectionCommand[playerId] = 'l';
             }
 
@@ -177,6 +224,35 @@ namespace api.Models
             Player1Score = 0;
             Player2Score = 0;
             GameTick = 0;
+        }
+
+        private PlayerSimplified? GetPlayerSimplifiedByPlayerId(string playerId)
+        {
+            if (Lobby.Player1 != null && Lobby.Player1.PlayerId == playerId)
+                return Lobby.Player1;
+            if (Lobby.Player2 != null && Lobby.Player2.PlayerId == playerId)
+                return Lobby.Player2;
+            return null;
+        }
+
+        public void UseAbility(string playerId)
+        {
+            var player = GetPlayerSimplifiedByPlayerId(playerId);
+            if (player == null)
+                return;
+            Console.WriteLine("Use Ability " + player.Ability + " from " + player.Username);
+            switch (player.Ability)
+            {
+                //Swap
+                case 0:
+                    Snakes[player.PlayerId].Swap(playerId);
+                    break;
+                //Freeze
+                case 1: break;
+                //Ghost
+                case 2: break;
+                default: return;
+            }
         }
 
         public void WantsRematch(string playerId)
@@ -239,7 +315,17 @@ namespace api.Models
 
         public void MoveSnake(Snake snake)
         {
+            if (snake.HasSwapped)
+            {
+                snake.HasSwapped = false;
+                return;
+            }
             char currentDirection = DirectionCommand[snake.PlayerId];
+            if (GetOppositeDirection(currentDirection.ToString()) == snake.Head.Direction)
+            {
+                Console.WriteLine("Prevented self collision bug");
+                currentDirection = snake.Head.Direction[0];
+            }
 
             int prevHeadX = snake.Head.X;
             int prevHeadY = snake.Head.Y;
@@ -414,6 +500,8 @@ namespace api.Models
 
         public void ReceiveDirectionCommand(string playerId, char command)
         {
+            if (GState == GameState.Finished)
+                return;
             //var curDirection = DirectionCommand[playerId];
             char curDirection = Snakes[playerId].Head.Direction[0];
 

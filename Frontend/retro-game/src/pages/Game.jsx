@@ -133,6 +133,13 @@ export default function Game() {
       case "ArrowRight":
         direction = "r";
         break;
+      case " ": // Detect Space Bar (space character)
+        if (connection) {
+          connection
+            .invoke("ActivateAbility", playerData.playerId, gameData.gameId)
+            .catch((err) => console.error("Error activating ability:", err));
+        }
+        return;
       default:
         return;
     }
