@@ -73,10 +73,15 @@ export default function Game() {
       connection.on("UpdateGameState", (gameState) => {
         console.log(`Received Game State: ${JSON.stringify(gameState)}`);
         setGameData(gameState);
+        setRematchState("normal");
       });
       connection.on("LeaveGame", () => {
         console.log("Leave Game");
         navigate("/main-menu");
+      });
+      connection.on("RematchResponse", (response) => {
+        console.log("Rematch Response: " + JSON.stringify(response));
+        setRematchState(response);
       });
     }
   }, [connection]);
@@ -97,7 +102,6 @@ export default function Game() {
         .invoke("AskRematch", playerData.playerId, gameData.gameId)
         .catch((err) => console.error(err));
     }
-    setRematchState("lockedIn");
   };
 
   const handlePlayAgain = async (e) => {

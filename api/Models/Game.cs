@@ -20,6 +20,9 @@ namespace api.Models
         public int Time { get; private set; } = 3000;
         public int TickInterval { get; private set; } = 0;
 
+        public bool Player1WantsRematch { get; private set; } = false;
+        public bool Player2WantsRematch { get; private set; } = false;
+
         public Dictionary<string, Snake> Snakes { get; private set; } = [];
         public Dictionary<string, char> DirectionCommand { get; private set; } = [];
         public Apple? CurApple { get; private set; }
@@ -174,6 +177,14 @@ namespace api.Models
             Player1Score = 0;
             Player2Score = 0;
             GameTick = 0;
+        }
+
+        public void WantsRematch(string playerId)
+        {
+            if (Lobby.Player1 != null && Lobby.Player1.PlayerId == playerId)
+                Player1WantsRematch = !Player1WantsRematch;
+            if (Lobby.Player2 != null && Lobby.Player2.PlayerId == playerId)
+                Player2WantsRematch = !Player2WantsRematch;
         }
 
         public async Task StartGameLoop(Func<Game, Task> onTick)

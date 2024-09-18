@@ -20,6 +20,7 @@
   --color-border-gradient-2: #27b077;
   --color-red: #ff1744;
   --color-green: #39ff14;
+  --color-disabled: #494949;
 
   --fs-xl: clamp(1.8rem, 4vw + 1rem, 2.5rem);
   --fs-600: clamp(1.3rem, 3vw + 0.8rem, 1.5rem);
@@ -742,4 +743,43 @@ input[type="checkbox"]:checked + label {
 
 .overlay-result.draw {
   color: var(--color-text-purple);
+}
+
+.overlay-rematch.normal {
+}
+
+.overlay-rematch.locked-in {
+  -webkit-text-stroke: var(--color-background) 0.8px;
+
+  border: 10px solid;
+  border-image-slice: 1;
+  border-width: 3px;
+  border-image-source: linear-gradient(
+    to bottom,
+    var(--color-text-purple),
+    var(--color-text-purple)
+  );
+}
+
+.overlay-rematch.locked-in:hover {
+  background: var(--color-text-purple);
+}
+
+.overlay-rematch.disabled {
+  color: gray;
+  -webkit-text-stroke: var(--color-background) 0.8px;
+
+  border: 10px solid;
+  border-image-slice: 1;
+  border-width: 3px;
+  border-image-source: linear-gradient(
+    to bottom,
+    var(--color-disabled),
+    var(--color-disabled)
+  );
+  cursor: default;
+}
+
+.overlay-rematch.disabled:hover {
+  background: none;
 }

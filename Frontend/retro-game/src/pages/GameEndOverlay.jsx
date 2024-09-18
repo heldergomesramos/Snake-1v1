@@ -48,7 +48,9 @@ const GameEndOverlay = ({
           </button>
           <button
             onClick={isSinglePlayer ? onPlayAgain : onRematch}
-            className={`button-default  button-height-less button-width-less rematch-button ${rematchState}`}
+            className={`button-default button-height-less button-width-less ${
+              !isSinglePlayer ? `overlay-rematch ${rematchState}` : ""
+            }`}
             disabled={!isSinglePlayer && rematchState === "disabled"}
           >
             {isSinglePlayer

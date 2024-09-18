@@ -172,6 +172,7 @@ namespace api.Hubs
                 if (connectionId != null)
                 {
                     await Clients.Client(connectionId).SendAsync("UpdateGameState", game.ToResponseDto());
+                    await Clients.Client(connectionId).SendAsync("RematchResponse", "disabled");
                     await Groups.RemoveFromGroupAsync(connectionId, lobby.LobbyId);
                 }
 
@@ -186,6 +187,26 @@ namespace api.Hubs
         public async Task AskRematch(string playerId, string gameId)
         {
             Console.WriteLine("Ask Rematch from: " + playerId);
+            var client = PlayerManager.GetConnectionIdByPlayerId(playerId);
+            if (client == null)
+                return;
+            var game = GameManager.GetGameByGameId(gameId);
+            if (game == null || game.Lobby.Player1 == null || game.Lobby.Player2 == null)
+            {
+                await Clients.Client(client).SendAsync("RematchResponse", "disabled");
+                return;
+            }
+            game.WantsRematch(playerId);
+            if (game.Player1WantsRematch && game.Player2WantsRematch)
+            {
+                GameManager.RemoveGame(gameId);
+                await StartGame(game.Lobby.LobbyId);
+            }
+            else
+            {
+                bool wantsRematch = game.Lobby.Player1.PlayerId == playerId ? game.Player1WantsRematch : game.Player2WantsRematch;
+                await Clients.Client(client).SendAsync("RematchResponse", wantsRematch ? "locked-in" : "normal");
+            }
         }
 
         public async Task PlayAgain(string playerId, string gameId)
