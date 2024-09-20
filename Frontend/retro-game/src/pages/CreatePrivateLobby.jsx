@@ -331,7 +331,7 @@ export default function CreatePrivateLobby() {
 
   const PlayerInfo = ({ player, playerNumber }) => {
     return (
-      <div>
+      <>
         <div className="cpl-player-info border-gradient-normal">
           {player == null ? (
             <div>
@@ -383,7 +383,13 @@ export default function CreatePrivateLobby() {
             </div>
           )}
         </div>
-        {/* Conditionally render buttons based on what player the user is */}
+      </>
+    );
+  };
+
+  const PlayerButtons = ({ playerNumber }) => {
+    return (
+      <div>
         {isPlayer1 === (playerNumber === 1) && (
           <div className="container-center cpl-player-buttons-container">
             <div className="cpl-player-pallete-container">
@@ -483,33 +489,39 @@ export default function CreatePrivateLobby() {
 
   return (
     <div className="cpl-container">
-      <div className="cpl-top-grid border-gradient-normal">
-        <PlayerInfo player={lobby.player1} playerNumber={1} />
-        <div className="cpl-map-preview-container">
+      <div className="cpl-top-section-container border-gradient-normal">
+        <div className="cpl-top-section cpl-top-section-1">
+          <PlayerInfo player={lobby.player1} playerNumber={1} />
           <img
             className="pixel-art cpl-map-preview-image border-gradient-normal"
             src={mapData[mapSettings.map].img}
             alt="Map Image"
           />
-          <div className="cpl-map-navigation-container">
-            <button
-              className="button-default button-square"
-              onClick={() => handleMapNavigation("left")}
-            >
-              &lt;
-            </button>
-            <p className="cpl-map-name gradient-text">
-              {mapData[mapSettings.map].name}
-            </p>
-            <button
-              className="button-default button-square"
-              onClick={() => handleMapNavigation("right")}
-            >
-              &gt;
-            </button>
-          </div>
+          <PlayerInfo player={lobby.player2} playerNumber={2} />
         </div>
-        <PlayerInfo player={lobby.player2} playerNumber={2} />
+        <div className="cpl-top-section cpl-top-section-2">
+          <PlayerButtons playerNumber={1} />
+          <div className="cpl-map-preview-container">
+            <div className="cpl-map-navigation-container">
+              <button
+                className="button-default button-square"
+                onClick={() => handleMapNavigation("left")}
+              >
+                &lt;
+              </button>
+              <p className="cpl-map-name gradient-text">
+                {mapData[mapSettings.map].name}
+              </p>
+              <button
+                className="button-default button-square"
+                onClick={() => handleMapNavigation("right")}
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
+          <PlayerButtons playerNumber={2} />
+        </div>
       </div>
       <div className="cpl-map-settings border-gradient-normal">
         <div className="cpl-setting-container">
