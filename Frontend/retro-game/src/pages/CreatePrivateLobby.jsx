@@ -1,7 +1,9 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { HubConnectionBuilder } from "@microsoft/signalr";
+
 import { BASE_URL } from "../constants";
+import { COLORS } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
 import { useSignalR } from "../context/SignalRContext";
 
@@ -128,17 +130,6 @@ export default function CreatePrivateLobby() {
   const [selectedColor, setSelectedColor] = useState(null);
   const colorMenuRef = useRef(null);
 
-  const colors = [
-    "#cf3636",
-    "#da6f2a",
-    "#e2c019",
-    "#7de219",
-    "#3adfba",
-    "#3245df",
-    "#50237d",
-    "#b541b5",
-  ];
-
   const toggleColorMenu = () => {
     if (!isColorMenuOpen) {
       setIsColorMenuOpen(true);
@@ -146,7 +137,7 @@ export default function CreatePrivateLobby() {
   };
 
   const handleColorSelect = (color) => {
-    const colorIndex = colors.indexOf(color);
+    const colorIndex = COLORS.indexOf(color);
     setSelectedColor(color);
     if (connection) {
       connection
@@ -355,9 +346,21 @@ export default function CreatePrivateLobby() {
           ) : (
             <div className="player-info">
               <div>
-                <p className="cpl-player-name gradient-text">
+                <p
+                  className="cpl-player-name gradient-text-dynamic"
+                  style={{
+                    "--player-color": COLORS[lobby.player1.color],
+                  }}
+                >
                   {lobby.player1.username}
                 </p>
+              </div>
+              <div className="container-center">
+                <img
+                  src={GetSnakeSprite[lobby.player1.color]}
+                  alt="Player 1 Snake"
+                  className="cpl-player-info-snake-image cpl-player-info-snake-image-1 pixel-art"
+                />
               </div>
               <div className="cpl-player-stats">
                 <div className="cpl-player-stats-group">
@@ -376,13 +379,6 @@ export default function CreatePrivateLobby() {
                   />
                   <p className="text-color-red">{lobby.player1.losses}</p>
                 </div>
-              </div>
-              <div className="container-center">
-                <img
-                  src={GetSnakeSprite[lobby.player1.color]}
-                  alt="Player 1 Snake"
-                  className="cpl-player-info-snake-image pixel-art"
-                />
               </div>
               {/* Conditionally render buttons based on what player the user is */}
               {isPlayer1 && (
@@ -406,7 +402,7 @@ export default function CreatePrivateLobby() {
                     {isColorMenuOpen && (
                       <div className="color-menu-container" ref={colorMenuRef}>
                         <div className="color-menu">
-                          {colors.map((color) => (
+                          {COLORS.map((color) => (
                             <label
                               key={color}
                               className="color-button"
@@ -523,9 +519,21 @@ export default function CreatePrivateLobby() {
           ) : (
             <div className="player-info">
               <div>
-                <p className="cpl-player-name gradient-text">
+                <p
+                  className="cpl-player-name gradient-text-dynamic"
+                  style={{
+                    "--player-color": COLORS[lobby.player2.color],
+                  }}
+                >
                   {lobby.player2.username}
                 </p>
+              </div>
+              <div className="container-center">
+                <img
+                  src={GetSnakeSprite[lobby.player2.color]}
+                  alt="Player 2 Snake"
+                  className="cpl-player-info-snake-image cpl-player-info-snake-image-2 pixel-art flip-horizontal"
+                />
               </div>
               <div className="cpl-player-stats">
                 <div className="cpl-player-stats-group">
@@ -544,13 +552,6 @@ export default function CreatePrivateLobby() {
                   />
                   <p className="text-color-red">{lobby.player2.losses}</p>
                 </div>
-              </div>
-              <div className="container-center">
-                <img
-                  src={GetSnakeSprite[lobby.player2.color]}
-                  alt="Player 2 Snake"
-                  className="cpl-player-info-snake-image pixel-art flip-horizontal"
-                />
               </div>
               {/* Conditionally render buttons based on what player the user is */}
               {!isPlayer1 && (
@@ -574,7 +575,7 @@ export default function CreatePrivateLobby() {
                     {isColorMenuOpen && (
                       <div className="color-menu-container" ref={colorMenuRef}>
                         <div className="color-menu">
-                          {colors.map((color) => (
+                          {COLORS.map((color) => (
                             <label
                               key={color}
                               className="color-button"

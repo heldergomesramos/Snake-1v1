@@ -94,9 +94,9 @@ export default function MainMenu() {
         <Link to="/public-queue">
           <button className="button-default">Join Public Game</button>
         </Link>
-        <Link to="/play-vs-ai">
+        {/* <Link to="/play-vs-ai">
           <button className="button-default">Play vs AI</button>
-        </Link>
+        </Link> */}
       </div>
       <br />
       <br />

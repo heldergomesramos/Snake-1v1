@@ -1,9 +1,14 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
 import { PlayerContext } from "../context/PlayerContext";
 import { useSignalR } from "../context/SignalRContext";
+import { COLORS } from "../constants";
 
 import headTailSwap from "../assets/images/AbilityIcons-HeadTailSwap.png";
+import freezeTime from "../assets/images/AbilityIcons-FreezeTime.png";
+import ghost from "../assets/images/AbilityIcons-Ghost.png";
+
 import tileset from "../assets/images/Maps-Plains.png";
 import redSnake from "../assets/images/Snake-red.png";
 import orangeSnake from "../assets/images/Snake-orange.png";
@@ -29,6 +34,10 @@ export default function Game() {
   const [tileSize, setTileSize] = useState(16); // Dynamically calculated tile size
   const [rematchState, setRematchState] = useState("normal");
 
+  const miscTilset = miscSprite;
+  const TILE_SIZE_PERCENT = 25;
+  const HALF_TILE_SIZE_PERCENT = 12.5;
+
   const snakeTilesets = [
     redSnake,
     orangeSnake,
@@ -40,9 +49,7 @@ export default function Game() {
     pinkSnake,
   ];
 
-  const miscTilset = miscSprite;
-  const TILE_SIZE_PERCENT = 25;
-  const HALF_TILE_SIZE_PERCENT = 12.5;
+  const abilities = [headTailSwap, freezeTime, ghost];
 
   useEffect(() => {
     const resizeBoard = () => {
@@ -540,7 +547,14 @@ export default function Game() {
       <div className="game-info">
         {player1 ? (
           <div className="game-player-info left">
-            <p>{player1.username}</p>
+            <p
+              className="cpl-player-name gradient-text-dynamic"
+              style={{
+                "--player-color": COLORS[lobby.player1.color],
+              }}
+            >
+              {player1.username}
+            </p>
             <p>Score: {player1Score || 0}</p>
           </div>
         ) : (
@@ -562,7 +576,14 @@ export default function Game() {
 
         {player2 ? (
           <div className="game-player-info right">
-            <p>{player2.username}</p>
+            <p
+              className="cpl-player-name gradient-text-dynamic"
+              style={{
+                "--player-color": COLORS[lobby.player1.color],
+              }}
+            >
+              {player2.username}
+            </p>
             <p>Score: {player2Score || 0}</p>
           </div>
         ) : (
@@ -575,7 +596,7 @@ export default function Game() {
       </div>
       <div className="game-ability container-center">
         <img
-          src={headTailSwap}
+          src={abilities[playerData.ability]}
           alt="Ability Icon"
           className="game-ability-button pixel-art"
         />

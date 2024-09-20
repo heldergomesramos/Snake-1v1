@@ -7,6 +7,12 @@ namespace api.Models
 {
     public class Game
     {
+        public static readonly int SWAP_COOLDOWN = 1000;
+        public static readonly int FREEZE_COOLDOWN = 15000;
+        public static readonly int GHOST_COOLDOWN = 20000;
+        public static readonly int FREEZE_TURNS = 5;
+        public static readonly int GHOST_TURNS = 3;
+
         private static readonly int tileVariations = 16;
         public string GameId { get; private set; } = string.Empty;
         public Lobby Lobby { get; private set; }
@@ -15,14 +21,17 @@ namespace api.Models
         public int[][] GroundLayer { get; private set; }
         public IEntity?[][] EntityLayer { get; private set; }
 
+        /* This should be in a separate ingame player class */
         public int Player1Score { get; private set; } = 0;
         public int Player2Score { get; private set; } = 0;
+        public int Player1Cooldown { get; private set; } = 0;
+        public int Player2Cooldown { get; private set; } = 0;
+        public bool Player1WantsRematch { get; private set; } = false;
+        public bool Player2WantsRematch { get; private set; } = false;
+
         public int GameTick { get; private set; } = 0;
         public int Time { get; private set; } = 3000;
         public int TickInterval { get; private set; } = 0;
-
-        public bool Player1WantsRematch { get; private set; } = false;
-        public bool Player2WantsRematch { get; private set; } = false;
 
         public Dictionary<string, Snake> Snakes { get; private set; } = [];
         public Dictionary<string, char> DirectionCommand { get; private set; } = [];
@@ -95,6 +104,7 @@ namespace api.Models
             public SnakeSegment Tail { get; set; }
             public bool HasCollided { get; set; } = false;
             public bool HasSwapped { get; set; } = false;
+            public int FrozenMoves { get; set; } = 0;
             public Game Game { get; set; }
 
             public Snake(string playerId, int playerNumber, int gameHeight, int gameWidth, Game game)
@@ -161,8 +171,13 @@ namespace api.Models
                         Segments.AddLast(segment);
                 }
 
-                Game.DirectionCommand[playerId] = GetOppositeDirection(Game.DirectionCommand[playerId].ToString())[0];
+                Game.DirectionCommand[playerId] = Head.Direction[0];
                 HasSwapped = true;
+            }
+
+            public void Freeze()
+            {
+                FrozenMoves = FREEZE_TURNS;
             }
         }
 
@@ -235,20 +250,40 @@ namespace api.Models
             return null;
         }
 
+        private bool IsPlayer1(string playerId)
+        {
+            return Lobby.Player1 != null && Lobby.Player1.PlayerId == playerId;
+        }
+
         public void UseAbility(string playerId)
         {
             var player = GetPlayerSimplifiedByPlayerId(playerId);
             if (player == null)
                 return;
-            Console.WriteLine("Use Ability " + player.Ability + " from " + player.Username);
+            Console.WriteLine("Use Ability " + player.Ability + " from " + player.Username + " cd: " + (IsPlayer1(playerId) ? Player1Cooldown : Player2Cooldown));
+            if ((IsPlayer1(playerId) && Player1Cooldown > 0) || Player2Cooldown > 0)
+                return;
+
             switch (player.Ability)
             {
                 //Swap
                 case 0:
                     Snakes[player.PlayerId].Swap(playerId);
+                    if (IsPlayer1(playerId))
+                        Player1Cooldown = SWAP_COOLDOWN;
+                    else
+                        Player2Cooldown = SWAP_COOLDOWN;
                     break;
                 //Freeze
-                case 1: break;
+                case 1:
+                    foreach (var snake in Snakes)
+                        if (snake.Value.PlayerId != playerId)
+                            snake.Value.Freeze();
+                    if (IsPlayer1(playerId))
+                        Player1Cooldown = FREEZE_COOLDOWN;
+                    else
+                        Player2Cooldown = FREEZE_COOLDOWN;
+                    break;
                 //Ghost
                 case 2: break;
                 default: return;
@@ -288,6 +323,9 @@ namespace api.Models
             while (GState == GameState.InProgress)
             {
                 await Task.Delay(TickInterval);
+                Player1Cooldown -= TickInterval;
+                Player2Cooldown -= TickInterval;
+                Console.WriteLine("\nCD: " + Player1Cooldown + "\n");
                 UpdateGameState();
                 await onTick(this);
             }
@@ -318,6 +356,11 @@ namespace api.Models
             if (snake.HasSwapped)
             {
                 snake.HasSwapped = false;
+                return;
+            }
+            else if (snake.FrozenMoves > 0)
+            {
+                snake.FrozenMoves--;
                 return;
             }
             char currentDirection = DirectionCommand[snake.PlayerId];
