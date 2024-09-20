@@ -470,8 +470,8 @@ input[type="number"] {
 .ability-container {
   position: relative;
   display: inline-block;
-  width: 56px; /* Ensure the width of the container matches the button size */
-  height: 56px; /* Ensure the height of the container matches the button size */
+  width: 56px;
+  height: 56px;
   margin: 5px;
 }
 
@@ -706,7 +706,32 @@ input[type="checkbox"]:checked + label {
 }
 
 .game-ability-button {
-  height: 80%;
+  position: relative;
+  height: 5.6vh;
+  width: 5.6vh;
+  display: flex;
+  justify-content: center;
+}
+
+.game-ability-button-image {
+  position: absolute;
+  cursor: pointer;
+  height: 100%;
+  z-index: 500;
+}
+
+.game-ability-button-cooldown-overlay {
+  position: absolute;
+  background-color: var(--color-background-transparent);
+  color: white; /* Adjust as needed */
+  font-size: var(--fs-400);
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 5.6vh;
+  width: 5.6vh;
+  z-index: 501;
 }
 
 .game-buttons {

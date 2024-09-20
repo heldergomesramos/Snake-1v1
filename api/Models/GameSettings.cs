@@ -7,7 +7,7 @@ namespace api.Models
         public int Speed { get; set; } = 2;
         public int Width { get; set; } = 10;
         public int Height { get; set; } = 10;
-        public int Time { get; set; } = 150;
+        public int Time { get; set; } = 180;
         public bool Borders { get; set; } = false;
         public bool Abilities { get; set; } = true;
         public int Map { get; set; } = 0;

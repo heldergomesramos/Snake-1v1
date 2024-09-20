@@ -120,6 +120,15 @@ export default function Game() {
     }
   };
 
+  const handleAbility = async (e) => {
+    e.preventDefault();
+    if (connection) {
+      connection
+        .invoke("ActivateAbility", playerData.playerId, gameData.gameId)
+        .catch((err) => console.error("Error activating ability:", err));
+    }
+  };
+
   const handleKeyPress = (event) => {
     let direction = null;
 
@@ -595,11 +604,20 @@ export default function Game() {
         <EntityLayer />
       </div>
       <div className="game-ability container-center">
-        <img
-          src={abilities[playerData.ability]}
-          alt="Ability Icon"
-          className="game-ability-button pixel-art"
-        />
+        <div className="game-ability-button">
+          <img
+            src={abilities[playerData.ability]}
+            alt="Ability Icon"
+            className="game-ability-button-image pixel-art"
+            onClick={handleAbility}
+          />
+          {gameData.lobby.player1.playerId === playerData.playerId &&
+            gameData.player1Cooldown > 0 && (
+              <div className="game-ability-button-cooldown-overlay">
+                {String(gameData.player1Cooldown).padStart(2, "0")}
+              </div>
+            )}
+        </div>
       </div>
       <div className="game-buttons container-center">
         <button

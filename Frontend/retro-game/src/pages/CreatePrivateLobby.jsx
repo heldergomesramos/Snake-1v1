@@ -525,7 +525,7 @@ export default function CreatePrivateLobby() {
       </div>
       <div className="cpl-map-settings border-gradient-normal">
         <div className="cpl-setting-container">
-          <p className="cpl-label">Map Height</p>
+          <p className="cpl-label">Height</p>
           <input
             className="cpl-input"
             type="number"
@@ -536,7 +536,7 @@ export default function CreatePrivateLobby() {
           />
         </div>
         <div className="cpl-setting-container">
-          <p className="cpl-label">Time Limit</p>
+          <p className="cpl-label">Time (s)</p>
           <input
             className="cpl-input"
             type="number"
@@ -559,7 +559,7 @@ export default function CreatePrivateLobby() {
           </div>
         </div>
         <div className="cpl-setting-container">
-          <p className="cpl-label">Map Width</p>
+          <p className="cpl-label">Width</p>
           <input
             className="cpl-input"
             type="number"

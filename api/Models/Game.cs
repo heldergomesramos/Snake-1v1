@@ -7,7 +7,7 @@ namespace api.Models
 {
     public class Game
     {
-        public static readonly int SWAP_COOLDOWN = 1000;
+        public static readonly int SWAP_COOLDOWN = 10000;
         public static readonly int FREEZE_COOLDOWN = 15000;
         public static readonly int GHOST_COOLDOWN = 20000;
         public static readonly int FREEZE_TURNS = 5;
@@ -257,6 +257,8 @@ namespace api.Models
 
         public void UseAbility(string playerId)
         {
+            if (GState != GameState.InProgress)
+                return;
             var player = GetPlayerSimplifiedByPlayerId(playerId);
             if (player == null)
                 return;
@@ -751,6 +753,8 @@ namespace api.Models
 
             public int Player1Score { get; private set; } = 0;
             public int Player2Score { get; private set; } = 0;
+            public int Player1Cooldown { get; private set; } = 0;
+            public int Player2Cooldown { get; private set; } = 0;
             public int GameTick { get; private set; } = 0;
             public int Time { get; private set; } = 3;
 
@@ -766,6 +770,8 @@ namespace api.Models
                 EntityLayer = game.GState == GameState.Finished ? game.EntityLayerDataCopy : EntityLayerToData(game.EntityLayer);
                 Player1Score = game.Player1Score;
                 Player2Score = game.Player2Score;
+                Player1Cooldown = (int)Math.Ceiling(game.Player1Cooldown / 1000.0);
+                Player2Cooldown = (int)Math.Ceiling(game.Player2Cooldown / 1000.0);
                 GameTick = game.GameTick;
                 Time = game.Time / 1000;
                 FinishedState = game.FState.ToString();
