@@ -550,7 +550,7 @@ export default function Game() {
             <p
               className="cpl-player-name gradient-text-dynamic"
               style={{
-                "--player-color": COLORS[lobby.player1.color],
+                "--player-color": COLORS[player1.color],
               }}
             >
               {player1.username}
@@ -579,7 +579,7 @@ export default function Game() {
             <p
               className="cpl-player-name gradient-text-dynamic"
               style={{
-                "--player-color": COLORS[lobby.player1.color],
+                "--player-color": COLORS[player2.color],
               }}
             >
               {player2.username}
