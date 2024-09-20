@@ -333,6 +333,7 @@ input[type="number"] {
   flex-direction: row;
   justify-content: center;
   gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .cpl-player-stats-group {
@@ -364,7 +365,8 @@ input[type="number"] {
 }
 
 .cpl-player-buttons-container {
-  margin-bottom: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 0rem;
   display: flex;
   flex-direction: row;
   gap: 1rem;
