@@ -18,7 +18,7 @@ import { SignalRProvider } from "./context/SignalRContext";
 export default function App() {
   return (
     <PlayerProvider>
-      <Router>
+      <Router basename="/Snake-1v1">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route
