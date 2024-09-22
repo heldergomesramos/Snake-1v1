@@ -2,6 +2,7 @@ using api.Controllers;
 using api.Dtos.Lobby;
 using api.Dtos.Player;
 using api.Mappers;
+using Microsoft.VisualBasic;
 
 namespace api.Models
 {
@@ -564,8 +565,10 @@ namespace api.Models
                 return;
             if (Lobby.Player1 != null && Lobby.Player1.PlayerId == playerId)
                 EndGame(FinishedState.Player1Disconnected);
-            else
+            else if (Lobby.Player2 != null && Lobby.Player2.PlayerId == playerId)
                 EndGame(FinishedState.Player2Disconnected);
+            else
+                Console.WriteLine("[ERROR] Lobby.Player is null or wrong playerId");
         }
 
         private void EndGame(FinishedState newState)
@@ -573,35 +576,50 @@ namespace api.Models
             Console.WriteLine("End Game on State: " + newState.ToString());
             GState = GameState.Finished;
             FState = newState;
-            if (!IsSinglePlayer)
+
+            if (IsSinglePlayer)
+                return;
+
+            var player1 = Lobby.Player1!;
+            var player2 = Lobby.Player2!;
+
+            switch (newState)
             {
-                var player1 = Lobby.Player1!;
-                var player2 = Lobby.Player2!;
-                switch (newState)
-                {
-                    case FinishedState.Player1Disconnected:
-                        player1.Losses++;
-                        player2.Wins++;
-                        break;
+                case FinishedState.Player1Disconnected:
+                    player1.Losses++;
+                    player2.Wins++;
+                    break;
 
-                    case FinishedState.Player2Disconnected:
-                        player1.Wins++;
-                        player2.Losses++;
-                        break;
+                case FinishedState.Player2Disconnected:
+                    player1.Wins++;
+                    player2.Losses++;
+                    break;
 
-                    case FinishedState.Player1WonByTimeOut:
-                    case FinishedState.Player1WonByCollision:
-                        player1.Wins++;
-                        player2.Losses++;
-                        break;
+                case FinishedState.Player1WonByTimeOut:
+                case FinishedState.Player1WonByCollision:
+                    player1.Wins++;
+                    player2.Losses++;
+                    break;
 
-                    case FinishedState.Player2WonByTimeOut:
-                    case FinishedState.Player2WonByCollision:
-                        player1.Losses++;
-                        player2.Wins++;
-                        break;
-                }
+                case FinishedState.Player2WonByTimeOut:
+                case FinishedState.Player2WonByCollision:
+                    player1.Losses++;
+                    player2.Wins++;
+                    break;
             }
+        }
+
+        public Snake? GetPlayerSnake(int playerNumber)
+        {
+            Snake? player1Snake = null, player2Snake = null;
+
+            if (Lobby.Player1 != null)
+                player1Snake = Snakes.Values.FirstOrDefault(s => s.PlayerId == Lobby.Player1.PlayerId);
+
+            if (Lobby.Player2 != null)
+                player2Snake = Snakes.Values.FirstOrDefault(s => s.PlayerId == Lobby.Player2.PlayerId);
+
+            return playerNumber == 1 ? player1Snake : player2Snake;
         }
 
         private void EndGameIfCollisionDetected()
@@ -755,6 +773,8 @@ namespace api.Models
             public int Player2Score { get; private set; } = 0;
             public int Player1Cooldown { get; private set; } = 0;
             public int Player2Cooldown { get; private set; } = 0;
+            public bool Player1Frozen { get; private set; } = false;
+            public bool Player2Frozen { get; private set; } = false;
             public int GameTick { get; private set; } = 0;
             public int Time { get; private set; } = 3;
 
@@ -772,6 +792,10 @@ namespace api.Models
                 Player2Score = game.Player2Score;
                 Player1Cooldown = (int)Math.Ceiling(game.Player1Cooldown / 1000.0);
                 Player2Cooldown = (int)Math.Ceiling(game.Player2Cooldown / 1000.0);
+                var snake1 = game.GetPlayerSnake(1);
+                var snake2 = game.GetPlayerSnake(2);
+                Player1Frozen = snake1 != null && snake1.FrozenMoves > 0;
+                Player2Frozen = snake2 != null && snake2.FrozenMoves > 0;
                 GameTick = game.GameTick;
                 Time = game.Time / 1000;
                 FinishedState = game.FState.ToString();

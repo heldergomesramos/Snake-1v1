@@ -38,21 +38,17 @@ namespace api.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
+            Console.WriteLine($"\nOn Disconnected Async Called, connection Id: " + Context.ConnectionId);
             var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
             if (player != null)
             {
-                await LobbyManager.LeavePrivateLobby(player.PlayerId, player.LobbyId, _hubContext);
-                player.LobbyId = string.Empty;
                 if (player.GameId != string.Empty)
-                {
                     await LeaveGame(player.PlayerId, player.GameId);
-                }
+                else if (player.LobbyId != string.Empty)
+                    await LobbyManager.LeavePrivateLobby(player.PlayerId, player.LobbyId, _hubContext);
                 await _playerService.UpdatePlayerAsync(player);
                 PlayerManager.RemoveConnection(Context.ConnectionId);
-                Console.WriteLine($"Player {player.PlayerId} disconnected\n");
             }
-            else
-                Console.WriteLine("PROBLEM!!! player disconnected is null");
             await base.OnDisconnectedAsync(exception);
         }
 
@@ -145,7 +141,6 @@ namespace api.Hubs
                 player.GameId = string.Empty;
                 return;
             }
-
             game.HandleDisconnection(playerId);
             var lobby = game.Lobby;
             var leavingPlayer = lobby.Player1?.PlayerId == playerId ? lobby.Player1 : lobby.Player2;

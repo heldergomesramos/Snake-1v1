@@ -20,7 +20,7 @@ namespace api.Singletons
 
         public static List<PlayerSimplified>? GetAllConnectedPlayers()
         {
-            return _playerConnections.Values.ToList();
+            return [.. _playerConnections.Values];
         }
 
         public static PlayerSimplified? GetPlayerSimplifiedByPlayerId(string playerId)
