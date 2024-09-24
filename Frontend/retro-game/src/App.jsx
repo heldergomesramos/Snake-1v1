@@ -8,7 +8,7 @@ import {
 import React, { useContext, useEffect } from "react";
 
 import Game from "./pages/Game";
-import HomePage from "./pages/HomePage"; // Assuming this is your initial landing page
+import HomePage from "./pages/HomePage";
 import MainMenu from "./pages/MainMenu";
 import CreatePrivateLobby from "./pages/CreatePrivateLobby";
 import JoinPrivateLobby from "./pages/JoinPrivateLobby";
