@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
-import { BASE_URL } from "../constants";
+import { SERVER_BASE_URL } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
 
 export default function PublicQueue() {
@@ -28,15 +28,18 @@ export default function PublicQueue() {
 
   const checkLobbyStatus = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/lobby/check-lobby-status`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          playerId: playerData.playerId,
-        }),
-      });
+      const response = await fetch(
+        `${SERVER_BASE_URL}/api/lobby/check-lobby-status`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            playerId: playerData.playerId,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -56,21 +59,24 @@ export default function PublicQueue() {
   const joinLobby = async () => {
     console.log("Join Lobby Front End");
     try {
-      const response = await fetch(`${BASE_URL}/api/lobby/join-public-lobby`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          playerId: playerData.playerId,
-          username: playerData.username,
-          isGuest: playerData.isGuest,
-          wins: playerData.wins,
-          losses: playerData.losses,
-          color: playerData.color,
-          ability: playerData.ability,
-        }),
-      });
+      const response = await fetch(
+        `${SERVER_BASE_URL}/api/lobby/join-public-lobby`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            playerId: playerData.playerId,
+            username: playerData.username,
+            isGuest: playerData.isGuest,
+            wins: playerData.wins,
+            losses: playerData.losses,
+            color: playerData.color,
+            ability: playerData.ability,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -92,7 +98,7 @@ export default function PublicQueue() {
   const leaveLobby = async () => {
     console.log("Leave Lobby Front End");
     try {
-      const response = await fetch(`${BASE_URL}/api/lobby/leave-lobby`, {
+      const response = await fetch(`${SERVER_BASE_URL}/api/lobby/leave-lobby`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -128,7 +134,7 @@ export default function PublicQueue() {
         </div>
       )}
       <div className="btn-container">
-        <Link to="/main-menu">
+        <Link to={"/main-menu"}>
           <button className="button-default button-height-less">Leave</button>
         </Link>
       </div>

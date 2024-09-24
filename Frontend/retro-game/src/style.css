@@ -682,12 +682,20 @@ input[type="checkbox"]:checked + label {
   height: 15vh;
 }
 
+.game-player-info {
+  width: 200px;
+}
+
 .game-player-info.left {
   justify-self: start;
 }
 
 .game-player-info.right {
   justify-self: end;
+}
+
+.game-player-name {
+  text-align: center;
 }
 
 .game-timer {

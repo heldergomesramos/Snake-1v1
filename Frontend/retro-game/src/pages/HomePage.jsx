@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { BASE_URL } from "../constants";
+import { SERVER_BASE_URL } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
 
 export default function HomePage() {
@@ -15,7 +15,7 @@ export default function HomePage() {
   useEffect(() => {
     const sendPing = async () => {
       try {
-        const response = await fetch(BASE_URL + "/api/app/ping", {
+        const response = await fetch(SERVER_BASE_URL + "/api/app/ping", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -42,8 +42,8 @@ export default function HomePage() {
 
     const endpoint =
       actionType === "login"
-        ? BASE_URL + "/api/player/login"
-        : BASE_URL + "/api/player/register";
+        ? SERVER_BASE_URL + "/api/player/login"
+        : SERVER_BASE_URL + "/api/player/register";
 
     try {
       const response = await fetch(endpoint, {
@@ -90,7 +90,7 @@ export default function HomePage() {
     setError("");
 
     try {
-      const response = await fetch(BASE_URL + "/api/player/guest", {
+      const response = await fetch(SERVER_BASE_URL + "/api/player/guest", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

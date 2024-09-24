@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { HubConnectionBuilder } from "@microsoft/signalr";
 
-import { BASE_URL } from "../constants";
+import { SERVER_BASE_URL } from "../constants";
 import { COLORS } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
 import { useSignalR } from "../context/SignalRContext";
@@ -271,7 +271,7 @@ export default function CreatePrivateLobby() {
 
     try {
       const response = await fetch(
-        `${BASE_URL}/api/lobby/leave-private-lobby`,
+        `${SERVER_BASE_URL}/api/lobby/leave-private-lobby`,
         {
           method: "POST",
           headers: {

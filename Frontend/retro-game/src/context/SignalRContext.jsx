@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { HubConnectionBuilder } from "@microsoft/signalr";
-import { BASE_URL } from "../constants";
+import { SERVER_BASE_URL } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
 
 const SignalRContext = createContext();
@@ -13,7 +13,7 @@ export const SignalRProvider = ({ children }) => {
 
   useEffect(() => {
     const newConnection = new HubConnectionBuilder()
-      .withUrl(`${BASE_URL}/lobbyHub?playerId=${playerData.playerId}`)
+      .withUrl(`${SERVER_BASE_URL}/lobbyHub?playerId=${playerData.playerId}`)
       .withAutomaticReconnect()
       .build();
 

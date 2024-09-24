@@ -1,4 +1,5 @@
-export const BASE_URL = "http://localhost:5030";
+export const SERVER_BASE_URL = "http://localhost:5030";
+export const BASE_PATH = "/Snake-1v1";
 export const COLORS = [
   "#cf3636",
   "#da6f2a",

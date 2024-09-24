@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
-import { BASE_URL } from "../constants";
+import { SERVER_BASE_URL } from "../constants";
 import { useSignalR } from "../context/SignalRContext";
 
 export default function MainMenu() {
@@ -26,7 +26,7 @@ export default function MainMenu() {
     setError("");
     setLoading(true);
 
-    const endpoint = `${BASE_URL}/api/lobby/create-private-lobby`;
+    const endpoint = `${SERVER_BASE_URL}/api/lobby/create-private-lobby`;
 
     /* Missing: Block button clicks until received message from server */
 
@@ -88,20 +88,20 @@ export default function MainMenu() {
             {loading ? "Creating..." : "Create Private Game"}
           </button>
         </Link>
-        <Link to="/join-private-lobby">
+        <Link to={"/join-private-lobby"}>
           <button className="button-default">Join Private Game</button>
         </Link>
-        <Link to="/public-queue">
+        <Link to={"/public-queue"}>
           <button className="button-default">Join Public Game</button>
         </Link>
-        {/* <Link to="/play-vs-ai">
+        {/* <Link to={"/play-vs-ai}">
           <button className="button-default">Play vs AI</button>
         </Link> */}
       </div>
       <br />
       <br />
       <div className="buttons-main-menu-container">
-        {/* <Link to="/profile">
+        {/* <Link to={"/profile"}>
           <button className="button-default button-height-less">Profile</button>
         </Link> */}
         <Link>

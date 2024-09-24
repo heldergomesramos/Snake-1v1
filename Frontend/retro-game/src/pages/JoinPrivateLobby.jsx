@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BASE_URL } from "../constants";
+import { SERVER_BASE_URL } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
 
 export default function JoinPrivateLobby() {
@@ -15,7 +15,7 @@ export default function JoinPrivateLobby() {
     setError("");
     setLoading(true);
 
-    const endpoint = `${BASE_URL}/api/lobby/join-private-lobby`;
+    const endpoint = `${SERVER_BASE_URL}/api/lobby/join-private-lobby`;
 
     try {
       const response = await fetch(endpoint, {
@@ -88,7 +88,7 @@ export default function JoinPrivateLobby() {
         </div>
       </form>
       <div className="btn-container">
-        <Link to="/main-menu">
+        <Link to={"/main-menu"}>
           <button className="button-default button-height-less">Leave</button>
         </Link>
       </div>

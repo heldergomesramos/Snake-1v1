@@ -728,14 +728,14 @@ export default function Game() {
         {player1 ? (
           <div className="game-player-info left">
             <p
-              className="cpl-player-name gradient-text-dynamic"
+              className="game-player-name gradient-text-dynamic"
               style={{
                 "--player-color": COLORS[player1.color],
               }}
             >
               {player1.username}
             </p>
-            <p>Score: {player1Score || 0}</p>
+            <p className="game-player-name">Score: {player1Score || 0}</p>
           </div>
         ) : (
           <div className="empty"></div>
@@ -757,14 +757,14 @@ export default function Game() {
         {player2 ? (
           <div className="game-player-info right">
             <p
-              className="cpl-player-name gradient-text-dynamic"
+              className="game-player-name gradient-text-dynamic"
               style={{
                 "--player-color": COLORS[player2.color],
               }}
             >
               {player2.username}
             </p>
-            <p>Score: {player2Score || 0}</p>
+            <p className="game-player-name">Score: {player2Score || 0}</p>
           </div>
         ) : (
           <div className="empty"></div>
@@ -783,13 +783,15 @@ export default function Game() {
             className="game-ability-button-image pixel-art"
             onClick={handleAbility}
           />
-          {gameData.lobby.player1.playerId === playerData.playerId &&
+          {gameData.lobby.player1 != null &&
+            gameData.lobby.player1.playerId === playerData.playerId &&
             gameData.player1Cooldown > 0 && (
               <div className="game-ability-button-cooldown-overlay">
                 {String(gameData.player1Cooldown).padStart(2, "0")}
               </div>
             )}
-          {gameData.lobby.player2.playerId === playerData.playerId &&
+          {gameData.lobby.player2 != null &&
+            gameData.lobby.player2.playerId === playerData.playerId &&
             gameData.player2Cooldown > 0 && (
               <div className="game-ability-button-cooldown-overlay">
                 {String(gameData.player2Cooldown).padStart(2, "0")}

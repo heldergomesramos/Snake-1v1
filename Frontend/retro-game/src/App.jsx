@@ -2,25 +2,30 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
+  Navigate,
   useNavigate,
 } from "react-router-dom";
 import React, { useContext, useEffect } from "react";
 
 import Game from "./pages/Game";
-import HomePage from "./pages/HomePage";
+import HomePage from "./pages/HomePage"; // Assuming this is your initial landing page
 import MainMenu from "./pages/MainMenu";
 import CreatePrivateLobby from "./pages/CreatePrivateLobby";
 import JoinPrivateLobby from "./pages/JoinPrivateLobby";
 import PublicQueue from "./pages/PublicQueue";
 import { PlayerProvider, PlayerContext } from "./context/PlayerContext";
 import { SignalRProvider } from "./context/SignalRContext";
+import { BASE_PATH } from "./constants";
 
 export default function App() {
   return (
     <PlayerProvider>
-      <Router basename="/Snake-1v1">
+      <Router basename={BASE_PATH}>
         <Routes>
+          {/* Redirect root "/" to the Home Page */}
           <Route path="/" element={<HomePage />} />
+
+          {/* Protected routes */}
           <Route
             path="/*"
             element={
