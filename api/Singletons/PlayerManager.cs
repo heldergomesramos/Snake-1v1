@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using api.Dtos.Player;
+using api.Mappers;
 using api.Services;
 
 namespace api.Singletons
@@ -13,9 +14,16 @@ namespace api.Singletons
             return _playerConnections.Values.Any(player => player.PlayerId == playerId);
         }
 
-        public static List<PlayerSimplified>? GetAllConnectedPlayers()
+        public static List<PlayerClient>? GetAllConnectedPlayers()
         {
-            return [.. _playerConnections.Values];
+            List<PlayerClient> newList = [];
+            foreach (var val in _playerConnections.Values)
+            {
+                var playerClient = PlayerMappers.PlayerSimplifiedToPlayerClient(val);
+                if (playerClient != null)
+                    newList.Add(playerClient);
+            }
+            return newList;
         }
 
         public static PlayerSimplified? GetPlayerSimplifiedByPlayerId(string playerId)

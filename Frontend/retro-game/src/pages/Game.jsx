@@ -97,27 +97,21 @@ export default function Game() {
   const handleLeave = async (e) => {
     e.preventDefault();
     if (connection) {
-      connection
-        .invoke("LeaveGame", playerData.playerId, gameData.gameId)
-        .catch((err) => console.error(err));
+      connection.invoke("LeaveGame").catch((err) => console.error(err));
     }
   };
 
   const handleRematch = async (e) => {
     e.preventDefault();
     if (connection) {
-      connection
-        .invoke("AskRematch", playerData.playerId, gameData.gameId)
-        .catch((err) => console.error(err));
+      connection.invoke("AskRematch").catch((err) => console.error(err));
     }
   };
 
   const handlePlayAgain = async (e) => {
     e.preventDefault();
     if (connection) {
-      connection
-        .invoke("PlayAgain", playerData.playerId, gameData.gameId)
-        .catch((err) => console.error(err));
+      connection.invoke("PlayAgain").catch((err) => console.error(err));
     }
   };
 
@@ -126,7 +120,7 @@ export default function Game() {
     e.preventDefault();
     if (connection) {
       connection
-        .invoke("ActivateAbility", playerData.playerId, gameData.gameId)
+        .invoke("ActivateAbility")
         .catch((err) => console.error("Error activating ability:", err));
     }
   };
@@ -155,7 +149,7 @@ export default function Game() {
         if (!gameData.lobby.gameSettings.abilities) return;
         if (connection) {
           connection
-            .invoke("ActivateAbility", playerData.playerId, gameData.gameId)
+            .invoke("ActivateAbility")
             .catch((err) => console.error("Error activating ability:", err));
         }
         return;
@@ -165,12 +159,7 @@ export default function Game() {
 
     if (direction && connection) {
       connection
-        .invoke(
-          "UpdateDirectionCommand",
-          playerData.playerId,
-          gameData.gameId,
-          direction
-        )
+        .invoke("UpdateDirectionCommand", direction)
         .catch((err) => console.error("Error sending direction command:", err));
     }
   };

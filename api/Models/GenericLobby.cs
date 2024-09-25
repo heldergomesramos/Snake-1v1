@@ -2,7 +2,7 @@ using api.Dtos.Player;
 
 namespace api.Models
 {
-    public class Lobby
+    public class GenericLobby
     {
         public string LobbyId { get; set; } = string.Empty;
         public PlayerSimplified? Player1 { get; set; }
@@ -12,9 +12,21 @@ namespace api.Models
         public bool IsFull => Player1 != null && Player2 != null;
         public bool IsEmpty => Player1 == null && Player2 == null;
 
-        public Lobby() { }
+        /* Only used in private lobbies */
+        public string Code { get; private set; } = GenerateCode();
 
-        public Lobby(PlayerSimplified player)
+        private static string GenerateCode()
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, 6)
+                .Select(s => s[random.Next(s.Length)])
+                .ToArray());
+        }
+
+        public GenericLobby() { }
+
+        public GenericLobby(PlayerSimplified player)
         {
             LobbyId = Guid.NewGuid().ToString();
             Player1 = player;
@@ -27,17 +39,7 @@ namespace api.Models
                 Player1 = newPlayer;
             else
                 Player2 = newPlayer;
-            newPlayer.LobbyId = LobbyId;
-        }
-
-        public void StartGame()
-        {
-            GameStarted = true;
-        }
-
-        public void EndGame()
-        {
-            GameStarted = false;
+            newPlayer.Lobby = this;
         }
     }
 }

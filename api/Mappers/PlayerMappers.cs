@@ -5,7 +5,7 @@ namespace api.Mappers
 {
     public static class PlayerMappers
     {
-        public static Player ToPlayerEntity(PlayerRegisterRequestDto dto)
+        public static Player PlayerRegisterToPlayerEntity(PlayerRegisterRequestDto dto)
         {
             return new Player
             {
@@ -19,7 +19,7 @@ namespace api.Mappers
             };
         }
 
-        public static Player ToPlayerEntity(PlayerSimplified dto)
+        public static Player PlayerSimplifiedToPlayerEntity(PlayerSimplified dto)
         {
             return new Player
             {
@@ -33,7 +33,7 @@ namespace api.Mappers
             };
         }
 
-        public static PlayerRegisterResponseDto ToResponseDto(Player player, string token)
+        public static PlayerRegisterResponseDto PlayerEntityToPlayerRegister(Player player, string token)
         {
             return new PlayerRegisterResponseDto
             {
@@ -48,13 +48,28 @@ namespace api.Mappers
             };
         }
 
-        public static PlayerSimplified ToSimplifiedResponseDto(Player player)
+        public static PlayerSimplified PlayerEntityToPlayerSimplified(Player player)
         {
             return new PlayerSimplified
             {
                 PlayerId = player.Id,
-                Username = player.UserName,
+                Username = player.UserName!,
                 IsGuest = player.IsGuest,
+                Wins = player.Wins,
+                Losses = player.Losses,
+                Color = player.Color,
+                Ability = player.Ability
+            };
+        }
+
+        public static PlayerClient? PlayerSimplifiedToPlayerClient(PlayerSimplified? player)
+        {
+            if (player == null)
+                return null;
+            return new PlayerClient
+            {
+                PlayerId = player.PlayerId,
+                Username = player.Username,
                 Wins = player.Wins,
                 Losses = player.Losses,
                 Color = player.Color,

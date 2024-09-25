@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { HubConnectionBuilder } from "@microsoft/signalr";
 
 import { SERVER_BASE_URL } from "../constants";
 import { COLORS } from "../constants";
@@ -82,7 +81,7 @@ export default function CreatePrivateLobby() {
 
       if (connection) {
         connection
-          .invoke("UpdateLobbySettings", lobby.lobbyId, updatedSettings)
+          .invoke("UpdatePrivateLobbySettings", updatedSettings)
           .catch((err) => console.error(err));
       }
     } else {
@@ -97,7 +96,7 @@ export default function CreatePrivateLobby() {
     setMapSettings(tempMapSettings); // Update the actual map settings state
     if (connection) {
       connection
-        .invoke("UpdateLobbySettings", lobby.lobbyId, tempMapSettings)
+        .invoke("UpdatePrivateLobbySettings", tempMapSettings)
         .catch((err) => console.error(err));
     }
   };
@@ -119,13 +118,7 @@ export default function CreatePrivateLobby() {
     setSelectedColor(color);
     if (connection) {
       connection
-        .invoke(
-          "UpdatePlayerInLobby",
-          playerData.playerId,
-          lobby.lobbyId,
-          colorIndex,
-          playerData.ability
-        )
+        .invoke("UpdatePlayerInPrivateLobby", colorIndex, playerData.ability)
         .catch((err) => console.error(err));
     }
   };
@@ -165,13 +158,7 @@ export default function CreatePrivateLobby() {
     setSelectedAbility(ability);
     if (connection) {
       connection
-        .invoke(
-          "UpdatePlayerInLobby",
-          playerData.playerId,
-          lobby.lobbyId,
-          playerData.color,
-          ability.id
-        )
+        .invoke("UpdatePlayerInPrivateLobby", playerData.color, ability.id)
         .catch((err) => console.error(err));
     }
   };
@@ -216,7 +203,7 @@ export default function CreatePrivateLobby() {
 
     if (connection) {
       connection
-        .invoke("UpdateLobbySettings", lobby.lobbyId, updatedSettings)
+        .invoke("UpdatePrivateLobbySettings", updatedSettings)
         .catch((err) => console.error(err));
     }
   };
@@ -280,9 +267,7 @@ export default function CreatePrivateLobby() {
     //   return;
     // }
     if (connection) {
-      connection
-        .invoke("StartGame", lobby.lobbyId)
-        .catch((err) => console.error(err));
+      connection.invoke("StartGame").catch((err) => console.error(err));
     }
   };
 

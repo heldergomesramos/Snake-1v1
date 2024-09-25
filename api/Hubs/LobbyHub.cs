@@ -42,44 +42,38 @@ namespace api.Hubs
             var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
             if (player != null)
             {
-                if (player.GameId != string.Empty)
-                    await LeaveGame(player.PlayerId, player.GameId);
-                else if (player.LobbyId != string.Empty)
-                    await LobbyManager.LeavePrivateLobby(player.PlayerId, player.LobbyId, _hubContext);
+                if (player.Game != null)
+                    await LeaveGame();
+                else if (player.Lobby != null)
+                    await LobbyManager.LeavePrivateLobby(player.PlayerId, player.Lobby.LobbyId, _hubContext);
                 await _playerService.UpdatePlayerAsync(player);
                 PlayerManager.RemoveConnection(Context.ConnectionId);
             }
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task UpdateLobbySettings(string lobbyId, object newSettings)
+        public async Task UpdatePrivateLobbySettings(object newSettings)
         {
-            Console.WriteLine("\nReceived UpdateLobbySettings for lobby: " + lobbyId);
+            var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
+            if (player == null || player.Lobby == null)
+                return;
             var newGameSettings = GameSettings.ObjectToGameSettings(newSettings);
             if (newGameSettings == null)
                 return;
-            var updatedLobby = LobbyManager.UpdateLobbySettings(lobbyId, newGameSettings);
-
-            if (updatedLobby != null)
-                await Clients.Group(lobbyId).SendAsync("LobbyUpdated", updatedLobby);
+            player.Lobby.GameSettings = newGameSettings;
+            await Clients.Group(player.Lobby.LobbyId).SendAsync("LobbyUpdated", LobbyMappers.ToResponseDto(player.Lobby));
         }
 
-        public async Task UpdatePlayerInLobby(string playerId, string lobbyId, int color, int ability)
+        public async Task UpdatePlayerInPrivateLobby(int color, int ability)
         {
-            Console.WriteLine("\nReceived UpdatePlayerInLobby for player: " + playerId + " in lobby: " + lobbyId + " color: " + color + " ability: " + ability);
-
-            var lobby = LobbyManager.GetPrivateLobbyById(lobbyId);
-            if (lobby == null)
+            var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
+            if (player == null || player.Lobby == null)
                 return;
 
-            var player = LobbyManager.GetPlayerInLobbyByLobbyObj(playerId, lobby);
-            if (player == null)
-                return;
+            player.UpdateColor(color);
+            player.UpdateAbility(ability);
 
-            player.Ability = Math.Clamp(ability, 0, 2);
-            player.Color = Math.Clamp(color, 0, 7);
-
-            await Clients.Group(lobbyId).SendAsync("LobbyUpdated", LobbyMappers.ToResponseDto(lobby));
+            await Clients.Group(player.Lobby.LobbyId).SendAsync("LobbyUpdated", LobbyMappers.ToResponseDto(player.Lobby));
             await _playerService.UpdatePlayerAsync(player);
         }
 
@@ -99,24 +93,24 @@ namespace api.Hubs
         }
 
 
-        public async Task StartGame(string lobbyId)
+        public async Task StartGame()
         {
-            Console.WriteLine("\nStart Game of lobby: " + lobbyId);
-
-            var lobby = LobbyManager.GetPrivateLobbyById(lobbyId);
-            if (lobby == null)
+            var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
+            Console.WriteLine("Start Game()");
+            if (player == null || player.Lobby == null || player.Game != null)
                 return;
+            var lobby = player.Lobby;
             lobby.GameStarted = true;
             var game = GameManager.CreateGame(lobby);
 
             if (lobby.Player1 != null)
-                lobby.Player1.GameId = game.GameId;
+                lobby.Player1.Game = game;
 
             if (lobby.Player2 != null)
-                lobby.Player2.GameId = game.GameId;
+                lobby.Player2.Game = game;
 
             Console.WriteLine("Send this game: " + game.GameId);
-            await Clients.Group(lobbyId).SendAsync("StartGame", game.ToResponseDto());
+            await Clients.Group(lobby.LobbyId).SendAsync("StartGame", game.ToResponseDto());
 
             _ = Task.Run(() => game.StartGameLoop(async (gameState) =>
                {
@@ -124,7 +118,7 @@ namespace api.Hubs
                    Console.WriteLine("New Time being sent: " + gameState.ToResponseDto().Time);
                    try
                    {
-                       await _hubContext.Clients.Group(lobbyId).SendAsync("UpdateGameState", gameState.ToResponseDto());
+                       await _hubContext.Clients.Group(lobby.LobbyId).SendAsync("UpdateGameState", gameState.ToResponseDto());
                    }
                    catch (Exception ex)
                    {
@@ -134,33 +128,31 @@ namespace api.Hubs
                }));
         }
 
-        public void UpdateDirectionCommand(string playerId, string gameId, char direction)
+        public void UpdateDirectionCommand(char direction)
         {
-            Console.WriteLine("Received update direction command from: " + playerId + " for game: " + gameId + " with direction: " + direction);
-            GameManager.UpdateDirectionCommand(playerId, gameId, direction);
+            var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
+            if (player == null || player.Game == null)
+                return;
+            GameManager.UpdateDirectionCommand(player.PlayerId, player.Game.GameId, direction);
         }
 
-        public async Task LeaveGame(string playerId, string gameId)
+        public async Task LeaveGame()
         {
-            Console.WriteLine("Leave Game: " + gameId + " by: " + playerId);
-            var game = GameManager.GetGameByGameId(gameId);
+            var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
+            if (player == null)
+                return;
+            var game = player.Game;
             if (game == null)
             {
-                var connectionId = PlayerManager.GetConnectionIdByPlayerId(playerId);
-                if (connectionId == null)
-                    return;
-                await Clients.Client(connectionId).SendAsync("LeaveGame");
-                var player = PlayerManager.GetPlayerSimplifiedByPlayerId(playerId);
-                if (player == null)
-                    return;
-                player.LobbyId = string.Empty;
-                player.GameId = string.Empty;
+                await Clients.Caller.SendAsync("LeaveGame");
+                player.Lobby = null;
+                player.Game = null;
                 return;
             }
-            game.HandleDisconnection(playerId);
+            game.HandleDisconnection(player.PlayerId);
             var lobby = game.Lobby;
-            var leavingPlayer = lobby.Player1?.PlayerId == playerId ? lobby.Player1 : lobby.Player2;
-            var remainingPlayer = lobby.Player1?.PlayerId != playerId ? lobby.Player1 : lobby.Player2;
+            var leavingPlayer = lobby.Player1?.PlayerId == player.PlayerId ? lobby.Player1 : lobby.Player2;
+            var remainingPlayer = lobby.Player1?.PlayerId != player.PlayerId ? lobby.Player1 : lobby.Player2;
 
             // Notify the player who is leaving
             if (leavingPlayer != null)
@@ -172,8 +164,8 @@ namespace api.Hubs
                     await Groups.RemoveFromGroupAsync(connectionId, lobby.LobbyId);
                 }
 
-                leavingPlayer.LobbyId = string.Empty;
-                leavingPlayer.GameId = string.Empty;
+                leavingPlayer.Lobby = null;
+                leavingPlayer.Game = null;
             }
 
             // Notify the remaining player with the updated game state
@@ -187,76 +179,70 @@ namespace api.Hubs
                     await Groups.RemoveFromGroupAsync(connectionId, lobby.LobbyId);
                 }
 
-                remainingPlayer.LobbyId = string.Empty;
-                remainingPlayer.GameId = string.Empty;
+                remainingPlayer.Lobby = null;
+                remainingPlayer.Game = null;
             }
 
-            GameManager.RemoveGame(gameId);
+            GameManager.RemoveGame(game.GameId);
             LobbyManager.RemovePrivateLobby(lobby.LobbyId);
         }
 
-        public async Task AskRematch(string playerId, string gameId)
+        public async Task AskRematch()
         {
-            Console.WriteLine("Ask Rematch from: " + playerId);
-            var client = PlayerManager.GetConnectionIdByPlayerId(playerId);
-            if (client == null)
+            var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
+            if (player == null)
                 return;
-            var game = GameManager.GetGameByGameId(gameId);
+            var game = player.Game;
             if (game == null || game.Lobby.Player1 == null || game.Lobby.Player2 == null)
             {
-                await Clients.Client(client).SendAsync("RematchResponse", "disabled");
+                await Clients.Caller.SendAsync("RematchResponse", "disabled");
                 return;
             }
-            game.WantsRematch(playerId);
+            game.WantsRematch(player.PlayerId);
             if (game.Player1WantsRematch && game.Player2WantsRematch)
             {
-                GameManager.RemoveGame(gameId);
-                await StartGame(game.Lobby.LobbyId);
+                GameManager.RemoveGame(game.GameId);
+                player.Game = null;
+                await StartGame();
             }
             else
             {
-                bool wantsRematch = game.Lobby.Player1.PlayerId == playerId ? game.Player1WantsRematch : game.Player2WantsRematch;
-                await Clients.Client(client).SendAsync("RematchResponse", wantsRematch ? "locked-in" : "normal");
+                bool wantsRematch = game.Lobby.Player1.PlayerId == player.PlayerId ? game.Player1WantsRematch : game.Player2WantsRematch;
+                await Clients.Caller.SendAsync("RematchResponse", wantsRematch ? "locked-in" : "normal");
             }
         }
 
-        public async Task PlayAgain(string playerId, string gameId)
+        public async Task PlayAgain()
         {
-            Console.WriteLine("Play Again from: " + playerId);
-            var game = GameManager.GetGameByGameId(gameId);
-            if (game == null)
-            {
-                Console.WriteLine("Game is null, there is a problem");
+            var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
+            if (player == null || player.Game == null || player.Game.GState == Game.GameState.Waiting)
                 return;
-            }
-            GameManager.RemoveGame(gameId);
-            await StartGame(game.Lobby.LobbyId);
+
+            GameManager.RemoveGame(player.Game.GameId);
+            player.Game = null;
+            await StartGame();
         }
 
-        public void ActivateAbility(string playerId, string gameId)
+        public void ActivateAbility()
         {
-            Console.WriteLine("ActivateAbility from: " + playerId);
-            var game = GameManager.GetGameByGameId(gameId);
-            if (game == null)
-            {
-                Console.WriteLine("Game is null, there is a problem");
+            var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
+            if (player == null || player.Game == null)
                 return;
-            }
+            var game = player.Game;
             if (game.GState == Game.GameState.Finished)
                 return;
-            game.UseAbility(playerId);
+            game.UseAbility(player.PlayerId);
         }
 
         /* Static Methods */
 
-        public static async Task AddPlayerToLobby(string playerId, string lobbyId, object lobbyDto, IHubContext<LobbyHub> hubContext)
+        public static async Task AddPlayerToLobby(string playerId, GenericLobby lobby, object lobbyDto, IHubContext<LobbyHub> hubContext)
         {
-            Console.WriteLine($"\n[HUB] Add {playerId} To {lobbyId}");
             var connectionId = PlayerManager.GetConnectionIdByPlayerId(playerId);
             if (string.IsNullOrEmpty(connectionId))
                 return;
-            await hubContext.Groups.AddToGroupAsync(connectionId, lobbyId);
-            await hubContext.Clients.Group(lobbyId).SendAsync("LobbyUpdated", lobbyDto);
+            await hubContext.Groups.AddToGroupAsync(connectionId, lobby.LobbyId);
+            await hubContext.Clients.Group(lobby.LobbyId).SendAsync("LobbyUpdated", lobbyDto);
         }
 
         public static async Task UpdateLobby(string lobbyId, object lobbyDto, IHubContext<LobbyHub> hubContext)

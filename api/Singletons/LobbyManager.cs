@@ -10,16 +10,16 @@ namespace api.Singletons
     public class LobbyManager
     {
         private static readonly object _lock = new();
-        private static Lobby? _currentLobby = null;
-        private static readonly List<PrivateLobby> _privateLobbies = new();
-        private static readonly List<Lobby> _publicLobbies = new();
+        private static GenericLobby? _currentLobby = null;
+        private static readonly List<GenericLobby> _privateLobbies = [];
+        private static readonly List<GenericLobby> _publicLobbies = [];
 
-        public static List<PrivateLobby> GetAllPrivateLobbies()
+        public static List<GenericLobby> GetAllPrivateLobbies()
         {
             return _privateLobbies;
         }
 
-        public static PrivateLobby? GetPrivateLobbyById(string id)
+        public static GenericLobby? GetPrivateLobbyById(string id)
         {
             return _privateLobbies.Find(x => x.LobbyId == id);
         }
@@ -36,7 +36,7 @@ namespace api.Singletons
             return null;
         }
 
-        public static PlayerSimplified? GetPlayerInLobbyByLobbyObj(string playerId, Lobby lobby)
+        public static PlayerSimplified? GetPlayerInLobbyByLobbyObj(string playerId, GenericLobby lobby)
         {
             if (lobby == null)
                 return null;
@@ -47,7 +47,7 @@ namespace api.Singletons
             return null;
         }
 
-        public static Lobby? JoinPublicLobby(PlayerRegisterResponseDto dto)
+        public static GenericLobby? JoinPublicLobby(PlayerRegisterResponseDto dto)
         {
             Console.WriteLine("Join Function Executed by " + dto.Username);
             return null;
@@ -79,24 +79,20 @@ namespace api.Singletons
             // }
         }
 
-        public static async Task<PrivateLobbyResponseDto?> CreatePrivateLobby(PlayerSimplified player, IHubContext<LobbyHub> hubContext)
+        public static async Task<LobbyResponseDto?> CreatePrivateLobby(PlayerSimplified player, IHubContext<LobbyHub> hubContext)
         {
-            var newLobby = new PrivateLobby(player);
+            var newLobby = new GenericLobby(player);
             _privateLobbies.Add(newLobby);
-            player.LobbyId = newLobby.LobbyId;
+            player.Lobby = newLobby;
             var lobbyDto = LobbyMappers.ToResponseDto(newLobby);
-
-            await LobbyHub.AddPlayerToLobby(player.PlayerId, lobbyDto.LobbyId, lobbyDto, hubContext);
-
+            await LobbyHub.AddPlayerToLobby(player.PlayerId, newLobby, lobbyDto, hubContext);
             return lobbyDto;
         }
 
-        public static async Task<PrivateLobbyResponseDto?> JoinPrivateLobby(PlayerSimplified player, string code, IHubContext<LobbyHub> hubContext)
+        public static async Task<LobbyResponseDto?> JoinPrivateLobby(PlayerSimplified player, string code, IHubContext<LobbyHub> hubContext)
         {
             var lobbyFound = _privateLobbies.Find(x => x.Code == code);
-            if (lobbyFound == null)
-                return null;
-            if (lobbyFound.GameStarted)
+            if (lobbyFound == null || lobbyFound.GameStarted)
                 return null;
             if (lobbyFound.Player1 == null)
                 lobbyFound.Player1 = player;
@@ -104,9 +100,9 @@ namespace api.Singletons
                 lobbyFound.Player2 = player;
             else
                 return null;
-
+            player.Lobby = lobbyFound;
             var lobbyDto = LobbyMappers.ToResponseDto(lobbyFound);
-            await LobbyHub.AddPlayerToLobby(player.PlayerId, lobbyDto.LobbyId, lobbyDto, hubContext);
+            await LobbyHub.AddPlayerToLobby(player.PlayerId, lobbyFound, lobbyDto, hubContext);
 
             return lobbyDto;
         }
@@ -138,15 +134,14 @@ namespace api.Singletons
             }
         }
 
-        public static PrivateLobbyResponseDto? UpdateLobbySettings(string lobbyId, GameSettings newSettings)
-        {
-            var lobby = GetPrivateLobbyById(lobbyId);
-            if (lobby == null)
-                return null;
+        // public static PrivateLobbyResponseDto? UpdatePrivateLobbySettings(GenericLobby lobby, GameSettings newSettings)
+        // {
+        //     if (lobby == null)
+        //         return null;
 
-            lobby.GameSettings = newSettings;
-            return LobbyMappers.ToResponseDto(lobby);
-        }
+        //     lobby.GameSettings = newSettings;
+        //     return LobbyMappers.ToResponseDto(lobby);
+        // }
 
         public static void RemovePrivateLobby(string lobbyId)
         {
@@ -156,7 +151,7 @@ namespace api.Singletons
         }
 
 
-        public static void RemovePrivateLobby(PrivateLobby lobby)
+        public static void RemovePrivateLobby(GenericLobby lobby)
         {
             if (lobby != null)
                 _privateLobbies.Remove(lobby);
@@ -170,7 +165,7 @@ namespace api.Singletons
             _currentLobby = null;
         }
 
-        public static bool IsPlayerInLobby(string playerId, Lobby? lobby)
+        public static bool IsPlayerInLobby(string playerId, GenericLobby? lobby)
         {
             if (lobby == null)
                 return false;

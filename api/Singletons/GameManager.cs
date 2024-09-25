@@ -11,7 +11,7 @@ namespace api.Singletons
             return _games.Find(x => x.GameId == gameId);
         }
 
-        public static Game CreateGame(Lobby lobby)
+        public static Game CreateGame(GenericLobby lobby)
         {
             var game = new Game(lobby);
             _games.Add(game);

@@ -5,14 +5,12 @@ namespace api.Mappers
 {
     public static class LobbyMappers
     {
-        public static PrivateLobbyResponseDto ToResponseDto(PrivateLobby lobby)
+        public static LobbyResponseDto ToResponseDto(GenericLobby lobby)
         {
-            return new PrivateLobbyResponseDto
+            return new LobbyResponseDto
             {
-                LobbyId = lobby.LobbyId,
-                Player1 = lobby.Player1,
-                Player2 = lobby.Player2,
-                GameStarted = lobby.GameStarted,
+                Player1 = PlayerMappers.PlayerSimplifiedToPlayerClient(lobby.Player1),
+                Player2 = PlayerMappers.PlayerSimplifiedToPlayerClient(lobby.Player2),
                 GameSettings = lobby.GameSettings,
                 Code = lobby.Code
             };

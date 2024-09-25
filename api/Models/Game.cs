@@ -16,7 +16,7 @@ namespace api.Models
 
         private static readonly int tileVariations = 16;
         public string GameId { get; private set; } = string.Empty;
-        public Lobby Lobby { get; private set; }
+        public GenericLobby Lobby { get; private set; }
         public bool IsSinglePlayer { get; private set; } = false;
 
         public int[][] GroundLayer { get; private set; }
@@ -194,7 +194,7 @@ namespace api.Models
             };
         }
 
-        public Game(Lobby lobby)
+        public Game(GenericLobby lobby)
         {
             if (lobby == null || lobby.GameSettings == null)
             {
@@ -580,6 +580,7 @@ namespace api.Models
             Console.WriteLine("End Game on State: " + newState.ToString());
             GState = GameState.Finished;
             FState = newState;
+            Lobby.GameStarted = false;
 
             if (IsSinglePlayer)
                 return;
@@ -768,7 +769,7 @@ namespace api.Models
         public class GameData
         {
             public string GameId { get; private set; } = string.Empty;
-            public PrivateLobbyResponseDto Lobby { get; private set; }
+            public LobbyResponseDto Lobby { get; private set; }
 
             public int[][] GroundLayer { get; private set; }
             public string[][] EntityLayer { get; private set; }
@@ -789,7 +790,7 @@ namespace api.Models
             public GameData(Game game)
             {
                 GameId = game.GameId;
-                Lobby = LobbyMappers.ToResponseDto((PrivateLobby)game.Lobby); // Change this when making Public option
+                Lobby = LobbyMappers.ToResponseDto(game.Lobby);
                 GroundLayer = game.GroundLayer;
                 EntityLayer = game.GState == GameState.Finished ? game.EntityLayerDataCopy : EntityLayerToData(game.EntityLayer);
                 Player1Score = game.Player1Score;

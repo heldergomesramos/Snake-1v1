@@ -50,13 +50,13 @@ namespace api.Services
             var player = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == id);
             if (player == null)
                 return null;
-            return PlayerMappers.ToSimplifiedResponseDto(player);
+            return PlayerMappers.PlayerEntityToPlayerSimplified(player);
         }
 
         public async Task<List<PlayerSimplified>> GetAllPlayersSimplifiedAsync()
         {
             var players = await _userManager.Users.ToListAsync();
-            return players.Select(PlayerMappers.ToSimplifiedResponseDto).ToList();
+            return players.Select(PlayerMappers.PlayerEntityToPlayerSimplified).ToList();
         }
 
 
@@ -85,7 +85,7 @@ namespace api.Services
 
             var token = _tokenService.CreateToken(newPlayer);
 
-            var responseDto = PlayerMappers.ToResponseDto(newPlayer, token);
+            var responseDto = PlayerMappers.PlayerEntityToPlayerRegister(newPlayer, token);
 
             return responseDto;
         }
@@ -106,7 +106,7 @@ namespace api.Services
 
             var token = _tokenService.CreateToken(player);
 
-            var responseDto = PlayerMappers.ToResponseDto(player, token);
+            var responseDto = PlayerMappers.PlayerEntityToPlayerRegister(player, token);
             responseDto.Token = token;
 
             return responseDto;
@@ -129,7 +129,7 @@ namespace api.Services
 
             var token = _tokenService.CreateToken(guestPlayer);
 
-            var guestPlayerDto = PlayerMappers.ToResponseDto(guestPlayer, token);
+            var guestPlayerDto = PlayerMappers.PlayerEntityToPlayerRegister(guestPlayer, token);
 
             return guestPlayerDto;
         }

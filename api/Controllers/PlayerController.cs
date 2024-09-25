@@ -74,7 +74,7 @@ namespace api.Controllers
                     {
                         var token = _tokenService.CreateToken(user);
 
-                        var responseDto = PlayerMappers.ToResponseDto(user, token);
+                        var responseDto = PlayerMappers.PlayerEntityToPlayerRegister(user, token);
 
                         return Ok(new { player = responseDto });
                     }

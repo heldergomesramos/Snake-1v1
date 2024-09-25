@@ -62,16 +62,14 @@ namespace api.Controllers
             var player = PlayerManager.GetPlayerSimplifiedByPlayerId(dto.PlayerId);
             if (player == null)
                 return NotFound(new { status = "error", message = $"Player with id '{dto.PlayerId}' not found." });
-            if (player.LobbyId != string.Empty)
+            if (player.Lobby != null)
                 return Conflict(new { status = "error", message = "Player is already in a lobby." });
 
             Console.WriteLine("\nCreate Private Lobby from: " + player.Username);
             var lobbyToReturn = await LobbyManager.CreatePrivateLobby(player, _hubContext);
             if (lobbyToReturn == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to create lobby. Please try again later." });
-
-            player.LobbyId = lobbyToReturn.LobbyId;
-
+            Console.WriteLine("Success at creating private lobby");
             return Ok(new
             {
                 status = "joined_lobby",
@@ -89,15 +87,13 @@ namespace api.Controllers
             var player = PlayerManager.GetPlayerSimplifiedByPlayerId(dto.PlayerId);
             if (player == null)
                 return NotFound(new { status = "error", message = $"Player with id '{dto.PlayerId}' not found." });
-            if (player.LobbyId != string.Empty)
+            if (player.Lobby != null)
                 return Conflict(new { status = "error", message = "Player is already in a lobby." });
 
             Console.WriteLine("Join Private Lobby");
             var lobbyToReturn = await LobbyManager.JoinPrivateLobby(player, dto.LobbyCode, _hubContext);
             if (lobbyToReturn == null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = "error", message = "Failed to join lobby. Please try again later." });
-
-            player.LobbyId = lobbyToReturn.LobbyId;
 
             return Ok(new
             {
@@ -117,12 +113,12 @@ namespace api.Controllers
             var player = PlayerManager.GetPlayerSimplifiedByPlayerId(dto.PlayerId);
             if (player == null)
                 return NotFound(new { status = "error", message = $"Player with id '{dto.PlayerId}' not found." });
-            if (player.LobbyId == string.Empty)
+            if (player.Lobby == null)
                 return Conflict(new { status = "error", message = "Player is not in a lobby." });
 
-            await LobbyManager.LeavePrivateLobby(player.PlayerId, player.LobbyId, _hubContext);
+            await LobbyManager.LeavePrivateLobby(player.PlayerId, player.Lobby.LobbyId, _hubContext);
 
-            player.LobbyId = string.Empty;
+            player.Lobby = null;
 
             Console.WriteLine("Everything good, return left_lobby status.");
             return Ok(new

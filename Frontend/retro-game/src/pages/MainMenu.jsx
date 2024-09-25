@@ -42,9 +42,11 @@ export default function MainMenu() {
       setLoading(false);
 
       if (response.ok) {
+        console.log("Create Private Game Success");
         const lobby = await response.json();
         navigate("/create-private-lobby", { state: { lobby } });
       } else {
+        console.log("Create Private Game Fail");
         const errorData = await response.json();
         const errorMessage = errorData.message;
         console.log(errorMessage);
