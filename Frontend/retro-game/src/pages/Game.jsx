@@ -122,6 +122,7 @@ export default function Game() {
   };
 
   const handleAbility = async (e) => {
+    if (!gameData.lobby.gameSettings.abilities) return;
     e.preventDefault();
     if (connection) {
       connection
@@ -151,6 +152,7 @@ export default function Game() {
         direction = "r";
         break;
       case " ": // Detect Space Bar (space character)
+        if (!gameData.lobby.gameSettings.abilities) return;
         if (connection) {
           connection
             .invoke("ActivateAbility", playerData.playerId, gameData.gameId)
@@ -776,28 +778,30 @@ export default function Game() {
         <FrozenLayer />
       </div>
       <div className="game-ability container-center">
-        <div className="game-ability-button">
-          <img
-            src={abilities[playerData.ability]}
-            alt="Ability Icon"
-            className="game-ability-button-image pixel-art"
-            onClick={handleAbility}
-          />
-          {gameData.lobby.player1 != null &&
-            gameData.lobby.player1.playerId === playerData.playerId &&
-            gameData.player1Cooldown > 0 && (
-              <div className="game-ability-button-cooldown-overlay">
-                {String(gameData.player1Cooldown).padStart(2, "0")}
-              </div>
-            )}
-          {gameData.lobby.player2 != null &&
-            gameData.lobby.player2.playerId === playerData.playerId &&
-            gameData.player2Cooldown > 0 && (
-              <div className="game-ability-button-cooldown-overlay">
-                {String(gameData.player2Cooldown).padStart(2, "0")}
-              </div>
-            )}
-        </div>
+        {gameData.lobby.gameSettings.abilities && (
+          <div className="game-ability-button">
+            <img
+              src={abilities[playerData.ability]}
+              alt="Ability Icon"
+              className="game-ability-button-image pixel-art"
+              onClick={handleAbility}
+            />
+            {gameData.lobby.player1 != null &&
+              gameData.lobby.player1.playerId === playerData.playerId &&
+              gameData.player1Cooldown > 0 && (
+                <div className="game-ability-button-cooldown-overlay">
+                  {String(gameData.player1Cooldown).padStart(2, "0")}
+                </div>
+              )}
+            {gameData.lobby.player2 != null &&
+              gameData.lobby.player2.playerId === playerData.playerId &&
+              gameData.player2Cooldown > 0 && (
+                <div className="game-ability-button-cooldown-overlay">
+                  {String(gameData.player2Cooldown).padStart(2, "0")}
+                </div>
+              )}
+          </div>
+        )}
       </div>
       <div className="game-buttons container-center">
         <button

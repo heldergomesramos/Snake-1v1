@@ -258,7 +258,7 @@ namespace api.Models
 
         public void UseAbility(string playerId)
         {
-            if (GState != GameState.InProgress)
+            if (GState != GameState.InProgress || !Lobby.GameSettings!.Abilities)
                 return;
             var player = GetPlayerSimplifiedByPlayerId(playerId);
             if (player == null)
