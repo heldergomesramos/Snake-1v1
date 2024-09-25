@@ -109,9 +109,9 @@ namespace api.Controllers
         }
 
         [HttpPost("guest")]
-        public async Task<IActionResult> Guest()
+        public IActionResult Guest()
         {
-            var guestPlayerDto = await _playerService.CreateGuestAsync();
+            var guestPlayerDto = _playerService.CreateGuest();
             if (guestPlayerDto == null)
                 return StatusCode(500, new { message = "Failed to create guest player." });
             return Ok(new { status = "guest_joined", player = guestPlayerDto });

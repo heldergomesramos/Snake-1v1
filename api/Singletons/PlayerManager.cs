@@ -1,11 +1,6 @@
 using System.Collections.Concurrent;
-using api.Dtos.Lobby;
 using api.Dtos.Player;
-using api.Hubs;
-using api.Mappers;
-using api.Models;
 using api.Services;
-using Microsoft.AspNetCore.SignalR;
 
 namespace api.Singletons
 {

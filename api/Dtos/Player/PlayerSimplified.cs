@@ -11,5 +11,15 @@ namespace api.Dtos.Player
         public int Ability { get; set; } = 0;
         public string LobbyId { get; set; } = string.Empty;
         public string GameId { get; set; } = string.Empty;
+
+        public void UpdateColor(int color)
+        {
+            Color = Math.Clamp(color, 0, 7);
+        }
+
+        public void UpdateAbility(int ability)
+        {
+            Ability = Math.Clamp(ability, 0, 2);
+        }
     }
 }

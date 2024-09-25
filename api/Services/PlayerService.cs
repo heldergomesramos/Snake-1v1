@@ -112,7 +112,7 @@ namespace api.Services
             return responseDto;
         }
 
-        public async Task<PlayerRegisterResponseDto?> CreateGuestAsync()
+        public PlayerRegisterResponseDto? CreateGuest()
         {
             var guestUsername = $"Guest_{Guid.NewGuid().ToString()[..8]}";
 
@@ -126,10 +126,6 @@ namespace api.Services
                 Ability = 0,
                 LastLogin = DateTime.UtcNow
             };
-
-            var result = await _userManager.CreateAsync(guestPlayer);
-            if (!result.Succeeded)
-                return null;
 
             var token = _tokenService.CreateToken(guestPlayer);
 

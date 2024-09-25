@@ -83,6 +83,22 @@ namespace api.Hubs
             await _playerService.UpdatePlayerAsync(player);
         }
 
+        public async Task UpdatePlayer(int color, int ability)
+        {
+            var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
+            if (player == null)
+                return;
+
+            Console.WriteLine("\nReceived UpdatePlayerInLobby for player: " + player.PlayerId + " color: " + color + " ability: " + ability);
+
+            player.UpdateColor(color);
+            player.UpdateAbility(ability);
+
+            await Clients.Caller.SendAsync("PlayerUpdated", player.Color, player.Ability);
+            await _playerService.UpdatePlayerAsync(player);
+        }
+
+
         public async Task StartGame(string lobbyId)
         {
             Console.WriteLine("\nStart Game of lobby: " + lobbyId);

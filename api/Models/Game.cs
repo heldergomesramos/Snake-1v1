@@ -237,6 +237,10 @@ namespace api.Models
 
             SpawnApple();
 
+            EntityLayerDataCopy = new string[height][];
+            for (int i = 0; i < height; i++)
+                EntityLayerDataCopy[i] = new string[width];
+
             Player1Score = 0;
             Player2Score = 0;
             GameTick = 0;

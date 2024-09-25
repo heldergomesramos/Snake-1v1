@@ -425,7 +425,7 @@ input[type="number"] {
   left: 50%;
   background-color: var(--color-background);
   padding: 10px;
-  z-index: 100;
+  z-index: 2000;
 
   margin-top: 10px;
   border: 10px solid;
@@ -519,7 +519,7 @@ input[type="number"] {
   left: 50%;
   background-color: var(--color-background);
   padding: 10px;
-  z-index: 100;
+  z-index: 2000;
 
   margin-top: 10px;
   border: 10px solid;
@@ -845,4 +845,14 @@ input[type="checkbox"]:checked + label {
 
 .overlay-rematch.disabled:hover {
   background: none;
+}
+
+/* Public Queue */
+
+.pq-player-info {
+  margin-top: 20vh;
+}
+
+.pq-player-buttons {
+  margin: 5vh;
 }

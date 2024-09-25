@@ -9,6 +9,6 @@ namespace api.Services
         Task<List<PlayerSimplified>> GetAllPlayersSimplifiedAsync();
         Task<PlayerRegisterResponseDto?> RegisterPlayerAsync(PlayerRegisterRequestDto dto);
         Task<PlayerRegisterResponseDto?> LoginPlayerAsync(PlayerRegisterRequestDto dto);
-        Task<PlayerRegisterResponseDto?> CreateGuestAsync();
+        PlayerRegisterResponseDto? CreateGuest();
     }
 }

@@ -4,29 +4,18 @@ import { HubConnectionBuilder } from "@microsoft/signalr";
 
 import { SERVER_BASE_URL } from "../constants";
 import { COLORS } from "../constants";
+import { SNAKE_SPRITES } from "../constants";
+import { ABILITIES } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
 import { useSignalR } from "../context/SignalRContext";
 
-import redSnake from "../assets/images/SnakeFull-red.png";
-import orangeSnake from "../assets/images/SnakeFull-orange.png";
-import yellowSnake from "../assets/images/SnakeFull-yellow.png";
-import greenSnake from "../assets/images/SnakeFull-green.png";
-import lightBlueSnake from "../assets/images/SnakeFull-blue-light.png";
-import darkBlueSnake from "../assets/images/SnakeFull-blue-dark.png";
-import purpleSnake from "../assets/images/SnakeFull-purple.png";
-import pinkSnake from "../assets/images/SnakeFull-pink.png";
-
-import headTailSwap from "../assets/images/AbilityIcons-HeadTailSwap.png";
-import freezeTime from "../assets/images/AbilityIcons-FreezeTime.png";
-import ghost from "../assets/images/AbilityIcons-Ghost.png";
+import { WINS_ICON } from "../constants";
+import { LOSSES_ICON } from "../constants";
+import { COLORS_ICON } from "../constants";
+import { ABILITIES_ICON } from "../constants";
 
 import mapPlains from "../assets/images/Maps-Plains.png";
 import mapJungle from "../assets/images/Maps-Jungle.png";
-
-import trophy from "../assets/images/Trophy.png";
-import skull from "../assets/images/Skull.png";
-import palette from "../assets/images/PaletteIcon.png";
-import powerup from "../assets/images/AbilityIcon.png";
 
 export default function CreatePrivateLobby() {
   const navigate = useNavigate();
@@ -48,17 +37,6 @@ export default function CreatePrivateLobby() {
       lobby.player1 != null && lobby.player1.playerId === playerData.playerId
     );
   }, [lobby]);
-
-  const GetSnakeSprite = {
-    0: redSnake,
-    1: orangeSnake,
-    2: yellowSnake,
-    3: greenSnake,
-    4: lightBlueSnake,
-    5: darkBlueSnake,
-    6: purpleSnake,
-    7: pinkSnake,
-  };
 
   useEffect(() => {
     if (connection) {
@@ -178,27 +156,6 @@ export default function CreatePrivateLobby() {
   const [isAbilityMenuOpen, setIsAbilityMenuOpen] = useState(false);
   const [selectedAbility, setSelectedAbility] = useState(playerData.ability);
   const abilityMenuRef = useRef(null);
-
-  const abilities = [
-    {
-      id: 0,
-      name: "Head-Tail Swap",
-      img: headTailSwap,
-      description: "Swaps the snake's head and tail.",
-    },
-    {
-      id: 1,
-      name: "Freeze Time",
-      img: freezeTime,
-      description: "Freezes the opponent for a few turns.",
-    },
-    {
-      id: 2,
-      name: "Ghost",
-      img: ghost,
-      description: "Allows the snake to pass through obstacles.",
-    },
-  ];
 
   const toggleAbilityMenu = () => {
     setIsAbilityMenuOpen(!isAbilityMenuOpen);
@@ -357,7 +314,7 @@ export default function CreatePrivateLobby() {
               </div>
               <div className="container-center">
                 <img
-                  src={GetSnakeSprite[player.color]}
+                  src={SNAKE_SPRITES[player.color]}
                   alt="Player Snake"
                   className={`cpl-player-info-snake-image cpl-player-info-snake-image-${playerNumber} pixel-art`}
                 />
@@ -365,7 +322,7 @@ export default function CreatePrivateLobby() {
               <div className="cpl-player-stats">
                 <div className="cpl-player-stats-group">
                   <img
-                    src={trophy}
+                    src={WINS_ICON}
                     alt="Wins"
                     className="pixel-art cpl-player-stats-icon"
                   />
@@ -373,7 +330,7 @@ export default function CreatePrivateLobby() {
                 </div>
                 <div className="cpl-player-stats-group">
                   <img
-                    src={skull}
+                    src={LOSSES_ICON}
                     alt="Losses"
                     className="pixel-art cpl-player-stats-icon"
                   />
@@ -394,7 +351,7 @@ export default function CreatePrivateLobby() {
           <div className="container-center cpl-player-buttons-container">
             <div className="cpl-player-pallete-container">
               <img
-                src={palette}
+                src={COLORS_ICON}
                 alt="Palette"
                 className="pixel-art cpl-player-button"
                 onClick={() => {
@@ -437,7 +394,7 @@ export default function CreatePrivateLobby() {
             {/* Ability Button */}
             <div className="cpl-player-pallete-container">
               <img
-                src={powerup}
+                src={ABILITIES_ICON}
                 alt="Powerup"
                 className="pixel-art cpl-player-button"
                 onClick={toggleAbilityMenu}
@@ -449,7 +406,7 @@ export default function CreatePrivateLobby() {
               {isAbilityMenuOpen && (
                 <div className="color-menu-container" ref={abilityMenuRef}>
                   <div className="ability-menu">
-                    {abilities.map((ability) => (
+                    {ABILITIES.map((ability) => (
                       <div className="ability-container" key={ability.id}>
                         <label
                           style={{
