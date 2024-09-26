@@ -33,6 +33,9 @@ export default function PublicQueue() {
         console.log("Start Game");
         navigate("/game", { state: { gameData } });
       });
+      connection.on("PlayerLeft", () => {
+        console.log("Remove this later (useless)");
+      });
     }
   }, [connection]);
 
@@ -42,19 +45,16 @@ export default function PublicQueue() {
 
   const handleFind = async (e) => {
     setPhase(1);
-    // if (connection) {
-    //   connection
-    //     .invoke("StartGame", lobby.lobbyId)
-    //     .catch((err) => console.error(err));
-    // }
+    if (connection) {
+      connection.invoke("JoinPublicLobby").catch((err) => console.error(err));
+    }
   };
 
   const handleStop = async (e) => {
-    // if (connection) {
-    //   connection
-    //     .invoke("StartGame", lobby.lobbyId)
-    //     .catch((err) => console.error(err));
-    // }
+    if (connection) {
+      setPhase(0);
+      connection.invoke("StopQueue").catch((err) => console.error(err));
+    }
   };
 
   /* Color Stuff */
@@ -314,11 +314,7 @@ export default function PublicQueue() {
     return (
       <div className="container-center">
         <p className="title gradient-text title-section">
-          {loading
-            ? "Looking for an opponent..."
-            : lobby
-            ? `Lobby ID: ${lobby.lobbyId}`
-            : "???"}
+          Looking for an opponent...
         </p>
         <button
           className="button-default button-height-less"

@@ -33,6 +33,14 @@ namespace api.Models
             GameSettings = new();
         }
 
+        public GenericLobby(PlayerSimplified player1, PlayerSimplified player2)
+        {
+            LobbyId = Guid.NewGuid().ToString();
+            Player1 = player1;
+            Player2 = player2;
+            GameSettings = GameSettings.RandomSettings();
+        }
+
         public void AddPlayer(PlayerSimplified newPlayer)
         {
             if (Player1 == null)

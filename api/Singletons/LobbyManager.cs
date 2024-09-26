@@ -4,13 +4,14 @@ using api.Hubs;
 using api.Mappers;
 using api.Models;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.VisualBasic;
 
 namespace api.Singletons
 {
     public class LobbyManager
     {
         private static readonly object _lock = new();
-        private static GenericLobby? _currentLobby = null;
+        public static PlayerSimplified? PlayerInPublicQueue = null;
         private static readonly List<GenericLobby> _privateLobbies = [];
         private static readonly List<GenericLobby> _publicLobbies = [];
 
@@ -47,36 +48,26 @@ namespace api.Singletons
             return null;
         }
 
-        public static GenericLobby? JoinPublicLobby(PlayerRegisterResponseDto dto)
+        public static GenericLobby? JoinPublicLobby(PlayerSimplified player)
         {
-            Console.WriteLine("Join Function Executed by " + dto.Username);
+            Console.WriteLine("Join Function Executed by " + player.Username);
+            if (PlayerInPublicQueue == player)
+                return null;
+            else if (PlayerInPublicQueue == null)
+            {
+                PlayerInPublicQueue = player;
+            }
+            else
+            {
+                GenericLobby newLobby = new(PlayerInPublicQueue, player)
+                {
+                    GameSettings = GameSettings.RandomSettings()
+                };
+                _publicLobbies.Add(newLobby);
+                PlayerInPublicQueue = null;
+                return newLobby;
+            }
             return null;
-            // lock (_lock)
-            // {
-            //     if (string.IsNullOrWhiteSpace(dto.Username) || IsPlayerInLobby(dto.PlayerId, _currentLobby))
-            //         return null;
-
-            //     if (_currentLobby == null)
-            //     {
-            //         //_currentLobby = new Lobby(dto);
-            //         //dto.LobbyId = _currentLobby.LobbyId;
-            //         //_publicLobbies.Add(_currentLobby);
-            //     }
-            //     else
-            //     {
-            //         //_currentLobby.AddPlayer(dto);
-            //     }
-
-            //     if (_currentLobby.IsFull)
-            //     {
-            //         _currentLobby.GameStarted = true;
-            //         var lobbyToReturn = _currentLobby;
-            //         _currentLobby = null;
-            //         return lobbyToReturn;
-            //     }
-
-            //     return _currentLobby;
-            // }
         }
 
         public static async Task<LobbyResponseDto?> CreatePrivateLobby(PlayerSimplified player, IHubContext<LobbyHub> hubContext)
@@ -107,9 +98,38 @@ namespace api.Singletons
             return lobbyDto;
         }
 
-        public static async Task LeavePrivateLobby(string playerId, string lobbyId, IHubContext<LobbyHub> hubContext)
+        public static async Task LeaveLobby(PlayerSimplified player, IHubContext<LobbyHub> hubContext)
         {
-            var lobbyFound = GetPrivateLobbyById(lobbyId);
+            if (player.Lobby == null)
+                return;
+            if (_publicLobbies.Contains(player.Lobby))
+                await LeavePublicLobby(player.Lobby, hubContext);
+            else if (_privateLobbies.Contains(player.Lobby))
+                await LeavePrivateLobby(player.PlayerId, player.Lobby, hubContext);
+        }
+
+        public static async Task LeavePublicLobby(GenericLobby lobbyFound, IHubContext<LobbyHub> hubContext)
+        {
+            if (lobbyFound == null)
+                return;
+            _publicLobbies.Remove(lobbyFound);
+            await hubContext.Clients.Group(lobbyFound.LobbyId).SendAsync("PlayerLeft");
+            if (lobbyFound.Player1 != null)
+            {
+                var connection1 = PlayerManager.GetConnectionIdByPlayerId(lobbyFound.Player1.PlayerId);
+                if (!string.IsNullOrEmpty(connection1))
+                    await hubContext.Groups.RemoveFromGroupAsync(connection1, lobbyFound.LobbyId);
+            }
+            if (lobbyFound.Player2 != null)
+            {
+                var connection2 = PlayerManager.GetConnectionIdByPlayerId(lobbyFound.Player2.PlayerId);
+                if (!string.IsNullOrEmpty(connection2))
+                    await hubContext.Groups.RemoveFromGroupAsync(connection2, lobbyFound.LobbyId);
+            }
+        }
+
+        public static async Task LeavePrivateLobby(string playerId, GenericLobby lobbyFound, IHubContext<LobbyHub> hubContext)
+        {
             if (lobbyFound == null)
                 return;
             if (lobbyFound.Player1 != null && lobbyFound.Player1.PlayerId == playerId)
@@ -121,7 +141,7 @@ namespace api.Singletons
 
             if (lobbyFound.IsEmpty)
             {
-                RemovePrivateLobby(lobbyFound);
+                _privateLobbies.Remove(lobbyFound);
             }
             else
             {
@@ -129,9 +149,19 @@ namespace api.Singletons
                 var connectionId = PlayerManager.GetConnectionIdByPlayerId(playerId);
                 if (string.IsNullOrEmpty(connectionId))
                     return;
-                await hubContext.Groups.RemoveFromGroupAsync(connectionId, lobbyId);
-                await hubContext.Clients.Group(lobbyId).SendAsync("LobbyUpdated", updatedLobbyDto);
+                await hubContext.Groups.RemoveFromGroupAsync(connectionId, lobbyFound.LobbyId);
+                await hubContext.Clients.Group(lobbyFound.LobbyId).SendAsync("LobbyUpdated", updatedLobbyDto);
             }
+        }
+
+        public static void RemovePublicLobby(GenericLobby lobby)
+        {
+            _publicLobbies.Remove(lobby);
+        }
+
+        public static void RemovePrivateLobby(GenericLobby lobby)
+        {
+            _privateLobbies.Remove(lobby);
         }
 
         // public static PrivateLobbyResponseDto? UpdatePrivateLobbySettings(GenericLobby lobby, GameSettings newSettings)
@@ -143,26 +173,10 @@ namespace api.Singletons
         //     return LobbyMappers.ToResponseDto(lobby);
         // }
 
-        public static void RemovePrivateLobby(string lobbyId)
-        {
-            var lobby = _privateLobbies.FirstOrDefault(x => x.LobbyId == lobbyId);
-            if (lobby != null)
-                _privateLobbies.Remove(lobby);
-        }
-
-
-        public static void RemovePrivateLobby(GenericLobby lobby)
-        {
-            if (lobby != null)
-                _privateLobbies.Remove(lobby);
-        }
-
-
         public static void DeleteAllLobbies()
         {
             _privateLobbies.Clear();
             _publicLobbies.Clear();
-            _currentLobby = null;
         }
 
         public static bool IsPlayerInLobby(string playerId, GenericLobby? lobby)

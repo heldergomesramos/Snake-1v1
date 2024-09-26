@@ -37,21 +37,6 @@ namespace api.Controllers
             return Ok(new { lobby = LobbyMappers.ToResponseDto(lobby) });
         }
 
-        [HttpPost("join-public-lobby")]
-        public IActionResult JoinPublicLobby([FromBody] PlayerRegisterResponseDto dto)
-        {
-            var lobbyToReturn = LobbyManager.JoinPublicLobby(dto);
-
-            if (lobbyToReturn == null)
-                return BadRequest();
-
-            return Ok(new
-            {
-                status = "joined_lobby",
-                lobby = lobbyToReturn
-            });
-        }
-
         [HttpPost("create-private-lobby")]
         public async Task<IActionResult> CreatePrivateLobby([FromBody] PlayerIdDto dto)
         {
@@ -116,7 +101,7 @@ namespace api.Controllers
             if (player.Lobby == null)
                 return Conflict(new { status = "error", message = "Player is not in a lobby." });
 
-            await LobbyManager.LeavePrivateLobby(player.PlayerId, player.Lobby.LobbyId, _hubContext);
+            await LobbyManager.LeavePrivateLobby(player.PlayerId, player.Lobby, _hubContext);
 
             player.Lobby = null;
 

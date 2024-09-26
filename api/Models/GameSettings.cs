@@ -12,6 +12,38 @@ namespace api.Models
         public bool Abilities { get; set; } = true;
         public int Map { get; set; } = 0;
 
+        public static GameSettings RandomSettings()
+        {
+            Random random = new();
+
+            int width = random.Next(10, 21);
+            int height = random.Next(10, 21);
+
+            int totalSize = width * height;
+            double sizeRatio = (double)totalSize / 400;
+
+            // Define speed probabilities based on size ratio
+            int speed;
+            if (sizeRatio > 0.75)
+                speed = random.Next(5, 7);
+            else if (sizeRatio > 0.5)
+                speed = random.Next(4, 6);
+            else
+                speed = random.Next(3, 5);
+
+            return new GameSettings
+            {
+                Speed = speed,
+                Width = random.Next(10, 21),
+                Height = random.Next(10, 21),
+                Time = 180,
+                // Borders = random.Next(0, 2) == 1,
+                Borders = false,
+                Abilities = true,
+                Map = random.Next(0, 2)
+            };
+        }
+
         public static GameSettings? ObjectToGameSettings(object settings)
         {
             if (settings == null)

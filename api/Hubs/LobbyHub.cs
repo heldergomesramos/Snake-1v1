@@ -45,11 +45,63 @@ namespace api.Hubs
                 if (player.Game != null)
                     await LeaveGame();
                 else if (player.Lobby != null)
-                    await LobbyManager.LeavePrivateLobby(player.PlayerId, player.Lobby.LobbyId, _hubContext);
+                    await LobbyManager.LeaveLobby(player, _hubContext);
+                if (LobbyManager.PlayerInPublicQueue == player)
+                    LobbyManager.PlayerInPublicQueue = null;
                 await _playerService.UpdatePlayerAsync(player);
                 PlayerManager.RemoveConnection(Context.ConnectionId);
             }
             await base.OnDisconnectedAsync(exception);
+        }
+
+        public async Task JoinPublicLobby()
+        {
+            var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
+            if (player == null || player.Lobby != null)
+                return;
+            Console.WriteLine("Join Public Lobby by: " + player.Username);
+            Console.WriteLine("Is Anyone in Queue? " + LobbyManager.PlayerInPublicQueue?.Username);
+            var lobby = LobbyManager.JoinPublicLobby(player);
+            Console.WriteLine("Lobby found: " + lobby);
+            if (lobby == null)
+                return;
+            if (lobby.Player1 == null || lobby.Player2 == null)
+            {
+                /* There is no way this is ever going to happen */
+                Console.WriteLine("[ERROR] Join Public Lobby - Problem with one player");
+                LobbyManager.RemovePublicLobby(lobby);
+                return;
+            }
+            var connection1 = PlayerManager.GetConnectionIdByPlayerId(lobby.Player1.PlayerId);
+            var connection2 = PlayerManager.GetConnectionIdByPlayerId(lobby.Player2.PlayerId);
+            if (connection1 == null || connection2 == null)
+            {
+                Console.WriteLine("[ERROR] Join Public Lobby - Problem with one connection");
+                LobbyManager.RemovePublicLobby(lobby);
+                return;
+            }
+            lobby.Player1.Lobby = lobby;
+            lobby.Player2.Lobby = lobby;
+            await Groups.AddToGroupAsync(connection1, lobby.LobbyId);
+            await Groups.AddToGroupAsync(connection2, lobby.LobbyId);
+            await StartGame();
+        }
+
+        // public async Task PublicLobbyDecline()
+        // {
+        //     var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
+        //     if (player == null || player.Lobby == null)
+        //         return;
+        //     await LobbyManager.LeavePublicLobby(player.Lobby, _hubContext);
+        // }
+
+        public void StopQueue()
+        {
+            var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
+            if (player == null)
+                return;
+            if (LobbyManager.PlayerInPublicQueue == player)
+                LobbyManager.PlayerInPublicQueue = null;
         }
 
         public async Task UpdatePrivateLobbySettings(object newSettings)
@@ -97,7 +149,7 @@ namespace api.Hubs
         {
             var player = PlayerManager.GetPlayerSimplifiedByConnectionId(Context.ConnectionId);
             Console.WriteLine("Start Game()");
-            if (player == null || player.Lobby == null || player.Game != null)
+            if (player == null || player.Lobby == null || player.Game != null || player.Lobby.GameStarted)
                 return;
             var lobby = player.Lobby;
             lobby.GameStarted = true;
@@ -184,7 +236,7 @@ namespace api.Hubs
             }
 
             GameManager.RemoveGame(game.GameId);
-            LobbyManager.RemovePrivateLobby(lobby.LobbyId);
+            LobbyManager.RemovePrivateLobby(lobby);
         }
 
         public async Task AskRematch()
