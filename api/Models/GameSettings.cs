@@ -19,6 +19,9 @@ namespace api.Models
             int width = random.Next(10, 21);
             int height = random.Next(10, 21);
 
+            if (width < height)
+                (width, height) = (height, width);
+
             int totalSize = width * height;
             double sizeRatio = (double)totalSize / 400;
 

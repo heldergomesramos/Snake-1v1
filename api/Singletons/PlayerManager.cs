@@ -8,6 +8,7 @@ namespace api.Singletons
     public class PlayerManager
     {
         private static ConcurrentDictionary<string, PlayerSimplified> _playerConnections = new();
+        private static List<PlayerSimplified> _waitingGuests = []; //Guests without yet a connection, they will be removed after signalR
 
         public static bool IsPlayerConnected(string playerId)
         {
@@ -41,9 +42,22 @@ namespace api.Singletons
             return _playerConnections.TryGetValue(connectionId, out var player) ? player : null;
         }
 
+        public static void PrepareGuestConnection(PlayerSimplified player)
+        {
+            _waitingGuests.Add(player);
+        }
+
         public static async Task AddConnectionAsync(string playerId, string connectionId, IPlayerService playerService)
         {
-            var player = await playerService.GetPlayerSimplifiedByIdAsync(playerId);
+            PlayerSimplified? player = null;
+            var playerFound = _waitingGuests.FirstOrDefault(x => x.PlayerId == playerId);
+            if (playerFound != null)
+            {
+                player = playerFound;
+                _waitingGuests.Remove(playerFound);
+            }
+            else
+                player = await playerService.GetPlayerSimplifiedByIdAsync(playerId);
             if (player != null)
                 _playerConnections[connectionId] = player;
         }

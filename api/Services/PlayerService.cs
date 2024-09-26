@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using api.Dtos.Player;
 using api.Mappers;
 using api.Models;
+using api.Singletons;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,7 +28,8 @@ namespace api.Services
         public async Task UpdatePlayerAsync(PlayerSimplified playerSimplified)
         {
             ArgumentNullException.ThrowIfNull(playerSimplified);
-
+            if (playerSimplified.IsGuest)
+                return;
             var player = await _userManager.FindByIdAsync(playerSimplified.PlayerId);
             if (player == null)
                 throw new InvalidOperationException($"Player with ID {playerSimplified.PlayerId} not found.");
@@ -128,9 +130,8 @@ namespace api.Services
             };
 
             var token = _tokenService.CreateToken(guestPlayer);
-
             var guestPlayerDto = PlayerMappers.PlayerEntityToPlayerRegister(guestPlayer, token);
-
+            PlayerManager.PrepareGuestConnection(PlayerMappers.PlayerEntityToPlayerSimplified(guestPlayer));
             return guestPlayerDto;
         }
     }
