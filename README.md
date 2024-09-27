@@ -81,7 +81,7 @@ dotnet restore
 3. **Set Up the Database**:
 
 - Ensure you have SQL Server installed and running locally or have access to a remote SQL Server instance.
-- Configure your database connection string in appsettings.json:
+- Configure your database connection string in appsettings.json. Don't forget to replace `your_server` and `your_database` with the correct values:
 
 ```json
 "ConnectionStrings": {
