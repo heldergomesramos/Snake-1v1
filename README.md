@@ -8,9 +8,8 @@ Navigate your snake, collect items, unleash special abilities, and avoid collisi
 
 ## 📸 Screenshots
 
-![Gameplay Screenshot 1](/screenshots/Snake-1v1-Screenshot.png)
-![Gameplay Screenshot 2](/screenshots/Snake-1v1-Screenshot-cpl.png)
-![Menu Screenshot](/screenshots/Snake-1v1-Screenshot-game.png)
+| ![Gameplay Screenshot 1](/screenshots/Snake-1v1-Screenshot.png) | ![Gameplay Screenshot 2](/screenshots/Snake-1v1-Screenshot-cpl.png) | ![Menu Screenshot](/screenshots/Snake-1v1-Screenshot-game.png) |
+|:--:|:--:|:--:|
 
 ## ✨ Features
 
