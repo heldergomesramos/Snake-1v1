@@ -8,9 +8,9 @@ Navigate your snake, collect items, unleash special abilities, and avoid collisi
 
 ## 📸 Screenshots
 
-![Gameplay Screenshot 1](link_to_screenshot_1)
-![Gameplay Screenshot 2](link_to_screenshot_2)
-![Menu Screenshot](link_to_menu_screenshot)
+![Gameplay Screenshot 1](/screenshots/Snake-1v1-Screenshot.png)
+![Gameplay Screenshot 2](/screenshots/Snake-1v1-Screenshot-cpl.png)
+![Menu Screenshot](/screenshots/Snake-1v1-Screenshot-game.png)
 
 ## ✨ Features
 
@@ -31,7 +31,9 @@ Navigate your snake, collect items, unleash special abilities, and avoid collisi
 ## 🚧 Current Status
 
 This project is still **actively in development**, with regular updates being made.
+
 ### Features in Development:
+
 - 🗺 **Additional Maps**: Maps 2 and 3 are in the works to expand the variety of play environments.
 - 👻 **Ghost Ability**: A new ability that lets players temporarily phase through objects and snakes.
 - 📖 **How to Play Guide:** A user-friendly guide to help new players understand game mechanics.
@@ -42,27 +44,34 @@ This project is still **actively in development**, with regular updates being ma
 ### Frontend
 
 1. **Clone the Repository**:
+
    ```bash
    git clone https://github.com/heldergomesramos/Snake-1v1.git
    ```
 
 2. **Navigate to the Frontend directory and install dependencies**:
+
 ```bash
    cd Snake-1v1/Frontend/retro-game
    npm install
 ```
 
 3. **Start the frontend**:
+
 ```bash
    npm run dev
 ```
+
 ### Backend
+
 1. **Navigate to the API Directory**:
+
 ```bash
 cd Snake-1v1/api
 ```
 
 2. **Restore Dependencies**: Ensure all required NuGet packages are installed:
+
 ```bash
 dotnet restore
 ```
@@ -71,21 +80,27 @@ dotnet restore
 
 - Ensure you have SQL Server installed and running locally or have access to a remote SQL Server instance.
 - Configure your database connection string in appsettings.json:
+
 ```json
 "ConnectionStrings": {
   "DefaultConnection": "Server=your_server;Database=your_database;Trusted_Connection=True;"
 }
 ```
+
 - Run any Entity Framework Core migrations to set up the database schema:
+
 ```bash
 dotnet ef database update
 ```
 
 4. **Run the Backend**: Start the API:
+
 ```bash
 dotnet watch run
 ```
+
 5. **Open in Your Browser**: Navigate to:
+
 ```arduino
 http://localhost:5173/Snake-1v1
 ```
