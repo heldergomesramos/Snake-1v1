@@ -40,6 +40,9 @@ This project is still **actively in development**, with regular updates being ma
 
 ## 🚀 How to Run the Game Locally
 
+### Prerequisites
+- Ensure you have the [Node.js](https://nodejs.org/) and [.NET SDK](https://dotnet.microsoft.com/download) installed.
+
 ### Frontend
 
 1. **Clone the Repository**:
@@ -107,3 +110,6 @@ http://localhost:5173/Snake-1v1
 ## 💡 Contributing
 
 Feel free to use or modify this project as you wish. No need for formal contributions or pull requests.
+
+## 📄 License
+This project is licensed under the MIT License.
