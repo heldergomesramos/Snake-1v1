@@ -9,7 +9,7 @@ Navigate your snake, collect items, unleash special abilities, and avoid collisi
 ## 📸 Screenshots
 
 | ![Gameplay Screenshot 1](/screenshots/Snake-1v1-Screenshot.png) | ![Gameplay Screenshot 2](/screenshots/Snake-1v1-Screenshot-cpl.png) | ![Menu Screenshot](/screenshots/Snake-1v1-Screenshot-game.png) |
-|:--:|:--:|:--:|
+| :-------------------------------------------------------------: | :-----------------------------------------------------------------: | :------------------------------------------------------------: |
 
 ## ✨ Features
 
@@ -25,7 +25,7 @@ Navigate your snake, collect items, unleash special abilities, and avoid collisi
 - **Backend**: ASP.NET Core
 - **Database**: SQL Server
 - **Real-time Communication**: SignalR
-- **Entity Framework Core**: Data access with SQL Server
+- **Data Access**: Entity Framework Core (with SQL Server)
 
 ## 🚧 Current Status
 
@@ -41,6 +41,7 @@ This project is still **actively in development**, with regular updates being ma
 ## 🚀 How to Run the Game Locally
 
 ### Prerequisites
+
 - Ensure you have the [Node.js](https://nodejs.org/) and [.NET SDK](https://dotnet.microsoft.com/download) installed.
 
 ### Frontend
@@ -112,4 +113,5 @@ http://localhost:5173/Snake-1v1
 Feel free to use or modify this project as you wish. No need for formal contributions or pull requests.
 
 ## 📄 License
+
 This project is licensed under the MIT License.
