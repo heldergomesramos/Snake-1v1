@@ -1,48 +1,95 @@
-# Snake 1v1 Game [In Development]
+# 🐍 Snake 1v1 Game [In Development]
 
-## Description
+## 📖 Description
 
-Snake 1v1 is a multiplayer snake game where players compete against each other in real-time.
+Snake 1v1 is a competitive multiplayer version of the classic snake game, where two players face off in real-time.
 
-Navigate your snake, collect items, use special abilities and avoid collisions to emerge victorious!
+Navigate your snake, collect items, unleash special abilities, and avoid collisions to outwit your opponent and claim victory!
 
-## Features
+## 📸 Screenshots
 
-- Multiplayer gameplay for two players
-- Real-time interactions using SignalR
-- Customizable game settings
-- Pixel art graphics for a retro feel
+![Gameplay Screenshot 1](link_to_screenshot_1)
+![Gameplay Screenshot 2](link_to_screenshot_2)
+![Menu Screenshot](link_to_menu_screenshot)
 
-## Technologies Used
+## ✨ Features
+
+- 🕹 Multiplayer gameplay: Challenge a friend in real-time.
+- ⚡ Real-time interactions: Powered by SignalR for seamless communication.
+- 🎮 Customizable settings: Adjust game parameters like speed, time limit, board size, abilities and borders.
+- 🗺 Multiple maps: Choose from different map layouts for a unique experience every match.
+- 🎨 Pixel art graphics: Retro aesthetics inspired by classic snake games.
+
+## 🛠 Technologies Used
 
 - **Frontend**: React
 - **Backend**: ASP.NET Core
 - **Database**: SQL Server
 - **Real-time Communication**: SignalR
+- **Entity Framework Core**: Data access with SQL Server
 
-## Current Status
+## 🚧 Current Status
 
-This project is still in development. Features and gameplay mechanics are being actively worked on, updates are currently being made regurarly.
+This project is still **actively in development**, with regular updates being made.
+### Features in Development:
+- 🗺 **Additional Maps**: Maps 2 and 3 are in the works to expand the variety of play environments.
+- 👻 **Ghost Ability**: A new ability that lets players temporarily phase through objects and snakes.
+- 📖 **How to Play Guide:** A user-friendly guide to help new players understand game mechanics.
+- 🌐 **Backend Deployment & Hosting**: Setting up the backend for live multiplayer action.
 
-## How to Run the Game
+## 🚀 How to Run the Game Locally
 
-1. Clone the repository:
+### Frontend
+
+1. **Clone the Repository**:
+   ```bash
    git clone https://github.com/heldergomesramos/Snake-1v1.git
-2. Navigate to the Frontend directory and install dependencies:
+   ```
+
+2. **Navigate to the Frontend directory and install dependencies**:
+```bash
    cd Snake-1v1/Frontend/retro-game
    npm install
-3. Start the frontend:
-   npm run dev
-4. Navigate to the API directory and run the backend:
-   cd Snake-1v1/api
-   dotnet watch run
-5. Open in your browser:
-   http://localhost:5173/Snake-1v1
+```
 
-## Contributing
+3. **Start the frontend**:
+```bash
+   npm run dev
+```
+### Backend
+1. **Navigate to the API Directory**:
+```bash
+cd Snake-1v1/api
+```
+
+2. **Restore Dependencies**: Ensure all required NuGet packages are installed:
+```bash
+dotnet restore
+```
+
+3. **Set Up the Database**:
+
+- Ensure you have SQL Server installed and running locally or have access to a remote SQL Server instance.
+- Configure your database connection string in appsettings.json:
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=your_server;Database=your_database;Trusted_Connection=True;"
+}
+```
+- Run any Entity Framework Core migrations to set up the database schema:
+```bash
+dotnet ef database update
+```
+
+4. **Run the Backend**: Start the API:
+```bash
+dotnet watch run
+```
+5. **Open in Your Browser**: Navigate to:
+```arduino
+http://localhost:5173/Snake-1v1
+```
+
+## 💡 Contributing
 
 Feel free to use or modify this project as you wish. No need for formal contributions or pull requests.
-
-## License
-
-This project is licensed under the MIT License.
