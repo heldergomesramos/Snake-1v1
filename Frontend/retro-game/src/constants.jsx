@@ -17,7 +17,8 @@ import skull from "./assets/images/Skull.png";
 import palette from "./assets/images/PaletteIcon.png";
 import powerup from "./assets/images/AbilityIcon.png";
 
-export const SERVER_BASE_URL = "http://localhost:5030";
+export const SERVER_BASE_URL =
+  "https://snake1v1-gvfug6g0bwcfgjeu.spaincentral-01.azurewebsites.net";
 export const BASE_PATH = "/Snake-1v1";
 export const COLORS = [
   "#cf3636",
