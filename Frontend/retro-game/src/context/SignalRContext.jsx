@@ -13,9 +13,10 @@ export const SignalRProvider = ({ children }) => {
 
   useEffect(() => {
     const newConnection = new HubConnectionBuilder()
-      .withUrl(`${SERVER_BASE_URL}/lobbyHub?playerId=${playerData.playerId}`, {
-        withCredentials: true,
-      })
+      // .withUrl(`${SERVER_BASE_URL}/lobbyHub?playerId=${playerData.playerId}`, {
+      //   withCredentials: true,
+      // })
+      .withUrl(`${SERVER_BASE_URL}/lobbyHub?playerId=${playerData.playerId}`)
       .withAutomaticReconnect()
       .build();
 
