@@ -856,3 +856,12 @@ input[type="checkbox"]:checked + label {
 .pq-player-buttons {
   margin: 5vh;
 }
+
+.version {
+  color: #494949;
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  margin: 10px;
+  text-align: left;
+}
