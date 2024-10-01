@@ -6,6 +6,15 @@ Snake 1v1 is a competitive multiplayer version of the classic snake game, where 
 
 Navigate your snake, collect items, unleash special abilities, and avoid collisions to outwit your opponent and claim victory!
 
+## 🌐 Live Version Available
+The game is now live and ready to play online! You can challenge your friends in real-time by visiting the following link:
+
+[Play Snake 1v1](https://heldergomesramos.github.io/Snake-1v1)
+
+A copy of the API, which has been migrated from SQL Server to MySQL due to Azure's free subscription tier limitations, is now deployed to Azure. This ensures that the backend of the game is fully operational and accessible, supporting real-time multiplayer gameplay.
+
+API Backend Repository: [Snake 1v1 API](https://github.com/heldergomesramos/Snake-1v1-api-mysql)
+
 ## 📸 Screenshots
 
 | ![Gameplay Screenshot 1](/screenshots/Snake-1v1-Screenshot.png) | ![Gameplay Screenshot 2](/screenshots/Snake-1v1-Screenshot-cpl.png) | ![Menu Screenshot](/screenshots/Snake-1v1-Screenshot-game.png) |
