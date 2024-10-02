@@ -23,6 +23,10 @@ export default function HomePage() {
         });
 
         if (!response.ok) console.error("Ping request failed");
+        else {
+          const data = await response.json();
+          console.log("Ping Success: " + JSON.stringify(data));
+        }
       } catch (err) {
         console.error("Failed to connect to the server for ping:", err);
       }

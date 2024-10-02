@@ -34,6 +34,7 @@ export default function Game() {
   const boardRef = useRef(null);
   const [tileSize, setTileSize] = useState(16); // Dynamically calculated tile size
   const [rematchState, setRematchState] = useState("normal");
+  const [ping, setPing] = useState(0);
 
   const miscTilset = miscSprite;
   const TILE_SIZE_PERCENT = 25;
@@ -91,8 +92,20 @@ export default function Game() {
         console.log("Rematch Response: " + JSON.stringify(response));
         setRematchState(response);
       });
+      connection.on("Pong", () => {
+        const now = Date.now();
+        setPing(now - pingStart);
+      });
+
+      const pingInterval = setInterval(() => {
+        if (connection) {
+          pingStart = Date.now();
+          connection.invoke("Ping");
+        }
+      }, 1000);
+      return () => clearInterval(pingInterval);
     }
-  }, [connection]);
+  }, [connection, navigate]);
 
   const handleLeave = async (e) => {
     e.preventDefault();
@@ -833,6 +846,9 @@ export default function Game() {
           onPlayAgain={handlePlayAgain}
         />
       )}
+      <div className="version">
+        <p>Ping: {ping !== null ? `${ping} ms` : "Calculating..."}</p>
+      </div>
     </div>
   );
 }

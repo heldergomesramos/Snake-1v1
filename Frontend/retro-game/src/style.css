@@ -335,9 +335,6 @@ input[type="number"] {
   padding-bottom: 20px;
 }
 
-.cpl-player-info-parent {
-}
-
 .cpl-player-info {
   display: flex;
   flex-direction: column;
@@ -761,9 +758,6 @@ input[type="checkbox"]:checked + label {
   position: absolute;
 }
 
-.tile {
-}
-
 .overlay {
   position: fixed;
   top: 0;
@@ -806,9 +800,6 @@ input[type="checkbox"]:checked + label {
 
 .overlay-result.draw {
   color: var(--color-text-purple);
-}
-
-.overlay-rematch.normal {
 }
 
 .overlay-rematch.locked-in {

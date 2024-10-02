@@ -13,7 +13,7 @@ export const SignalRProvider = ({ children }) => {
 
   useEffect(() => {
     const newConnection = new HubConnectionBuilder()
-      .withUrl(`${SERVER_BASE_URL}/lobbyHub?playerId=${playerData.playerId}`, {
+      .withUrl(`${SERVER_BASE_URL}/gameHub?playerId=${playerData.playerId}`, {
         withCredentials: false,
       })
       .withAutomaticReconnect()
@@ -23,7 +23,7 @@ export const SignalRProvider = ({ children }) => {
 
     newConnection.onclose((error) => {
       setConnectionState("Disconnected");
-      console.error("SignalR connection closed:", error);
+      console.log("SignalR connection closed:", error);
     });
 
     newConnection.onreconnecting((error) => {
