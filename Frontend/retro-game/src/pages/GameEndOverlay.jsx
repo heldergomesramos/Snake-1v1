@@ -36,7 +36,7 @@ const GameEndOverlay = ({
             {opponentName}'s score: {opponentScore}
           </p>
         )}
-        <p>Time: {time}</p>
+        <p>Time Left: {time}</p>
         <p>Moves: {moves}</p>
 
         <div className="button-group">

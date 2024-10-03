@@ -9,6 +9,7 @@ import headTailSwap from "../assets/images/AbilityIcons-HeadTailSwap.png";
 import freezeTime from "../assets/images/AbilityIcons-FreezeTime.png";
 import ghost from "../assets/images/AbilityIcons-Ghost.png";
 
+import borderTileset from "../assets/images/BorderTileset.png";
 import tileset from "../assets/images/Maps-Plains.png";
 import redSnake from "../assets/images/Snake-red.png";
 import orangeSnake from "../assets/images/Snake-orange.png";
@@ -741,6 +742,115 @@ export default function Game() {
     );
   };
 
+  const BorderLayer = () => {
+    if (!gameData.lobby.gameSettings.borders) return null;
+    const rows = gameData.lobby.gameSettings.height;
+    const columns = gameData.lobby.gameSettings.width;
+
+    const GetBorderData = (rowIndex, colIndex) => {
+      let topLeftX = 0;
+      let topLeftY = 0;
+
+      // Top-left corner
+      if (rowIndex === 0 && colIndex === 0) {
+        topLeftX = 0;
+        topLeftY = 0;
+      }
+      // Top-right corner
+      else if (rowIndex === 0 && colIndex === columns - 1) {
+        topLeftX = 2;
+        topLeftY = 0;
+      }
+      // Top edge
+      else if (rowIndex === 0) {
+        topLeftX = 1;
+        topLeftY = 0;
+      }
+
+      // Bottom-left corner
+      else if (rowIndex === rows - 1 && colIndex === 0) {
+        topLeftX = 0;
+        topLeftY = 2;
+      }
+      // Bottom-right corner
+      else if (rowIndex === rows - 1 && colIndex === columns - 1) {
+        topLeftX = 2;
+        topLeftY = 2;
+      }
+      // Bottom edge
+      else if (rowIndex === rows - 1) {
+        topLeftX = 1;
+        topLeftY = 2;
+      }
+
+      // Left edge
+      else if (colIndex === 0) {
+        topLeftX = 0;
+        topLeftY = 1;
+      }
+      // Right edge
+      else if (colIndex === columns - 1) {
+        topLeftX = 2;
+        topLeftY = 1;
+      } else {
+        topLeftX = 1;
+        topLeftY = 1;
+      }
+
+      topLeftX = topLeftX * TILE_SIZE_PERCENT;
+      topLeftY = topLeftY * TILE_SIZE_PERCENT;
+      let bottomRightX = topLeftX + TILE_SIZE_PERCENT;
+      let bottomRightY = topLeftY + TILE_SIZE_PERCENT;
+
+      let translateX = HALF_TILE_SIZE_PERCENT - topLeftX;
+      let translateY = HALF_TILE_SIZE_PERCENT - topLeftY;
+
+      return {
+        sprite: borderTileset,
+        clipPath: `polygon(${topLeftX}% ${topLeftY}%, ${bottomRightX}% ${topLeftY}%, ${bottomRightX}% ${bottomRightY}%, ${topLeftX}% ${bottomRightY}%)`,
+        transform: `translate(${translateX}%, ${translateY}%)`,
+      };
+    };
+
+    return (
+      <div
+        className="game-grid container-center"
+        style={{
+          display: "grid",
+          gridTemplateRows: `repeat(${rows}, ${tileSize}px)`,
+          gridTemplateColumns: `repeat(${columns}, ${tileSize}px)`,
+          transform: `translate(${-tileSize / 2}px, ${tileSize}px)`,
+          zIndex: 2,
+        }}
+      >
+        {/* Render the border layer based on grid position */}
+        {Array.from({ length: rows }).map((_, rowIndex) =>
+          Array.from({ length: columns }).map((_, colIndex) => {
+            const { sprite, clipPath, transform } = GetBorderData(
+              rowIndex,
+              colIndex
+            );
+
+            return (
+              <img
+                className="tile pixel-art"
+                key={`border-${rowIndex}-${colIndex}`}
+                src={sprite}
+                alt="Border Tile"
+                style={{
+                  clipPath: clipPath,
+                  transform: transform,
+                  width: `${tileSize * 4}px`,
+                  height: `${tileSize * 4}px`,
+                }}
+              />
+            );
+          })
+        )}
+      </div>
+    );
+  };
+
   const player1 = gameData.lobby.player1;
   const player2 = gameData.lobby.player2;
   const player1Score = gameData.player1Score;
@@ -798,6 +908,7 @@ export default function Game() {
         <Board />
         <EntityLayer />
         <FrozenLayer />
+        <BorderLayer />
       </div>
       <div className="game-ability container-center">
         {gameData.lobby.gameSettings.abilities && (

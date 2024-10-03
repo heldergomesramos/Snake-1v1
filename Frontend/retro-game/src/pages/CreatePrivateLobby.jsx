@@ -334,6 +334,61 @@ export default function CreatePrivateLobby() {
       <div>
         {isPlayer1 === (playerNumber === 1) && (
           <div className="container-center cpl-player-buttons-container">
+            {/* Ability Button */}
+            <div className="cpl-player-pallete-container">
+              <img
+                src={ABILITIES_ICON}
+                alt="Powerup"
+                className="pixel-art cpl-player-button"
+                onClick={toggleAbilityMenu}
+                style={{
+                  cursor: "pointer",
+                  pointerEvents: isAbilityMenuOpen ? "none" : "auto",
+                }}
+              />
+              {/* Conditional rendering of ability menu */}
+              {isAbilityMenuOpen && (
+                <div className="color-menu-container" ref={abilityMenuRef}>
+                  <div className="ability-menu">
+                    {ABILITIES.map((ability) => (
+                      <div className="ability-container" key={ability.id}>
+                        <label
+                          style={{
+                            backgroundImage: `url(${ability.img})`,
+                          }}
+                          className="ability-button pixel-art"
+                        >
+                          <input
+                            type="radio"
+                            name="ability"
+                            value={ability.id}
+                            checked={playerData.ability === ability.id}
+                            onChange={() => handleAbilitySelect(ability)}
+                            style={{ display: "none" }}
+                          />
+                          {playerData.ability === ability.id && (
+                            <div className="ability-selected-indicator" />
+                          )}
+                        </label>
+                        <div className="tooltip border-gradient-normal">
+                          <p className="tooltip-name">{ability.name}</p>
+                          <p className="tooltip-description">
+                            {ability.description}
+                          </p>
+                          <p className="tooltip-description">
+                            Cooldown: {ability.cooldown}s
+                          </p>
+                          <p className="tooltip-description text-color-soft">
+                            Press [Space] to use.
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* Color Button */}
             <div className="cpl-player-pallete-container">
               <img
                 src={COLORS_ICON}
@@ -371,53 +426,6 @@ export default function CreatePrivateLobby() {
                           <div className="color-selected-indicator" />
                         )}
                       </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            {/* Ability Button */}
-            <div className="cpl-player-pallete-container">
-              <img
-                src={ABILITIES_ICON}
-                alt="Powerup"
-                className="pixel-art cpl-player-button"
-                onClick={toggleAbilityMenu}
-                style={{
-                  cursor: "pointer",
-                  pointerEvents: isAbilityMenuOpen ? "none" : "auto",
-                }}
-              />
-              {isAbilityMenuOpen && (
-                <div className="color-menu-container" ref={abilityMenuRef}>
-                  <div className="ability-menu">
-                    {ABILITIES.map((ability) => (
-                      <div className="ability-container" key={ability.id}>
-                        <label
-                          style={{
-                            backgroundImage: `url(${ability.img})`,
-                          }}
-                          className="ability-button pixel-art"
-                        >
-                          <input
-                            type="radio"
-                            name="ability"
-                            value={ability.id}
-                            checked={playerData.ability === ability.id}
-                            onChange={() => handleAbilitySelect(ability)}
-                            style={{ display: "none" }}
-                          />
-                          {playerData.ability === ability.id && (
-                            <div className="ability-selected-indicator" />
-                          )}
-                        </label>
-                        <div className="tooltip border-gradient-normal">
-                          <p className="tooltip-name">{ability.name}</p>
-                          <p className="tooltip-description">
-                            {ability.description}
-                          </p>
-                        </div>
-                      </div>
                     ))}
                   </div>
                 </div>

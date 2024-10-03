@@ -48,18 +48,21 @@ export const ABILITIES = [
     name: "Head-Tail Swap",
     img: headTailSwap,
     description: "Swaps the snake's head and tail.",
+    cooldown: 8,
   },
   {
     id: 1,
     name: "Freeze Time",
     img: freezeTime,
     description: "Freezes the opponent for a few turns.",
+    cooldown: 15,
   },
   {
     id: 2,
     name: "Ghost",
     img: ghost,
     description: "Allows the snake to pass through obstacles.",
+    cooldown: 20,
   },
 ];
 

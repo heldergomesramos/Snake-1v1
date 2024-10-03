@@ -145,8 +145,13 @@ input[type="number"] {
 .text-color-green {
   color: var(--color-green);
 }
+
 .text-color-soft {
   color: var(--color-border-gradient-2);
+}
+
+.text-color-gray {
+  color: var(--color-disabled);
 }
 .text-easier-font {
   font-family: FFF;
@@ -495,13 +500,13 @@ input[type="number"] {
 }
 
 .tooltip-name {
-  margin: 0;
+  margin-bottom: 0.5rem;
   font-size: var(--fs-400);
   color: var(--color-text-purple);
 }
 
 .tooltip-description {
-  margin: 0;
+  margin-bottom: 0.5rem;
   font-size: var(--fs-200);
 }
 
