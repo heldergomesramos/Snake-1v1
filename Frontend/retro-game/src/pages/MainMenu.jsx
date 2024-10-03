@@ -3,13 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import { SERVER_BASE_URL } from "../constants";
 import { useSignalR } from "../context/SignalRContext";
+import { HowToPlayOverlay } from "./HowToPlayOverlay";
 
 export default function MainMenu() {
   const { playerData, setPlayerData } = useContext(PlayerContext);
   const { connection } = useSignalR();
   const navigate = useNavigate();
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Prevents multiple button clicks
+  const [loading, setLoading] = useState(false);
+  const [guide, setGuide] = useState(false);
 
   useEffect(() => {
     if (playerData === null) {
@@ -19,6 +21,10 @@ export default function MainMenu() {
 
   const handleLogout = () => {
     setPlayerData(null);
+  };
+
+  const handleHowToPlay = () => {
+    setGuide(true);
   };
 
   const handlePrivateGame = async (e) => {
@@ -80,6 +86,7 @@ export default function MainMenu() {
 
   return (
     <div className="container-center">
+      {guide && <HowToPlayOverlay setGuide={setGuide} />}
       <div className="title-section">
         <p className="section__text__p2">Welcome, {playerData?.username}</p>
         <p className="title gradient-text">Pick your poison</p>
@@ -103,9 +110,12 @@ export default function MainMenu() {
       <br />
       <br />
       <div className="buttons-main-menu-container">
-        {/* <Link to={"/profile"}>
-          <button className="button-default button-height-less">Profile</button>
-        </Link> */}
+        <button
+          className="button-default button-width-less"
+          onClick={handleHowToPlay}
+        >
+          How to Play
+        </button>
         <Link>
           <button
             className="button-default button-width-less"

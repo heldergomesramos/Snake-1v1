@@ -53,6 +53,8 @@ export default function Game() {
 
   const abilities = [headTailSwap, freezeTime, ghost];
 
+  let pingStart = null;
+
   useEffect(() => {
     const resizeBoard = () => {
       if (!boardRef.current) return;
@@ -325,6 +327,30 @@ export default function Game() {
           topLeftY = 3;
           break;
 
+        case "apple":
+          sprite = miscTilset;
+          topLeftX = 0;
+          topLeftY = 0;
+          break;
+
+        case "apple-rot":
+          sprite = miscTilset;
+          topLeftX = 1;
+          topLeftY = 0;
+          break;
+
+        case "golden-apple":
+          sprite = miscTilset;
+          topLeftX = 0;
+          topLeftY = 1;
+          break;
+
+        case "golden-apple-rot":
+          sprite = miscTilset;
+          topLeftX = 1;
+          topLeftY = 1;
+          break;
+
         // Snake 1 cases
         case "snake1-head-l":
           sprite = player1SnakeSprite;
@@ -492,12 +518,6 @@ export default function Game() {
           sprite = player2SnakeSprite;
           topLeftX = 2;
           topLeftY = 1;
-          break;
-
-        case "apple":
-          sprite = miscTilset;
-          topLeftX = 0;
-          topLeftY = 0;
           break;
       }
 
@@ -846,9 +866,9 @@ export default function Game() {
           onPlayAgain={handlePlayAgain}
         />
       )}
-      <div className="version">
-        <p>Ping: {ping !== null ? `${ping} ms` : "Calculating..."}</p>
-      </div>
+      <p className="version">
+        Ping: {ping !== null ? `${ping} ms` : "Calculating..."}
+      </p>
     </div>
   );
 }

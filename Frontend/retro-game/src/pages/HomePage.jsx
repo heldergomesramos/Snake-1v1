@@ -8,6 +8,7 @@ export default function HomePage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [actionType, setActionType] = useState("");
+  const [loading, setLoading] = useState(0); // 0: Default, 1: Logging in, 2: Registering, 3: Joining as Guest
   const navigate = useNavigate();
 
   const { setPlayerData } = useContext(PlayerContext);
@@ -36,6 +37,9 @@ export default function HomePage() {
   }, []);
 
   const handleSubmit = async (e) => {
+    if (loading != 0) return;
+    setLoading(actionType === "login" ? 1 : 2);
+
     e.preventDefault();
     setError("");
 
@@ -59,7 +63,7 @@ export default function HomePage() {
       });
 
       const data = await response.json();
-
+      setLoading(0);
       if (response.ok) {
         setPlayerData(data);
         navigate("/main-menu");
@@ -91,6 +95,8 @@ export default function HomePage() {
   };
 
   const handleGuestLogin = async () => {
+    if (loading != 0) return;
+    setLoading(3);
     setError("");
 
     try {
@@ -102,6 +108,7 @@ export default function HomePage() {
       });
 
       const data = await response.json();
+      setLoading(false);
 
       if (response.ok) {
         setPlayerData(data.player);
@@ -143,14 +150,14 @@ export default function HomePage() {
               className="button-default button-height-less button-width-less"
               onClick={() => setActionType("login")}
             >
-              Login
+              {loading === 1 ? "Logging in..." : "Login"}
             </button>
             <button
               type="submit"
               className="button-default button-height-less button-width-less"
               onClick={() => setActionType("register")}
             >
-              Register
+              {loading === 2 ? "Registering..." : "Register"}
             </button>
           </div>
         </form>
@@ -159,7 +166,7 @@ export default function HomePage() {
           className="button-default button-height-less"
           onClick={handleGuestLogin}
         >
-          Join as Guest
+          {loading === 3 ? "Joining..." : "Join as Guest"}
         </button>
       </div>
       <br />
