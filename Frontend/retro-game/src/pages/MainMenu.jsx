@@ -103,24 +103,11 @@ export default function MainMenu() {
         <Link to={"/public-queue"}>
           <button className="button-default">Join Public Game</button>
         </Link>
-        {/* <Link to={"/play-vs-ai}">
-          <button className="button-default">Play vs AI</button>
-        </Link> */}
-      </div>
-      <br />
-      <br />
-      <div className="buttons-main-menu-container">
-        <button
-          className="button-default button-width-less"
-          onClick={handleHowToPlay}
-        >
+        <button className="button-default" onClick={handleHowToPlay}>
           How to Play
         </button>
         <Link>
-          <button
-            className="button-default button-width-less"
-            onClick={handleLogout}
-          >
+          <button className="button-default" onClick={handleLogout}>
             Log Out
           </button>
         </Link>

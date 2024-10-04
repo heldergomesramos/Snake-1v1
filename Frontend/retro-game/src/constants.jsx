@@ -9,7 +9,7 @@ import pinkSnake from "./assets/images/SnakeFull-pink.png";
 
 import headTailSwap from "./assets/images/AbilityIcons-HeadTailSwap.png";
 import freezeTime from "./assets/images/AbilityIcons-FreezeTime.png";
-import ghost from "./assets/images/AbilityIcons-Ghost.png";
+import cutTail from "./assets/images/AbilityIcons-CutTail.png";
 
 import trophy from "./assets/images/Trophy.png";
 import skull from "./assets/images/Skull.png";
@@ -47,22 +47,28 @@ export const ABILITIES = [
     id: 0,
     name: "Head-Tail Swap",
     img: headTailSwap,
-    description: "Swaps the snake's head and tail.",
-    cooldown: 8,
+    description: <>Swaps the snake's head and tail.</>,
+    cooldown: 7,
   },
   {
     id: 1,
     name: "Freeze Time",
     img: freezeTime,
-    description: "Freezes the opponent for a few turns.",
-    cooldown: 15,
+    description: <>Freezes the opponent for a few turns.</>,
+    cooldown: 12,
   },
   {
     id: 2,
-    name: "Ghost",
-    img: ghost,
-    description: "Allows the snake to pass through obstacles.",
-    cooldown: 20,
+    name: "Cut Tail",
+    img: cutTail,
+    description: (
+      <>
+        Requires 4+ size.
+        <br />
+        Converts tail into meat.
+      </>
+    ),
+    cooldown: 15,
   },
 ];
 

@@ -5,10 +5,6 @@ import { PlayerContext } from "../context/PlayerContext";
 import { useSignalR } from "../context/SignalRContext";
 import { COLORS } from "../constants";
 
-import headTailSwap from "../assets/images/AbilityIcons-HeadTailSwap.png";
-import freezeTime from "../assets/images/AbilityIcons-FreezeTime.png";
-import ghost from "../assets/images/AbilityIcons-Ghost.png";
-
 import borderTileset from "../assets/images/BorderTileset.png";
 import tileset from "../assets/images/Maps-Plains.png";
 import redSnake from "../assets/images/Snake-red.png";
@@ -21,6 +17,8 @@ import purpleSnake from "../assets/images/Snake-purple.png";
 import pinkSnake from "../assets/images/Snake-pink.png";
 import frozenSnake from "../assets/images/Snake-frozen.png";
 import miscSprite from "../assets/images/Misc.png";
+
+import { ABILITIES } from "../constants";
 
 import { formatTime } from "../functions";
 import GameEndOverlay from "../pages/GameEndOverlay";
@@ -51,8 +49,6 @@ export default function Game() {
     purpleSnake,
     pinkSnake,
   ];
-
-  const abilities = [headTailSwap, freezeTime, ghost];
 
   let pingStart = null;
 
@@ -328,6 +324,7 @@ export default function Game() {
           topLeftY = 3;
           break;
 
+        // Food cases
         case "apple":
           sprite = miscTilset;
           topLeftX = 0;
@@ -350,6 +347,18 @@ export default function Game() {
           sprite = miscTilset;
           topLeftX = 1;
           topLeftY = 1;
+          break;
+
+        case "snake-meat":
+          sprite = miscTilset;
+          topLeftX = 0;
+          topLeftY = 2;
+          break;
+
+        case "snake-meat-rot":
+          sprite = miscTilset;
+          topLeftX = 1;
+          topLeftY = 2;
           break;
 
         // Snake 1 cases
@@ -914,7 +923,7 @@ export default function Game() {
         {gameData.lobby.gameSettings.abilities && (
           <div className="game-ability-button">
             <img
-              src={abilities[playerData.ability]}
+              src={ABILITIES[playerData.ability].img}
               alt="Ability Icon"
               className="game-ability-button-image pixel-art"
               onClick={handleAbility}
