@@ -72,7 +72,7 @@ export default function JoinPrivateLobby() {
       <form onSubmit={handleJoin}>
         <input
           type="text"
-          placeholder="6 digit code"
+          placeholder="6 character code"
           value={code}
           onChange={(e) => setCode(e.target.value)}
           required

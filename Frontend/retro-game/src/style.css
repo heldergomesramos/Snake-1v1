@@ -375,6 +375,51 @@ input[type="number"] {
   height: 30px;
 }
 
+/* Copy to clipboard */
+.cpl-copy-icon {
+  width: 40px;
+  height: 40px;
+  margin-top: -4px;
+}
+
+.copy-message {
+  width: 14rem;
+  color: var(--color-text);
+  opacity: 1;
+  z-index: 100;
+  position: absolute;
+  top: 7rem;
+  left: 60%;
+  transform: translateX(-50%);
+  text-shadow: 1px 1px 2px var(--color-background),
+    0 0 1em var(--color-background), 0 0 0.2em var(--color-background);
+  animation: fadeIn 0.5s forwards; /* Fade in on display */
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0; /* Start invisible */
+  }
+  100% {
+    opacity: 1; /* End visible */
+  }
+}
+
+.fade-out {
+  animation: fadeOut 0.5s forwards; /* Fade out */
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1; /* Start visible */
+  }
+  100% {
+    opacity: 0; /* End invisible */
+  }
+}
+
+/* End of Copy to clipboard */
+
 .cpl-player-info-snake-image {
   width: 100%;
   height: auto;

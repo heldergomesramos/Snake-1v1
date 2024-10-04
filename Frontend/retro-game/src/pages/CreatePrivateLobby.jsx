@@ -13,6 +13,8 @@ import { LOSSES_ICON } from "../constants";
 import { COLORS_ICON } from "../constants";
 import { ABILITIES_ICON } from "../constants";
 
+import copyIcon from "../assets/images/Copy.png";
+
 import mapPlains from "../assets/images/Maps-Plains.png";
 import mapJungle from "../assets/images/Maps-Jungle.png";
 
@@ -30,6 +32,27 @@ export default function CreatePrivateLobby() {
   const [isPlayer1, setIsPlayer1] = useState(
     initialLobby.player1.playerId === playerData.playerId
   );
+  const [copyMessageVisible, setCopyMessageVisible] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false); // New state for fade-out
+
+  const handleCopy = () => {
+    if (copyMessageVisible) return;
+    navigator.clipboard.writeText(lobby.code);
+    console.log("Copy to clipboard");
+
+    // Show the message
+    setFadeOut(false);
+    setCopyMessageVisible(true);
+
+    // Start the fade-out after the message has been visible for 2 seconds
+    setTimeout(() => {
+      setFadeOut(true); // Trigger the fade-out animation
+      // Hide the message from the DOM after fade-out
+      setTimeout(() => {
+        setCopyMessageVisible(false);
+      }, 500); // Match this with the fade-out duration
+    }, 1000); // Keep the message visible for 2 seconds
+  };
 
   useEffect(() => {
     setIsPlayer1(
@@ -276,14 +299,26 @@ export default function CreatePrivateLobby() {
       <>
         <div className="cpl-player-info border-gradient-normal">
           {player == null ? (
-            <div>
+            <div style={{ position: "relative" }}>
               <div>
                 <p className="cpl-player-name gradient-text">Invite</p>
               </div>
               <div className="cpl-code-container">
                 <p className="text-color-weaker">Code: </p>
                 <p>{lobby.code}</p>
+                <img
+                  src={copyIcon}
+                  alt="Copy code"
+                  className="pixel-art cpl-copy-icon"
+                  onClick={handleCopy}
+                  style={{ cursor: "pointer" }}
+                />
               </div>
+              {copyMessageVisible && (
+                <p className={`copy-message ${fadeOut ? "fade-out" : ""}`}>
+                  Copied to clipboard!
+                </p>
+              )}
             </div>
           ) : (
             <div className="player-info">
@@ -370,7 +405,12 @@ export default function CreatePrivateLobby() {
                             <div className="ability-selected-indicator" />
                           )}
                         </label>
-                        <div className="tooltip border-gradient-normal">
+                        <div
+                          className="tooltip border-gradient-normal"
+                          style={{
+                            transform: `translateX(-${(ability.id + 1) * 25}%)`, // Dynamically calculate the tooltip position
+                          }}
+                        >
                           <p className="tooltip-name">{ability.name}</p>
                           <p className="tooltip-description">
                             {ability.description}
