@@ -3,10 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { PlayerContext } from "../context/PlayerContext";
 import { useSignalR } from "../context/SignalRContext";
-import { COLORS } from "../constants";
 
 import borderTileset from "../assets/images/BorderTileset.png";
-import tileset from "../assets/images/Maps-Plains.png";
 import redSnake from "../assets/images/Snake-red.png";
 import orangeSnake from "../assets/images/Snake-orange.png";
 import yellowSnake from "../assets/images/Snake-yellow.png";
@@ -18,7 +16,7 @@ import pinkSnake from "../assets/images/Snake-pink.png";
 import frozenSnake from "../assets/images/Snake-frozen.png";
 import miscSprite from "../assets/images/Misc.png";
 
-import { ABILITIES } from "../constants";
+import { ABILITIES, COLORS, MAPS } from "../constants";
 
 import { formatTime } from "../functions";
 import GameEndOverlay from "../pages/GameEndOverlay";
@@ -273,7 +271,7 @@ export default function Game() {
   const Board = () => {
     const rows = gameData.lobby.gameSettings.height;
     const columns = gameData.lobby.gameSettings.width;
-
+    const map = MAPS[gameData.lobby.gameSettings.map].img;
     return (
       <div
         ref={boardRef}
@@ -295,7 +293,7 @@ export default function Game() {
               <img
                 className="tile pixel-art"
                 key={`${rowIndex}-${colIndex}`}
-                src={tileset}
+                src={map}
                 alt={`Tile ${tileIndex}`}
                 style={{
                   clipPath: clipPath,

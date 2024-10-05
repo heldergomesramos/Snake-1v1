@@ -152,7 +152,7 @@ export const HowToPlayOverlay = ({ setGuide }) => {
             </p>
             <p>Time Limit: 120s</p>
             <p>
-              Borders: <span className="text-color-red">OFF</span>
+              Borders: <span className="text-color-alternate">Random</span>
             </p>
             <p>
               Abilities: <span className="text-color-green">ON</span>

@@ -17,6 +17,10 @@ import skull from "./assets/images/Skull.png";
 import palette from "./assets/images/PaletteIcon.png";
 import powerup from "./assets/images/AbilityIcon.png";
 
+import mapPlains from "./assets/images/Maps-Plains.png";
+import mapDesert from "./assets/images/Maps-Desert.png";
+import mapVolcano from "./assets/images/Maps-Volcano.png";
+
 export const SERVER_BASE_URL =
   "https://snake1v1-gvfug6g0bwcfgjeu.spaincentral-01.azurewebsites.net";
 export const BASE_PATH = "/Snake-1v1";
@@ -70,6 +74,12 @@ export const ABILITIES = [
     ),
     cooldown: 15,
   },
+];
+
+export const MAPS = [
+  { img: mapPlains, name: "Plains" },
+  { img: mapDesert, name: "Desert" },
+  { img: mapVolcano, name: "Volcano" },
 ];
 
 export const WINS_ICON = trophy;

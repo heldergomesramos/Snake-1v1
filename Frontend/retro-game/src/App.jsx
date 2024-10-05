@@ -16,6 +16,7 @@ import PublicQueue from "./pages/PublicQueue";
 import { PlayerProvider, PlayerContext } from "./context/PlayerContext";
 import { SignalRProvider } from "./context/SignalRContext";
 import { BASE_PATH } from "./constants";
+import MuteButton from "./components/MuteButton";
 
 export default function App() {
   return (
@@ -37,6 +38,7 @@ export default function App() {
             }
           />
         </Routes>
+        <MuteButton />
       </Router>
     </PlayerProvider>
   );

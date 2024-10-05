@@ -12,11 +12,9 @@ import { WINS_ICON } from "../constants";
 import { LOSSES_ICON } from "../constants";
 import { COLORS_ICON } from "../constants";
 import { ABILITIES_ICON } from "../constants";
+import { MAPS } from "../constants";
 
 import copyIcon from "../assets/images/Copy.png";
-
-import mapPlains from "../assets/images/Maps-Plains.png";
-import mapJungle from "../assets/images/Maps-Jungle.png";
 
 export default function CreatePrivateLobby() {
   const navigate = useNavigate();
@@ -207,12 +205,6 @@ export default function CreatePrivateLobby() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isAbilityMenuOpen]);
-
-  /* Map Stuff */
-  const mapData = [
-    { name: "Plains", img: mapPlains },
-    { name: "Jungle", img: mapJungle },
-  ];
 
   const handleMapNavigation = (direction) => {
     console.log("Handle Navigation: " + direction);
@@ -484,7 +476,7 @@ export default function CreatePrivateLobby() {
           <PlayerInfo player={lobby.player1} playerNumber={1} />
           <img
             className="pixel-art cpl-map-preview-image border-gradient-normal"
-            src={mapData[mapSettings.map].img}
+            src={MAPS[mapSettings.map].img}
             alt="Map Image"
           />
           <PlayerInfo player={lobby.player2} playerNumber={2} />
@@ -500,7 +492,7 @@ export default function CreatePrivateLobby() {
                 &lt;
               </button>
               <p className="cpl-map-name gradient-text">
-                {mapData[mapSettings.map].name}
+                {MAPS[mapSettings.map].name}
               </p>
               <button
                 className="button-default button-square"
