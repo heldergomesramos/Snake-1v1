@@ -537,7 +537,7 @@ input[type="number"] {
   background-color: rgba(0, 0, 0, 1);
   text-align: center;
   border-radius: 0px;
-  z-index: 1;
+  z-index: 502;
   min-width: 120px;
   width: 200px;
   margin-bottom: 10px;
@@ -553,10 +553,6 @@ input[type="number"] {
 .tooltip-description {
   margin-bottom: 0.5rem;
   font-size: var(--fs-200);
-}
-
-.tooltip-shift-left {
-  transform: translateX(-80%);
 }
 
 .ability-menu {
@@ -770,6 +766,10 @@ input[type="checkbox"]:checked + label {
   justify-content: center;
 }
 
+.game-ability-button:hover {
+  border: 3px solid var(--color-text);
+}
+
 .game-ability-button-image {
   position: absolute;
   cursor: pointer;
@@ -976,4 +976,11 @@ input[type="checkbox"]:checked + label {
 
 .htp-apple-image {
   height: 3rem;
+}
+
+.unselectable {
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+ */
 }

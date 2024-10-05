@@ -34,6 +34,7 @@ export default function Game() {
   const [tileSize, setTileSize] = useState(16); // Dynamically calculated tile size
   const [rematchState, setRematchState] = useState("normal");
   const [ping, setPing] = useState(0);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const miscTilset = miscSprite;
   const TILE_SIZE_PERCENT = 25;
@@ -105,6 +106,14 @@ export default function Game() {
       return () => clearInterval(pingInterval);
     }
   }, [connection, navigate]);
+
+  const handleAbilityMouseEnter = () => {
+    setShowTooltip(true);
+  };
+
+  const handleAbilityMouseLeave = () => {
+    setShowTooltip(false);
+  };
 
   const handleLeave = async (e) => {
     e.preventDefault();
@@ -864,6 +873,7 @@ export default function Game() {
   const player2 = gameData.lobby.player2;
   const player1Score = gameData.player1Score;
   const player2Score = gameData.player2Score;
+  const ability = ABILITIES[playerData.ability];
 
   return (
     <div className="container-center">
@@ -923,15 +933,34 @@ export default function Game() {
         {gameData.lobby.gameSettings.abilities && (
           <div className="game-ability-button">
             <img
-              src={ABILITIES[playerData.ability].img}
+              src={ability.img}
               alt="Ability Icon"
               className="game-ability-button-image pixel-art"
               onClick={handleAbility}
+              onMouseEnter={handleAbilityMouseEnter}
+              onMouseLeave={handleAbilityMouseLeave}
             />
+            {/* Tooltip */}
+            {showTooltip && (
+              <div
+                className="tooltip border-gradient-normal"
+                style={{ display: "block" }}
+              >
+                <p className="tooltip-name">{ability.name}</p>
+                <p className="tooltip-description">{ability.description}</p>
+                <p className="tooltip-description">
+                  Cooldown: {ability.cooldown}s
+                </p>
+                <p className="tooltip-description text-color-soft">
+                  Press [Space] to use.
+                </p>
+              </div>
+            )}
+            {/* Cooldown overlay */}
             {gameData.lobby.player1 != null &&
               gameData.lobby.player1.playerId === playerData.playerId &&
               gameData.player1Cooldown > 0 && (
-                <div className="game-ability-button-cooldown-overlay">
+                <div className="game-ability-button-cooldown-overlay unselectable">
                   {String(gameData.player1Cooldown).padStart(2, "0")}
                 </div>
               )}

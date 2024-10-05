@@ -241,6 +241,7 @@ export default function PublicQueue() {
               pointerEvents: isAbilityMenuOpen ? "none" : "auto",
             }}
           />
+          {/* Conditional rendering of ability menu */}
           {isAbilityMenuOpen && (
             <div className="color-menu-container" ref={abilityMenuRef}>
               <div className="ability-menu">
@@ -264,10 +265,21 @@ export default function PublicQueue() {
                         <div className="ability-selected-indicator" />
                       )}
                     </label>
-                    <div className="tooltip border-gradient-normal">
+                    <div
+                      className="tooltip border-gradient-normal"
+                      style={{
+                        transform: `translateX(-${(ability.id + 1) * 25}%)`, // Dynamically calculate the tooltip position
+                      }}
+                    >
                       <p className="tooltip-name">{ability.name}</p>
                       <p className="tooltip-description">
                         {ability.description}
+                      </p>
+                      <p className="tooltip-description">
+                        Cooldown: {ability.cooldown}s
+                      </p>
+                      <p className="tooltip-description text-color-soft">
+                        Press [Space] to use.
                       </p>
                     </div>
                   </div>
