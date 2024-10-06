@@ -420,12 +420,14 @@ input[type="number"] {
 
 /* End of Copy to clipboard */
 
+.cpl-player-info-snake-container {
+  width: 50%;
+  height: 60px;
+}
+
 .cpl-player-info-snake-image {
   width: 100%;
   height: auto;
-  max-width: 100%;
-  max-height: 100%;
-
   user-select: none;
 }
 

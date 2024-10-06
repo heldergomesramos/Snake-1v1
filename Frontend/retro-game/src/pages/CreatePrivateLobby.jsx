@@ -313,7 +313,7 @@ export default function CreatePrivateLobby() {
               )}
             </div>
           ) : (
-            <div className="player-info">
+            <div className="cpl-player-info">
               <div>
                 <p
                   className="cpl-player-name gradient-text-dynamic"
@@ -324,7 +324,7 @@ export default function CreatePrivateLobby() {
                   {player.username}
                 </p>
               </div>
-              <div className="container-center">
+              <div className="cpl-player-info-snake-container container-center ">
                 <img
                   src={SNAKE_SPRITES[player.color]}
                   alt="Player Snake"

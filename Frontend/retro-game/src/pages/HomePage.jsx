@@ -37,14 +37,25 @@ export default function HomePage() {
   }, []);
 
   const handleSubmit = async (e) => {
-    if (loading != 0) return;
-    setLoading(actionType === "login" ? 1 : 2);
-
     e.preventDefault();
+
+    if (loading !== 0) return;
+
+    setLoading(actionType === "login" ? 1 : 2);
     setError("");
 
     if (!username || !password) {
       setError("Username and password cannot be empty.");
+      return;
+    }
+
+    if (username.length > 12) {
+      setError("Username cannot exceed 12 characters.");
+      return;
+    }
+
+    if (username.startsWith("Guest")) {
+      setError('Usernames cannot start with "Guest".');
       return;
     }
 
@@ -135,6 +146,7 @@ export default function HomePage() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="username"
+            maxLength={14}
             required
           />
           <input
