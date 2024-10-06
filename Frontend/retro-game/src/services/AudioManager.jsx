@@ -12,7 +12,7 @@ class AudioManager {
     this.hoverVolume = 0.1;
     this.clickVolume = 1;
     this.errorVolume = 0.15;
-    this.eatVolume = 0.15;
+    this.eatVolume = 0.12;
     this.isMuted = false;
     // this.music = new Audio("/path-to-background-music.mp3");
     this.music = null;
@@ -77,7 +77,7 @@ class AudioManager {
   }
 
   playEatSound() {
-    this.playSound(eatSfxSfx, this.eatVolume);
+    this.playSound(eatSfx, this.eatVolume);
   }
 
   playMusic() {

@@ -22,6 +22,8 @@ import {
   handleInputChange,
 } from "../functions";
 
+import AbilityColorMenu from "../components/AbilityColorMenu.jsx";
+
 export default function CreatePrivateLobby() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
@@ -39,8 +41,6 @@ export default function CreatePrivateLobby() {
   const [copyMessageVisible, setCopyMessageVisible] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
   const prevInputValueRefs = useRef({});
-  const colorButtonRef = useRef(null);
-  const abilityButtonRef = useRef(null);
 
   const handleCopy = () => {
     if (copyMessageVisible) return;
@@ -139,90 +139,6 @@ export default function CreatePrivateLobby() {
         .catch(() => {});
     }
   };
-
-  /* Color stuff */
-
-  const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(null);
-  const colorMenuRef = useRef(null);
-
-  const toggleColorMenu = () => {
-    setIsColorMenuOpen(!isColorMenuOpen);
-    setIsAbilityMenuOpen(false);
-    handleMouseClick();
-  };
-
-  const handleColorSelect = (color) => {
-    handleMouseClick();
-    const colorIndex = COLORS.indexOf(color);
-    setSelectedColor(color);
-    if (connection) {
-      connection
-        .invoke("UpdatePlayerInPrivateLobby", colorIndex, playerData.ability)
-        .catch(() => {});
-    }
-  };
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleColorClickOutside = (event) => {
-      if (colorMenuRef.current && !colorMenuRef.current.contains(event.target))
-        setIsColorMenuOpen(false);
-      if (abilityButtonRef.current.contains(event.target)) toggleAbilityMenu();
-    };
-
-    if (isColorMenuOpen) {
-      document.addEventListener("mousedown", handleColorClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleColorClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleColorClickOutside);
-    };
-  }, [isColorMenuOpen]);
-
-  /* Ability Stuff */
-  const [isAbilityMenuOpen, setIsAbilityMenuOpen] = useState(false);
-  const [selectedAbility, setSelectedAbility] = useState(playerData.ability);
-  const abilityMenuRef = useRef(null);
-
-  const toggleAbilityMenu = () => {
-    setIsAbilityMenuOpen(!isAbilityMenuOpen);
-    setIsColorMenuOpen(false);
-    handleMouseClick();
-  };
-
-  const handleAbilitySelect = (ability) => {
-    handleMouseClick();
-    setSelectedAbility(ability);
-    if (connection) {
-      connection
-        .invoke("UpdatePlayerInPrivateLobby", playerData.color, ability.id)
-        .catch(() => {});
-    }
-  };
-
-  useEffect(() => {
-    const handleAbilityClickOutside = (event) => {
-      if (
-        abilityMenuRef.current &&
-        !abilityMenuRef.current.contains(event.target)
-      )
-        setIsAbilityMenuOpen(false);
-      if (colorButtonRef.current.contains(event.target)) toggleColorMenu();
-    };
-
-    if (isAbilityMenuOpen) {
-      document.addEventListener("mousedown", handleAbilityClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleAbilityClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleAbilityClickOutside);
-    };
-  }, [isAbilityMenuOpen]);
 
   const handleMapNavigation = (direction) => {
     handleMouseClick();
@@ -344,116 +260,6 @@ export default function CreatePrivateLobby() {
       </>
     );
   };
-
-  const PlayerButtons = ({ playerNumber }) => {
-    return (
-      <div>
-        {isPlayer1 === (playerNumber === 1) && (
-          <div className="container-center cpl-player-buttons-container">
-            {/* Ability Button */}
-            <div className="cpl-player-pallete-container">
-              <img
-                src={ABILITIES_ICON}
-                alt="Powerup"
-                className="pixel-art cpl-player-button"
-                onClick={toggleAbilityMenu}
-                onMouseEnter={handleMouseEnter}
-                ref={abilityButtonRef}
-                style={{ pointerEvents: isAbilityMenuOpen ? "none" : "auto" }}
-              />
-              {/* Conditional rendering of ability menu */}
-              {isAbilityMenuOpen && (
-                <div className="color-menu-container" ref={abilityMenuRef}>
-                  <div className="ability-menu">
-                    {ABILITIES.map((ability) => (
-                      <div className="ability-container" key={ability.id}>
-                        <label
-                          style={{
-                            backgroundImage: `url(${ability.img})`,
-                          }}
-                          onMouseEnter={handleMouseEnter}
-                          className="ability-button pixel-art"
-                        >
-                          <input
-                            type="radio"
-                            name="ability"
-                            value={ability.id}
-                            checked={playerData.ability === ability.id}
-                            onChange={() => handleAbilitySelect(ability)}
-                            style={{ display: "none" }}
-                          />
-                          {playerData.ability === ability.id && (
-                            <div className="ability-selected-indicator" />
-                          )}
-                        </label>
-                        <div
-                          className="tooltip border-gradient-normal"
-                          style={{
-                            transform: `translateX(-${(ability.id + 1) * 25}%)`, // Dynamically calculate the tooltip position
-                          }}
-                        >
-                          <p className="tooltip-name">{ability.name}</p>
-                          <p className="tooltip-description">
-                            {ability.description}
-                          </p>
-                          <p className="tooltip-description">
-                            Cooldown: {ability.cooldown}s
-                          </p>
-                          <p className="tooltip-description text-color-soft">
-                            Press [Space] to use.
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            {/* Color Button */}
-            <div className="cpl-player-pallete-container">
-              <img
-                src={COLORS_ICON}
-                alt="Palette"
-                className="pixel-art cpl-player-button"
-                ref={colorButtonRef}
-                onClick={toggleColorMenu}
-                onMouseEnter={handleMouseEnter}
-                style={{ pointerEvents: isColorMenuOpen ? "none" : "auto" }}
-              />
-              {/* Conditional rendering of color menu */}
-              {isColorMenuOpen && (
-                <div className="color-menu-container" ref={colorMenuRef}>
-                  <div className="color-menu">
-                    {COLORS.map((color) => (
-                      <label
-                        key={color}
-                        className="color-button"
-                        onMouseEnter={handleMouseEnter}
-                        style={{ backgroundColor: color }}
-                      >
-                        <input
-                          type="radio"
-                          name="color"
-                          value={color}
-                          checked={selectedColor === color}
-                          onChange={() => handleColorSelect(color)}
-                          style={{ display: "none" }}
-                        />
-                        {selectedColor === color && (
-                          <div className="color-selected-indicator" />
-                        )}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className="cpl-container">
       <div className="cpl-top-section-container border-gradient-normal">
@@ -467,7 +273,15 @@ export default function CreatePrivateLobby() {
           <PlayerInfo player={lobby.player2} playerNumber={2} />
         </div>
         <div className="cpl-top-section cpl-top-section-2">
-          <PlayerButtons playerNumber={1} />
+          <div>
+            {isPlayer1 && (
+              <AbilityColorMenu
+                connection={connection}
+                playerData={playerData}
+                invokeMethod={"UpdatePlayerInPrivateLobby"}
+              />
+            )}
+          </div>
           <div className="cpl-map-preview-container">
             <div className="cpl-map-navigation-container">
               <button
@@ -489,7 +303,15 @@ export default function CreatePrivateLobby() {
               </button>
             </div>
           </div>
-          <PlayerButtons playerNumber={2} />
+          <div>
+            {!isPlayer1 && (
+              <AbilityColorMenu
+                connection={connection}
+                playerData={playerData}
+                invokeMethod={"UpdatePlayerInPrivateLobby"}
+              />
+            )}
+          </div>
         </div>
       </div>
       <div className="cpl-map-settings border-gradient-normal">

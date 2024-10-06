@@ -1,4 +1,5 @@
 import React from "react";
+import { handleMouseEnter, handleMouseClick } from "../functions";
 
 const GameEndOverlay = ({
   cause,
@@ -43,11 +44,13 @@ const GameEndOverlay = ({
           <button
             className="button-default button-height-less button-width-less"
             onClick={onLeave}
+            onMouseEnter={handleMouseEnter}
           >
             Leave
           </button>
           <button
             onClick={isSinglePlayer ? onPlayAgain : onRematch}
+            onMouseEnter={handleMouseEnter}
             className={`button-default button-height-less button-width-less ${
               !isSinglePlayer ? `overlay-rematch ${rematchState}` : ""
             }`}
@@ -60,7 +63,6 @@ const GameEndOverlay = ({
               : "Rematch"}
           </button>
         </div>
-
         {optionalMessage && <p>{optionalMessage}</p>}
       </div>
     </div>

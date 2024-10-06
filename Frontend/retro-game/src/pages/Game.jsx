@@ -18,8 +18,9 @@ import miscSprite from "../assets/images/Misc.png";
 
 import { ABILITIES, COLORS, MAPS } from "../constants";
 
-import { formatTime } from "../functions";
+import { formatTime, handleMouseClick, handleMouseEnter } from "../functions";
 import GameEndOverlay from "../pages/GameEndOverlay";
+import audioManager from "../services/AudioManager";
 
 export default function Game() {
   const navigate = useNavigate();
@@ -78,9 +79,15 @@ export default function Game() {
   useEffect(() => {
     if (connection) {
       connection.on("UpdateGameState", (gameState) => {
-        console.log(`Received Game State: ${JSON.stringify(gameState)}`);
+        console.log(
+          `Received Game State: ${JSON.stringify(gameState.gameTick)}`
+        );
         setGameData(gameState);
         setRematchState("normal");
+      });
+      connection.on("FoodEaten", () => {
+        console.log("EAT SOUND");
+        audioManager.playEatSound();
       });
       connection.on("LeaveGame", () => {
         console.log("Leave Game");
@@ -107,6 +114,7 @@ export default function Game() {
 
   const handleAbilityMouseEnter = () => {
     setShowTooltip(true);
+    handleMouseEnter();
   };
 
   const handleAbilityMouseLeave = () => {
@@ -115,6 +123,7 @@ export default function Game() {
 
   const handleLeave = async (e) => {
     e.preventDefault();
+    handleMouseClick();
     if (connection) {
       connection.invoke("LeaveGame").catch((err) => console.error(err));
     }
@@ -122,6 +131,7 @@ export default function Game() {
 
   const handleRematch = async (e) => {
     e.preventDefault();
+    handleMouseClick();
     if (connection) {
       connection.invoke("AskRematch").catch((err) => console.error(err));
     }
@@ -129,6 +139,7 @@ export default function Game() {
 
   const handlePlayAgain = async (e) => {
     e.preventDefault();
+    handleMouseClick();
     if (connection) {
       connection.invoke("PlayAgain").catch((err) => console.error(err));
     }
@@ -137,6 +148,7 @@ export default function Game() {
   const handleAbility = async (e) => {
     if (!gameData.lobby.gameSettings.abilities) return;
     e.preventDefault();
+    handleMouseClick();
     if (connection) {
       connection
         .invoke("ActivateAbility")
@@ -976,6 +988,7 @@ export default function Game() {
         <button
           className="button-default button-height-less button-width-less"
           onClick={handleLeave}
+          onMouseEnter={handleMouseEnter}
         >
           Leave
         </button>

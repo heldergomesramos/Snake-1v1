@@ -8,137 +8,49 @@ import { SNAKE_SPRITES } from "../constants";
 
 import { WINS_ICON } from "../constants";
 import { LOSSES_ICON } from "../constants";
-import { COLORS_ICON } from "../constants";
-import { ABILITIES_ICON } from "../constants";
+
+import { handleMouseClick, handleMouseEnter } from "../functions";
+import AbilityColorMenu from "../components/AbilityColorMenu";
 
 export default function PublicQueue() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [phase, setPhase] = useState(0);
-  const { playerData, setPlayerData } = useContext(PlayerContext);
+  const { playerData, setPlayerDataFields } = useContext(PlayerContext);
   const { connection } = useSignalR();
 
   useEffect(() => {
     if (connection) {
-      connection.on("PlayerUpdated", (color, ability) => {
-        console.log("Player Updated: " + color + " , " + ability);
-        setPlayerData((prevPlayerData) => ({
-          ...prevPlayerData,
-          color: color,
-          ability: ability,
-        }));
+      connection.on("PlayerUpdated", (newPlayerData) => {
+        setPlayerDataFields(newPlayerData);
       });
 
       connection.on("StartGame", (gameData) => {
-        console.log("Start Game");
         navigate("/game", { state: { gameData } });
-      });
-      connection.on("PlayerLeft", () => {
-        console.log("Remove this later (useless)");
       });
     }
   }, [connection]);
 
   const handleLeave = async (e) => {
+    handleMouseClick();
     navigate("/main-menu");
   };
 
   const handleFind = async (e) => {
+    handleMouseClick();
     setPhase(1);
     if (connection) {
-      connection.invoke("JoinPublicLobby").catch((err) => console.error(err));
+      connection.invoke("JoinPublicLobby").catch(() => {});
     }
   };
 
   const handleStop = async (e) => {
+    handleMouseClick();
     if (connection) {
       setPhase(0);
-      connection.invoke("StopQueue").catch((err) => console.error(err));
+      connection.invoke("StopQueue").catch(() => {});
     }
   };
-
-  /* Color Stuff */
-  const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(null);
-  const colorMenuRef = useRef(null);
-
-  const toggleColorMenu = () => {
-    if (!isColorMenuOpen) {
-      setIsColorMenuOpen(true);
-    }
-  };
-
-  const handleColorSelect = (color) => {
-    const colorIndex = COLORS.indexOf(color);
-    setSelectedColor(color);
-    if (connection) {
-      connection
-        .invoke("UpdatePlayer", colorIndex, playerData.ability)
-        .catch((err) => console.error(err));
-    }
-  };
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        colorMenuRef.current &&
-        !colorMenuRef.current.contains(event.target)
-      ) {
-        setIsColorMenuOpen(false);
-      }
-    };
-
-    if (isColorMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isColorMenuOpen]);
-
-  /* Ability Stuff */
-  const [isAbilityMenuOpen, setIsAbilityMenuOpen] = useState(false);
-  const [selectedAbility, setSelectedAbility] = useState(playerData.ability);
-  const abilityMenuRef = useRef(null);
-
-  const toggleAbilityMenu = () => {
-    setIsAbilityMenuOpen(!isAbilityMenuOpen);
-  };
-
-  const handleAbilitySelect = (ability) => {
-    setSelectedAbility(ability);
-    if (connection) {
-      connection
-        .invoke("UpdatePlayer", playerData.color, ability.id)
-        .catch((err) => console.error(err));
-    }
-  };
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        abilityMenuRef.current &&
-        !abilityMenuRef.current.contains(event.target)
-      ) {
-        setIsAbilityMenuOpen(false);
-      }
-    };
-
-    if (isAbilityMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isAbilityMenuOpen]);
 
   const PlayerInfo = () => {
     return (
@@ -184,144 +96,6 @@ export default function PublicQueue() {
     );
   };
 
-  const PlayerButtons = () => {
-    return (
-      <div className="container-center cpl-player-buttons-container">
-        <div className="cpl-player-pallete-container">
-          <img
-            src={COLORS_ICON}
-            alt="Palette"
-            className="pixel-art cpl-player-button"
-            onClick={() => {
-              if (!isColorMenuOpen) {
-                toggleColorMenu();
-              }
-            }}
-            style={{
-              cursor: "pointer",
-              pointerEvents: isColorMenuOpen ? "none" : "auto",
-            }}
-          />
-          {/* Conditional rendering of color menu */}
-          {isColorMenuOpen && (
-            <div className="color-menu-container" ref={colorMenuRef}>
-              <div className="color-menu">
-                {COLORS.map((color) => (
-                  <label
-                    key={color}
-                    className="color-button"
-                    style={{ backgroundColor: color }}
-                  >
-                    <input
-                      type="radio"
-                      name="color"
-                      value={color}
-                      checked={selectedColor === color}
-                      onChange={() => handleColorSelect(color)}
-                      style={{ display: "none" }}
-                    />
-                    {selectedColor === color && (
-                      <div className="color-selected-indicator" />
-                    )}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-        {/* Ability Button */}
-        <div className="cpl-player-pallete-container">
-          <img
-            src={ABILITIES_ICON}
-            alt="Powerup"
-            className="pixel-art cpl-player-button"
-            onClick={toggleAbilityMenu}
-            style={{
-              cursor: "pointer",
-              pointerEvents: isAbilityMenuOpen ? "none" : "auto",
-            }}
-          />
-          {/* Conditional rendering of ability menu */}
-          {isAbilityMenuOpen && (
-            <div className="color-menu-container" ref={abilityMenuRef}>
-              <div className="ability-menu">
-                {ABILITIES.map((ability) => (
-                  <div className="ability-container" key={ability.id}>
-                    <label
-                      style={{
-                        backgroundImage: `url(${ability.img})`,
-                      }}
-                      className="ability-button pixel-art"
-                    >
-                      <input
-                        type="radio"
-                        name="ability"
-                        value={ability.id}
-                        checked={playerData.ability === ability.id}
-                        onChange={() => handleAbilitySelect(ability)}
-                        style={{ display: "none" }}
-                      />
-                      {playerData.ability === ability.id && (
-                        <div className="ability-selected-indicator" />
-                      )}
-                    </label>
-                    <div
-                      className="tooltip border-gradient-normal"
-                      style={{
-                        transform: `translateX(-${(ability.id + 1) * 25}%)`, // Dynamically calculate the tooltip position
-                      }}
-                    >
-                      <p className="tooltip-name">{ability.name}</p>
-                      <p className="tooltip-description">
-                        {ability.description}
-                      </p>
-                      <p className="tooltip-description">
-                        Cooldown: {ability.cooldown}s
-                      </p>
-                      <p className="tooltip-description text-color-soft">
-                        Press [Space] to use.
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  const BeforeQueue = () => {
-    return (
-      <div className="container-center">
-        <div className="pq-player-info">
-          <PlayerInfo />
-        </div>
-        <div className="pq-player-buttons">
-          <PlayerButtons />
-        </div>
-        <div className="buttons-login-container container-center">
-          <button
-            className="button-default button-height-less"
-            onClick={handleLeave}
-          >
-            Leave
-          </button>
-          <button
-            className="button-default button-height-less"
-            onClick={handleFind}
-          >
-            Find Game
-          </button>
-          <div className="container-center">
-            {error && <p className="error-text">{error}</p>}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   const DuringQueue = () => {
     return (
       <div className="container-center">
@@ -331,6 +105,7 @@ export default function PublicQueue() {
         <button
           className="button-default button-height-less"
           onClick={handleStop}
+          onMouseEnter={handleMouseEnter}
         >
           Stop
         </button>
@@ -340,7 +115,40 @@ export default function PublicQueue() {
 
   return (
     <div className="container-center">
-      {phase === 0 && <BeforeQueue />}
+      {/* Did not refactor into BeforeQueue due to it creating a bug with the AbilityColorMenu component */}
+      {phase === 0 && (
+        <div className="container-center">
+          <div className="pq-player-info">
+            <PlayerInfo />
+          </div>
+          <div className="pq-player-buttons">
+            <AbilityColorMenu
+              connection={connection}
+              playerData={playerData}
+              invokeMethod={"UpdatePlayer"}
+            />
+          </div>
+          <div className="buttons-login-container container-center">
+            <button
+              className="button-default button-height-less"
+              onClick={handleLeave}
+              onMouseEnter={handleMouseEnter}
+            >
+              Leave
+            </button>
+            <button
+              className="button-default button-height-less"
+              onClick={handleFind}
+              onMouseEnter={handleMouseEnter}
+            >
+              Find Game
+            </button>
+            <div className="container-center">
+              {error && <p className="error-text">{error}</p>}
+            </div>
+          </div>
+        </div>
+      )}
       {phase === 1 && <DuringQueue />}
     </div>
   );
