@@ -13,10 +13,11 @@ export function formatTime(timeInSeconds) {
 
 export const handleInputChange = (e, setInput, prevValueRef) => {
   const currentValue = e.target.value;
+  const previousValue = String(prevValueRef.current ?? "");
 
-  if (currentValue.length > prevValueRef.current.length) {
+  if (currentValue.length > previousValue.length) {
     audioManager.playTypeSound();
-  } else if (currentValue.length < prevValueRef.current.length) {
+  } else if (currentValue.length < previousValue.length) {
     audioManager.playDeleteSound();
   }
 

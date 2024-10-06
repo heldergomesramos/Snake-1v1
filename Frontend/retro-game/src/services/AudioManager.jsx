@@ -9,7 +9,7 @@ class AudioManager {
   constructor() {
     this.typeVolume = 0.15;
     this.deleteVolume = 0.15;
-    this.hoverVolume = 0.12;
+    this.hoverVolume = 0.1;
     this.clickVolume = 1;
     this.errorVolume = 0.15;
     this.eatVolume = 0.15;

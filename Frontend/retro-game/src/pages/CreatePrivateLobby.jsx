@@ -15,6 +15,12 @@ import { ABILITIES_ICON } from "../constants";
 import { MAPS } from "../constants";
 
 import copyIcon from "../assets/images/Copy.png";
+import {
+  handleMouseClick,
+  handleMouseEnter,
+  handleError,
+  handleInputChange,
+} from "../functions";
 
 export default function CreatePrivateLobby() {
   const navigate = useNavigate();
@@ -31,12 +37,14 @@ export default function CreatePrivateLobby() {
     initialLobby.player1.playerId === playerData.playerId
   );
   const [copyMessageVisible, setCopyMessageVisible] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false); // New state for fade-out
+  const [fadeOut, setFadeOut] = useState(false);
+  const prevInputValueRefs = useRef({});
+  const colorButtonRef = useRef(null);
+  const abilityButtonRef = useRef(null);
 
   const handleCopy = () => {
     if (copyMessageVisible) return;
     navigator.clipboard.writeText(lobby.code);
-    console.log("Copy to clipboard");
 
     // Show the message
     setFadeOut(false);
@@ -59,9 +67,16 @@ export default function CreatePrivateLobby() {
   }, [lobby]);
 
   useEffect(() => {
+    for (const key in tempMapSettings) {
+      if (tempMapSettings.hasOwnProperty(key)) {
+        prevInputValueRefs.current[key] = tempMapSettings[key] || "";
+      }
+    }
+  }, [tempMapSettings]);
+
+  useEffect(() => {
     if (connection) {
       connection.on("LobbyUpdated", (updatedLobbyData) => {
-        console.log("Lobby Updated:", updatedLobbyData);
         if (
           updatedLobbyData.player1 != null &&
           updatedLobbyData.player1.playerId === playerData.playerId
@@ -75,19 +90,10 @@ export default function CreatePrivateLobby() {
       });
 
       connection.on("StartGame", (gameData) => {
-        console.log("Start Game");
         navigate("/game", { state: { gameData } });
       });
     }
   }, [connection]);
-
-  useEffect(() => {
-    if (!lobby) {
-      console.log("Lobby data is not present");
-    } else {
-      console.log("Lobby Id: " + lobby.lobbyId);
-    }
-  }, [lobby]);
 
   const handleSettingChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -99,17 +105,29 @@ export default function CreatePrivateLobby() {
       };
 
       setMapSettings(updatedSettings);
-
+      handleMouseClick();
       if (connection) {
         connection
           .invoke("UpdatePrivateLobbySettings", updatedSettings)
-          .catch((err) => console.error(err));
+          .catch(() => {});
       }
     } else {
-      setTempMapSettings({
-        ...tempMapSettings,
-        [name]: value,
-      });
+      if (!prevInputValueRefs.current[name]) {
+        prevInputValueRefs.current[name] = "";
+      }
+
+      handleInputChange(
+        e,
+        (newValue) => {
+          setTempMapSettings({
+            ...tempMapSettings,
+            [name]: newValue,
+          });
+        },
+        { current: prevInputValueRefs.current[name] }
+      );
+
+      prevInputValueRefs.current[name] = value;
     }
   };
 
@@ -118,7 +136,7 @@ export default function CreatePrivateLobby() {
     if (connection) {
       connection
         .invoke("UpdatePrivateLobbySettings", tempMapSettings)
-        .catch((err) => console.error(err));
+        .catch(() => {});
     }
   };
 
@@ -129,40 +147,38 @@ export default function CreatePrivateLobby() {
   const colorMenuRef = useRef(null);
 
   const toggleColorMenu = () => {
-    if (!isColorMenuOpen) {
-      setIsColorMenuOpen(true);
-    }
+    setIsColorMenuOpen(!isColorMenuOpen);
+    setIsAbilityMenuOpen(false);
+    handleMouseClick();
   };
 
   const handleColorSelect = (color) => {
+    handleMouseClick();
     const colorIndex = COLORS.indexOf(color);
     setSelectedColor(color);
     if (connection) {
       connection
         .invoke("UpdatePlayerInPrivateLobby", colorIndex, playerData.ability)
-        .catch((err) => console.error(err));
+        .catch(() => {});
     }
   };
 
   // Close menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        colorMenuRef.current &&
-        !colorMenuRef.current.contains(event.target)
-      ) {
+    const handleColorClickOutside = (event) => {
+      if (colorMenuRef.current && !colorMenuRef.current.contains(event.target))
         setIsColorMenuOpen(false);
-      }
+      if (abilityButtonRef.current.contains(event.target)) toggleAbilityMenu();
     };
 
     if (isColorMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("mousedown", handleColorClickOutside);
     } else {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleColorClickOutside);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleColorClickOutside);
     };
   }, [isColorMenuOpen]);
 
@@ -173,41 +189,43 @@ export default function CreatePrivateLobby() {
 
   const toggleAbilityMenu = () => {
     setIsAbilityMenuOpen(!isAbilityMenuOpen);
+    setIsColorMenuOpen(false);
+    handleMouseClick();
   };
 
   const handleAbilitySelect = (ability) => {
+    handleMouseClick();
     setSelectedAbility(ability);
     if (connection) {
       connection
         .invoke("UpdatePlayerInPrivateLobby", playerData.color, ability.id)
-        .catch((err) => console.error(err));
+        .catch(() => {});
     }
   };
 
-  // Close menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleAbilityClickOutside = (event) => {
       if (
         abilityMenuRef.current &&
         !abilityMenuRef.current.contains(event.target)
-      ) {
+      )
         setIsAbilityMenuOpen(false);
-      }
+      if (colorButtonRef.current.contains(event.target)) toggleColorMenu();
     };
 
     if (isAbilityMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("mousedown", handleAbilityClickOutside);
     } else {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleAbilityClickOutside);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleAbilityClickOutside);
     };
   }, [isAbilityMenuOpen]);
 
   const handleMapNavigation = (direction) => {
-    console.log("Handle Navigation: " + direction);
+    handleMouseClick();
     const currentIndex = mapSettings.map;
     const newIndex = direction === "left" ? currentIndex - 1 : currentIndex + 1;
 
@@ -219,7 +237,7 @@ export default function CreatePrivateLobby() {
     if (connection) {
       connection
         .invoke("UpdatePrivateLobbySettings", updatedSettings)
-        .catch((err) => console.error(err));
+        .catch(() => {});
     }
   };
 
@@ -227,6 +245,7 @@ export default function CreatePrivateLobby() {
   const handleLeave = async (e) => {
     e.preventDefault();
     setError("");
+    handleMouseClick();
 
     try {
       const response = await fetch(
@@ -240,49 +259,19 @@ export default function CreatePrivateLobby() {
         }
       );
 
-      if (response.ok) {
-        console.log("OK");
-        navigate("/main-menu");
-      } else {
-        console.log("NOT OK");
-        const errorData = await response.json();
-        const errorMessage = errorData.message;
-        console.log(errorMessage);
-
-        switch (response.status) {
-          case 400:
-            setError("Invalid request, please check your data");
-            break;
-          case 401:
-            setError("Wrong Credentials");
-            break;
-          case 403:
-            setError("Forbidden, you do not have permission");
-            break;
-          case 409:
-            setError("Username already exists");
-            break;
-          case 500:
-            setError("Server error, please try again later");
-            break;
-          default:
-            setError("An unexpected error occurred, please try again");
-        }
-      }
+      if (response.ok) navigate("/main-menu");
+      else
+        handleError(setError, "An unexpected error occurred, please try again");
     } catch (err) {
-      console.log(err);
-      setError("Failed to connect to the server");
+      handleError(setError, "Failed to connect to the server");
     }
   };
 
   /* Leave Button */
   const handleStart = async (e) => {
-    // if (lobby.player1 == null || lobby.player2 == null) {
-    //   setError("Lobby is not full");
-    //   return;
-    // }
+    handleMouseClick();
     if (connection) {
-      connection.invoke("StartGame").catch((err) => console.error(err));
+      connection.invoke("StartGame").catch(() => {});
     }
   };
 
@@ -368,10 +357,9 @@ export default function CreatePrivateLobby() {
                 alt="Powerup"
                 className="pixel-art cpl-player-button"
                 onClick={toggleAbilityMenu}
-                style={{
-                  cursor: "pointer",
-                  pointerEvents: isAbilityMenuOpen ? "none" : "auto",
-                }}
+                onMouseEnter={handleMouseEnter}
+                ref={abilityButtonRef}
+                style={{ pointerEvents: isAbilityMenuOpen ? "none" : "auto" }}
               />
               {/* Conditional rendering of ability menu */}
               {isAbilityMenuOpen && (
@@ -383,6 +371,7 @@ export default function CreatePrivateLobby() {
                           style={{
                             backgroundImage: `url(${ability.img})`,
                           }}
+                          onMouseEnter={handleMouseEnter}
                           className="ability-button pixel-art"
                         >
                           <input
@@ -426,15 +415,10 @@ export default function CreatePrivateLobby() {
                 src={COLORS_ICON}
                 alt="Palette"
                 className="pixel-art cpl-player-button"
-                onClick={() => {
-                  if (!isColorMenuOpen) {
-                    toggleColorMenu();
-                  }
-                }}
-                style={{
-                  cursor: "pointer",
-                  pointerEvents: isColorMenuOpen ? "none" : "auto",
-                }}
+                ref={colorButtonRef}
+                onClick={toggleColorMenu}
+                onMouseEnter={handleMouseEnter}
+                style={{ pointerEvents: isColorMenuOpen ? "none" : "auto" }}
               />
               {/* Conditional rendering of color menu */}
               {isColorMenuOpen && (
@@ -444,6 +428,7 @@ export default function CreatePrivateLobby() {
                       <label
                         key={color}
                         className="color-button"
+                        onMouseEnter={handleMouseEnter}
                         style={{ backgroundColor: color }}
                       >
                         <input
@@ -488,6 +473,7 @@ export default function CreatePrivateLobby() {
               <button
                 className="button-default button-square"
                 onClick={() => handleMapNavigation("left")}
+                onMouseEnter={handleMouseEnter}
               >
                 &lt;
               </button>
@@ -497,6 +483,7 @@ export default function CreatePrivateLobby() {
               <button
                 className="button-default button-square"
                 onClick={() => handleMapNavigation("right")}
+                onMouseEnter={handleMouseEnter}
               >
                 &gt;
               </button>
@@ -579,12 +566,14 @@ export default function CreatePrivateLobby() {
         <button
           className="button-default button-height-less"
           onClick={handleLeave}
+          onMouseEnter={handleMouseEnter}
         >
           Leave
         </button>
         <button
           className="button-default button-height-less"
           onClick={handleStart}
+          onMouseEnter={handleMouseEnter}
         >
           Start
         </button>
