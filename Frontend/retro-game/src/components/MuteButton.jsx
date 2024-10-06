@@ -5,7 +5,9 @@ import soundOffIcon from "../assets/images/MuteIcon-Off.png";
 
 export default function MuteButton() {
   const [isMuted, setIsMuted] = useState(audioManager.isMuted);
-
+  const handleMouseEnter = () => {
+    audioManager.playHoverSound();
+  };
   const toggleMute = () => {
     audioManager.toggleMute();
     setIsMuted(audioManager.isMuted); // Update the button state
@@ -14,6 +16,7 @@ export default function MuteButton() {
   return (
     <button
       onClick={toggleMute}
+      onMouseEnter={handleMouseEnter}
       className="pixel-art"
       style={{
         position: "fixed",
@@ -26,9 +29,9 @@ export default function MuteButton() {
       }}
     >
       <img
-        src={isMuted ? soundOffIcon : soundOnIcon} // Switch images based on the mute state
+        src={isMuted ? soundOffIcon : soundOnIcon}
         alt={isMuted ? "Sound off" : "Sound on"}
-        style={{ width: "50px", height: "50px" }} // Adjust the size of the button as needed
+        style={{ width: "50px", height: "50px" }}
       />
     </button>
   );

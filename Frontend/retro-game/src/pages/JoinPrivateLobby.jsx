@@ -1,11 +1,18 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { SERVER_BASE_URL } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
+import {
+  handleInputChange,
+  handleMouseClick,
+  handleMouseEnter,
+  handleError,
+} from "../functions";
 
 export default function JoinPrivateLobby() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const codeRef = useRef("");
   const [code, setCode] = useState("");
   const { playerData } = useContext(PlayerContext);
   const navigate = useNavigate();
@@ -14,6 +21,7 @@ export default function JoinPrivateLobby() {
     e.preventDefault();
     setError("");
     setLoading(true);
+    handleMouseClick();
 
     const endpoint = `${SERVER_BASE_URL}/api/lobby/join-private-lobby`;
 
@@ -35,33 +43,28 @@ export default function JoinPrivateLobby() {
         const lobby = await response.json();
         navigate("/create-private-lobby", { state: { lobby } });
       } else {
-        const errorData = await response.json();
-        const errorMessage = errorData.message || "An error occurred";
-        console.log(errorMessage);
-
         switch (response.status) {
           case 400:
-            setError("Invalid request, please check your data");
+            handleError(setError, "Invalid request");
             break;
-          case 401:
-            setError("Unauthorized, please log in");
-            break;
-          case 403:
-            setError("Forbidden, you do not have permission");
+          case 404:
+            handleError(setError, "Lobby not found");
             break;
           case 409:
-            setError("The lobby is full");
+            handleError(setError, "You are already in a lobby");
             break;
           case 500:
-            setError("Server error, please try again later");
+            handleError(setError, "Server error, please try again later");
             break;
           default:
-            setError("An unexpected error occurred, please try again");
+            handleError(
+              setError,
+              "An unexpected error occurred, please try again"
+            );
         }
       }
     } catch (err) {
-      console.error(err);
-      setError("Failed to connect to the server.");
+      handleError(setError, "Failed to connect to the server");
       setLoading(false);
     }
   };
@@ -74,13 +77,16 @@ export default function JoinPrivateLobby() {
           type="text"
           placeholder="6 character code"
           value={code}
-          onChange={(e) => setCode(e.target.value)}
+          minLength={6}
+          maxLength={6}
+          onChange={(e) => handleInputChange(e, setCode, codeRef)}
           required
         />
         <div className="buttons-login">
           <button
             type="submit"
             className="button-default button-height-less"
+            onMouseEnter={handleMouseEnter}
             disabled={loading}
           >
             {loading ? "Joining..." : "Join"}
@@ -89,7 +95,13 @@ export default function JoinPrivateLobby() {
       </form>
       <div className="btn-container">
         <Link to={"/main-menu"}>
-          <button className="button-default button-height-less">Leave</button>
+          <button
+            className="button-default button-height-less"
+            onMouseEnter={handleMouseEnter}
+            onClick={handleMouseClick}
+          >
+            Leave
+          </button>
         </Link>
       </div>
       <br />

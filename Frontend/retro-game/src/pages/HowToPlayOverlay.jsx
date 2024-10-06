@@ -1,5 +1,7 @@
 import React from "react";
 
+import { handleMouseEnter, handleMouseClick } from "../functions";
+
 import keyboardW from "../assets/images/Keyboard-W.png";
 import keyboardA from "../assets/images/Keyboard-A.png";
 import keyboardS from "../assets/images/Keyboard-S.png";
@@ -170,7 +172,11 @@ export const HowToPlayOverlay = ({ setGuide }) => {
         {/* Close Button */}
         <button
           className="button-default button-height-less button-width-less"
-          onClick={() => setGuide(false)}
+          onMouseEnter={handleMouseEnter}
+          onClick={() => {
+            setGuide(false);
+            handleMouseClick();
+          }}
         >
           Close
         </button>

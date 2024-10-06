@@ -1,9 +1,17 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { SERVER_BASE_URL } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
+import {
+  handleInputChange,
+  handleMouseEnter,
+  handleMouseClick,
+  handleError,
+} from "../functions";
 
 export default function HomePage() {
+  const usernameRef = useRef("");
+  const passwordRef = useRef("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,14 +31,10 @@ export default function HomePage() {
           },
         });
 
-        if (!response.ok) console.error("Ping request failed");
-        else {
+        if (response.ok) {
           const data = await response.json();
-          console.log("Ping Success: " + JSON.stringify(data));
         }
-      } catch (err) {
-        console.error("Failed to connect to the server for ping:", err);
-      }
+      } catch (err) {}
     };
 
     sendPing(); // Send the ping request when the homepage loads
@@ -45,19 +49,21 @@ export default function HomePage() {
     setError("");
 
     if (!username || !password) {
-      setError("Username and password cannot be empty.");
+      handleError(setError, "Username and password cannot be empty");
       return;
     }
 
     if (username.length > 12) {
-      setError("Username cannot exceed 12 characters.");
+      handleError(setError, "Username cannot exceed 12 characters");
       return;
     }
 
     if (username.startsWith("Guest")) {
-      setError('Usernames cannot start with "Guest".');
+      handleError(setError, 'Usernames cannot start with "Guest"');
       return;
     }
+
+    handleMouseClick();
 
     const endpoint =
       actionType === "login"
@@ -81,27 +87,29 @@ export default function HomePage() {
       } else {
         switch (response.status) {
           case 400:
-            setError("Invalid request, please check your data");
+            handleError(setError, "Invalid request, please check your data");
             break;
           case 401:
-            setError("Wrong Credentials");
+            handleError(setError, "Wrong Credentials");
             break;
           case 403:
-            setError("Player is already logged in");
+            handleError(setError, "Player is already logged in");
             break;
           case 409:
-            setError("Username already exists");
+            handleError(setError, "Username already exists");
             break;
           case 500:
-            setError("Server error, please try again later");
+            handleError(setError, "Server error, please try again later");
             break;
           default:
-            setError("An unexpected error occurred, please try again");
+            handleError(
+              setError,
+              "An unexpected error occurred, please try again"
+            );
         }
       }
     } catch (err) {
-      console.log(err);
-      setError("Failed to connect to the server");
+      handleError(setError, "Failed to connect to the server");
     }
   };
 
@@ -109,6 +117,7 @@ export default function HomePage() {
     if (loading != 0) return;
     setLoading(3);
     setError("");
+    handleMouseClick();
 
     try {
       const response = await fetch(SERVER_BASE_URL + "/api/player/guest", {
@@ -125,12 +134,13 @@ export default function HomePage() {
         setPlayerData(data.player);
         navigate("/main-menu");
       } else {
-        setError(
+        handleError(
+          setError,
           "An error occurred while joining as a guest, please try again"
         );
       }
     } catch (err) {
-      setError("Failed to connect to the server");
+      handleError(setError, "Failed to connect to the server");
     }
   };
 
@@ -144,7 +154,7 @@ export default function HomePage() {
           <input
             type="text"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => handleInputChange(e, setUsername, usernameRef)}
             placeholder="username"
             maxLength={14}
             required
@@ -152,7 +162,7 @@ export default function HomePage() {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => handleInputChange(e, setPassword, passwordRef)}
             placeholder="password"
             required
           />
@@ -161,6 +171,7 @@ export default function HomePage() {
               type="submit"
               className="button-default button-height-less button-width-less"
               onClick={() => setActionType("login")}
+              onMouseEnter={handleMouseEnter}
             >
               {loading === 1 ? "Logging in..." : "Login"}
             </button>
@@ -168,6 +179,7 @@ export default function HomePage() {
               type="submit"
               className="button-default button-height-less button-width-less"
               onClick={() => setActionType("register")}
+              onMouseEnter={handleMouseEnter}
             >
               {loading === 2 ? "Registering..." : "Register"}
             </button>
@@ -177,6 +189,7 @@ export default function HomePage() {
           type="button"
           className="button-default button-height-less"
           onClick={handleGuestLogin}
+          onMouseEnter={handleMouseEnter}
         >
           {loading === 3 ? "Joining..." : "Join as Guest"}
         </button>

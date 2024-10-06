@@ -23,28 +23,23 @@ export const SignalRProvider = ({ children }) => {
 
     newConnection.onclose((error) => {
       setConnectionState("Disconnected");
-      console.log("SignalR connection closed:", error);
     });
 
     newConnection.onreconnecting((error) => {
       setConnectionState("Reconnecting");
-      console.log("SignalR reconnecting:", error);
     });
 
     newConnection.onreconnected(() => {
       setConnectionState("Connected");
-      console.log("SignalR reconnected");
     });
 
     newConnection
       .start()
       .then(() => {
         setConnectionState("Connected");
-        console.log("SignalR connected");
       })
       .catch((e) => {
         setConnectionState("Disconnected");
-        console.error("SignalR connection failed:", e);
         setErrorMessage("Failed to connect to the SignalR hub.");
       });
 
