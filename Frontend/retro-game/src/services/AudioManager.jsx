@@ -4,6 +4,10 @@ import hoverSfx from "../assets/audio/Hover.wav";
 import clickSfx from "../assets/audio/Click.wav";
 import errorSfx from "../assets/audio/Error.wav";
 import eatSfx from "../assets/audio/Eat.wav";
+import timerSfx from "../assets/audio/Timer.wav";
+import goSfx from "../assets/audio/Go.wav";
+import collisionSfx from "../assets/audio/Go.wav";
+import timeOutSfx from "../assets/audio/Go.wav";
 
 class AudioManager {
   constructor() {
@@ -13,6 +17,10 @@ class AudioManager {
     this.clickVolume = 1;
     this.errorVolume = 0.15;
     this.eatVolume = 0.12;
+    this.timerVolume = 0.2;
+    this.goVolume = 0.3;
+    this.collisionVolume = 0.3;
+    this.timeOutVolume = 0.3;
     this.isMuted = false;
     // this.music = new Audio("/path-to-background-music.mp3");
     this.music = null;
@@ -78,6 +86,22 @@ class AudioManager {
 
   playEatSound() {
     this.playSound(eatSfx, this.eatVolume);
+  }
+
+  playTimerSound() {
+    this.playSound(timerSfx, this.timerVolume);
+  }
+
+  playGoSound() {
+    this.playSound(goSfx, this.goVolume);
+  }
+
+  playCollisionSound() {
+    this.playSound(collisionSfx, this.collisionVolume);
+  }
+
+  playTimeOutSound() {
+    this.playSound(timeOutSfx, this.timeOutVolume);
   }
 
   playMusic() {

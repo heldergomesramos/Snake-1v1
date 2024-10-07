@@ -77,6 +77,10 @@ export default function Game() {
   }, [gameData]);
 
   useEffect(() => {
+    audioManager.playTimerSound();
+  }, []);
+
+  useEffect(() => {
     if (connection) {
       connection.on("UpdateGameState", (gameState) => {
         console.log(
@@ -84,6 +88,10 @@ export default function Game() {
         );
         setGameData(gameState);
         setRematchState("normal");
+        if (gameState.gameState === "Waiting") {
+          if (gameState.time > 0) audioManager.playTimerSound();
+          else audioManager.playGoSound();
+        }
       });
       connection.on("FoodEaten", () => {
         console.log("EAT SOUND");
