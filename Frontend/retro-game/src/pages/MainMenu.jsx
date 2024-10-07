@@ -2,13 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import { SERVER_BASE_URL } from "../constants";
-import { useSignalR } from "../context/SignalRContext";
 import { HowToPlayOverlay } from "./HowToPlayOverlay";
 import { handleMouseClick, handleMouseEnter, handleError } from "../functions";
 
 export default function MainMenu() {
   const { playerData, setPlayerData } = useContext(PlayerContext);
-  const { connection } = useSignalR();
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);

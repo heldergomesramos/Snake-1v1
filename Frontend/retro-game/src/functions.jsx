@@ -11,6 +11,15 @@ export function formatTime(timeInSeconds) {
   return `${formattedMinutes}:${formattedSeconds}`;
 }
 
+export function getCurrentTime() {
+  const now = new Date();
+  const hours = now.getHours().toString().padStart(2, "0");
+  const minutes = now.getMinutes().toString().padStart(2, "0");
+  const seconds = now.getSeconds().toString().padStart(2, "0");
+  const milliseconds = now.getMilliseconds().toString().padStart(3, "0");
+  return `${hours}:${minutes}:${seconds}:${milliseconds}`;
+}
+
 export const handleInputChange = (e, setInput, prevValueRef) => {
   const currentValue = e.target.value;
   const previousValue = String(prevValueRef.current ?? "");

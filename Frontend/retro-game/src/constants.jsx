@@ -21,6 +21,7 @@ import mapPlains from "./assets/images/Maps-Plains.png";
 import mapDesert from "./assets/images/Maps-Desert.png";
 import mapVolcano from "./assets/images/Maps-Volcano.png";
 
+// export const SERVER_BASE_URL = "http://127.0.0.1:5030";
 export const SERVER_BASE_URL =
   "https://snake1v1-gvfug6g0bwcfgjeu.spaincentral-01.azurewebsites.net";
 export const BASE_PATH = "/Snake-1v1";
