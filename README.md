@@ -36,16 +36,11 @@ API Backend Repository: [Snake 1v1 API](https://github.com/heldergomesramos/Snak
 - **Real-time Communication**: SignalR
 - **Data Access**: Entity Framework Core (with SQL Server)
 
-## 🚧 Current Status
+## 🎨 Art & 🎶 Audio
 
-This project is still **actively in development**, with regular updates being made.
-
-### Features in Development:
-
-- 🗺 **Additional Maps**: Maps 2 and 3 are in the works to expand the variety of play environments.
-- 👻 **Ghost Ability**: A new ability that lets players temporarily phase through objects and snakes.
-- 📖 **How to Play Guide:** A user-friendly guide to help new players understand game mechanics.
-- 🌐 **Backend Deployment & Hosting**: Setting up the backend for live multiplayer action.
+Art: All the pixel art for this project was created by me using Aseprite.
+Music: The music played during the game was composed by me using FL Studio.
+Sound effects: I used a mix of free retro video game sample packs and a few custom sounds I designed myself.
 
 ## 🚀 How to Run the Game Locally
 
