@@ -6,32 +6,39 @@ import errorSfx from "../assets/audio/Error.wav";
 import eatSfx from "../assets/audio/Eat.wav";
 import timerSfx from "../assets/audio/Timer.wav";
 import goSfx from "../assets/audio/Go.wav";
-import collisionSfx from "../assets/audio/Go.wav";
-import timeOutSfx from "../assets/audio/Go.wav";
+import collisionSfx from "../assets/audio/Collision.wav";
+import timeOutSfx from "../assets/audio/TimeOut.wav";
+import swapSfx from "../assets/audio/Swap.wav";
+import freezeSfx from "../assets/audio/Freeze.wav";
+import cutTailSfx from "../assets/audio/CutTail.wav";
+
+import music from "../assets/audio/MusicEdited.ogg";
 
 class AudioManager {
   constructor() {
-    this.typeVolume = 0.15;
-    this.deleteVolume = 0.15;
-    this.hoverVolume = 0.1;
+    this.typeVolume = 0.16;
+    this.deleteVolume = 0.16;
+    this.hoverVolume = 0.11;
     this.clickVolume = 1;
-    this.errorVolume = 0.15;
-    this.eatVolume = 0.12;
-    this.timerVolume = 0.2;
-    this.goVolume = 0.3;
-    this.collisionVolume = 0.3;
-    this.timeOutVolume = 0.3;
-    this.isMuted = false;
-    // this.music = new Audio("/path-to-background-music.mp3");
-    this.music = null;
-    this.sfx = {
-      //eat: new Audio("/path-to-eat-sfx.mp3"),
-      //collision: new Audio("/path-to-collision-sfx.mp3"),
-      // Add other SFX here
-    };
+    this.errorVolume = 0.16;
+    this.eatVolume = 0.15;
+    this.timerVolume = 0.22;
+    this.goVolume = 0.35;
+    this.collisionVolume = 0.35;
+    this.timeOutVolume = 0.35;
+    this.swapVolume = 0.35;
+    this.freezeVolume = 1;
+    this.cutTailVolume = 0.4;
 
-    //this.music.loop = true; // Ensure the background music loops
-    this.loadMuteState(); // Check localStorage for mute state
+    this.isMuted = false;
+    this.isGameMusicPlaying = false;
+
+    this.musicVolume = 0.35;
+    this.music = new Audio(music);
+    this.music.loop = true;
+    this.music.volume = this.musicVolume;
+
+    this.loadMuteState();
   }
 
   loadMuteState() {
@@ -47,12 +54,7 @@ class AudioManager {
   }
 
   updateMuteState() {
-    if (this.isMuted) {
-      //this.music.pause();
-      Object.values(this.sfx).forEach((sound) => sound.pause());
-    } else {
-      //this.music.play(); // Resume music if unmuted
-    }
+    this.music.volume = this.isMuted ? 0 : this.musicVolume;
   }
 
   playSound(soundFile, volume) {
@@ -104,27 +106,29 @@ class AudioManager {
     this.playSound(timeOutSfx, this.timeOutVolume);
   }
 
+  playSwapSound() {
+    this.playSound(swapSfx, this.swapVolume);
+  }
+
+  playFreezeSound() {
+    this.playSound(freezeSfx, this.freezeVolume);
+  }
+
+  playCutTailSound() {
+    this.playSound(cutTailSfx, this.cutTailVolume);
+  }
+
   playMusic() {
-    if (!this.isMuted) {
-      //this.music.play();
+    if (!this.isGameMusicPlaying) {
+      this.music.currentTime = 0;
+      this.music.play();
+      this.isGameMusicPlaying = true;
     }
   }
 
-  // playSFX = (audioFile) => {
-  //   const audio = new Audio(audioFile); // Create a new Audio instance
-  //   audio.volume =
-  //     localStorage.getItem("mute") === "true"
-  //       ? 0
-  //       : localStorage.getItem("volume") || 1; // Check mute state
-  //   audio.currentTime = 0; // Reset to start
-  //   audio.play().catch((error) => {
-  //     console.error("Audio playback failed:", error); // Handle playback errors
-  //   });
-  // };
-
   stopMusic() {
-    //this.music.pause();
-    //this.music.currentTime = 0; // Reset the music track
+    this.music.pause();
+    this.isGameMusicPlaying = false;
   }
 }
 

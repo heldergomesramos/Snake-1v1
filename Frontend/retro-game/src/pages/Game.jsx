@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import { useSignalR } from "../context/SignalRContext";
 
-import borderTileset from "../assets/images/BorderTileset.png";
 import redSnake from "../assets/images/Snake-red.png";
 import orangeSnake from "../assets/images/Snake-orange.png";
 import yellowSnake from "../assets/images/Snake-yellow.png";
@@ -14,7 +13,10 @@ import darkBlueSnake from "../assets/images/Snake-blue-dark.png";
 import purpleSnake from "../assets/images/Snake-purple.png";
 import pinkSnake from "../assets/images/Snake-pink.png";
 import frozenSnake from "../assets/images/Snake-frozen.png";
+
+import borderTileset from "../assets/images/BorderTileset.png";
 import miscSprite from "../assets/images/Misc.png";
+import lavaTileset from "../assets/images/LavaTileset.png";
 
 import { ABILITIES, COLORS, MAPS } from "../constants";
 
@@ -82,6 +84,13 @@ export default function Game() {
 
   useEffect(() => {
     if (connection) {
+      connection.off("UpdateGameState");
+      connection.off("FoodEaten");
+      connection.off("AbilitySfx");
+      connection.off("LeaveGame");
+      connection.off("RematchResponse");
+      connection.off("Pong");
+
       connection.on("UpdateGameState", (gameState) => {
         console.log(
           `Received Game State: ${JSON.stringify(gameState.gameTick)}`
@@ -90,16 +99,31 @@ export default function Game() {
         setRematchState("normal");
         if (gameState.gameState === "Waiting") {
           if (gameState.time > 0) audioManager.playTimerSound();
-          else audioManager.playGoSound();
+          else {
+            audioManager.playGoSound();
+            audioManager.playMusic();
+          }
+        } else if (gameState.gameState === "Finished") {
+          if (gameState.finishedState.includes("TimeOut"))
+            audioManager.playTimeOutSound();
+          else if (gameState.finishedState.includes("Collision"))
+            audioManager.playCollisionSound();
+          audioManager.stopMusic();
         }
       });
       connection.on("FoodEaten", () => {
-        console.log("EAT SOUND");
         audioManager.playEatSound();
+      });
+
+      connection.on("AbilitySfx", (ability) => {
+        if (ability == 1) audioManager.playSwapSound();
+        else if (ability == 2) audioManager.playFreezeSound();
+        else if (ability == 3) audioManager.playCutTailSound();
       });
       connection.on("LeaveGame", () => {
         console.log("Leave Game");
         navigate("/main-menu");
+        audioManager.stopMusic();
       });
       connection.on("RematchResponse", (response) => {
         console.log("Rematch Response: " + JSON.stringify(response));
@@ -556,6 +580,74 @@ export default function Game() {
           topLeftX = 2;
           topLeftY = 1;
           break;
+
+        // Vertical 4-tile lava pool
+        case "lava-vertical-0":
+          sprite = lavaTileset;
+          topLeftX = 0;
+          topLeftY = 0;
+          break;
+        case "lava-vertical-1":
+          sprite = lavaTileset;
+          topLeftX = 0;
+          topLeftY = 1;
+          break;
+        case "lava-vertical-2":
+          sprite = lavaTileset;
+          topLeftX = 0;
+          topLeftY = 2;
+          break;
+        case "lava-vertical-3":
+          sprite = lavaTileset;
+          topLeftX = 0;
+          topLeftY = 3;
+          break;
+
+        // Horizontal 3-tile lava pool
+        case "lava-horizontal-0":
+          sprite = lavaTileset;
+          topLeftX = 1;
+          topLeftY = 3;
+          break;
+        case "lava-horizontal-1":
+          sprite = lavaTileset;
+          topLeftX = 2;
+          topLeftY = 3;
+          break;
+        case "lava-horizontal-2":
+          sprite = lavaTileset;
+          topLeftX = 3;
+          topLeftY = 3;
+          break;
+
+        // 4-tile circular lava pool
+        case "lava-circle-large-0":
+          sprite = lavaTileset;
+          topLeftX = 1;
+          topLeftY = 1;
+          break;
+        case "lava-circle-large-1":
+          sprite = lavaTileset;
+          topLeftX = 2;
+          topLeftY = 1;
+          break;
+        case "lava-circle-large-2":
+          sprite = lavaTileset;
+          topLeftX = 1;
+          topLeftY = 2;
+          break;
+        case "lava-circle-large-3":
+          sprite = lavaTileset;
+          topLeftX = 2;
+          topLeftY = 2;
+          break;
+
+        // 1-tile circular lava pool
+        case "lava-circle-small":
+          sprite = lavaTileset;
+          topLeftX = 1;
+          topLeftY = 0;
+          break;
       }
 
       topLeftX = topLeftX * TILE_SIZE_PERCENT;
@@ -913,7 +1005,7 @@ export default function Game() {
         )}
 
         <div className="game-timer">
-          {gameData.time === 0 ? (
+          {gameData.time === 0 && gameData.gameTick == 0 ? (
             <p>GO!</p>
           ) : gameData.gameTick === 0 ? (
             <p>{gameData.time}</p>

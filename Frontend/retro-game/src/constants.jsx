@@ -24,6 +24,7 @@ import mapVolcano from "./assets/images/Maps-Volcano.png";
 // export const SERVER_BASE_URL = "http://127.0.0.1:5030";
 export const SERVER_BASE_URL =
   "https://snake1v1-gvfug6g0bwcfgjeu.spaincentral-01.azurewebsites.net";
+//export const SERVER_BASE_URL = "http://localhost:5030";
 export const BASE_PATH = "/Snake-1v1";
 export const COLORS = [
   "#cf3636",
