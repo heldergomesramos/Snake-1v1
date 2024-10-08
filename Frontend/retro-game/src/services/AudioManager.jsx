@@ -1,17 +1,17 @@
-const typeSfx = new Audio(`${process.env.PUBLIC_URL}/audio/Type.ogg`);
-const deleteSfx = new Audio(`${process.env.PUBLIC_URL}/audio/Delete.ogg`);
-const hoverSfx = new Audio(`${process.env.PUBLIC_URL}/audio/Hover.wav`);
-const clickSfx = new Audio(`${process.env.PUBLIC_URL}/audio/Click.wav`);
-const errorSfx = new Audio(`${process.env.PUBLIC_URL}/audio/Error.wav`);
-const eatSfx = new Audio(`${process.env.PUBLIC_URL}/audio/Eat.wav`);
-const timerSfx = new Audio(`${process.env.PUBLIC_URL}/audio/Timer.wav`);
-const goSfx = new Audio(`${process.env.PUBLIC_URL}/audio/Go.wav`);
-const collisionSfx = new Audio(`${process.env.PUBLIC_URL}/audio/Collision.wav`);
-const timeOutSfx = new Audio(`${process.env.PUBLIC_URL}/audio/TimeOut.wav`);
-const swapSfx = new Audio(`${process.env.PUBLIC_URL}/audio/Swap.wav`);
-const freezeSfx = new Audio(`${process.env.PUBLIC_URL}/audio/Freeze.wav`);
-const cutTailSfx = new Audio(`${process.env.PUBLIC_URL}/audio/CutTail.wav`);
-const music = new Audio(`${process.env.PUBLIC_URL}/audio/MusicEdited.ogg`);
+import typeSfx from "../assets/audio/Type.ogg";
+import deleteSfx from "../assets/audio/Delete.ogg";
+import hoverSfx from "../assets/audio/Hover.wav";
+import clickSfx from "../assets/audio/Click.wav";
+import errorSfx from "../assets/audio/Error.wav";
+import eatSfx from "../assets/audio/Eat.wav";
+import timerSfx from "../assets/audio/Timer.wav";
+import goSfx from "../assets/audio/Go.wav";
+import collisionSfx from "../assets/audio/Collision.wav";
+import timeOutSfx from "../assets/audio/TimeOut.wav";
+import swapSfx from "../assets/audio/Swap.wav";
+import freezeSfx from "../assets/audio/Freeze.wav";
+import cutTailSfx from "../assets/audio/CutTail.wav";
+import music from "../assets/audio/MusicEdited.ogg";
 
 class AudioManager {
   constructor() {
