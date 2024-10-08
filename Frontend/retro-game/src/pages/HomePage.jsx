@@ -198,7 +198,7 @@ export default function HomePage() {
       <div className="container-center">
         {error && <p className="error-text">{error}</p>}
       </div>
-      <div className="version">v.1.0</div>
+      <div className="version">v.1.1</div>
     </>
   );
 }
