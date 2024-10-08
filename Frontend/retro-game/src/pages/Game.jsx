@@ -17,6 +17,8 @@ import frozenSnake from "../assets/images/Snake-frozen.png";
 import borderTileset from "../assets/images/BorderTileset.png";
 import miscSprite from "../assets/images/Misc.png";
 import lavaTileset from "../assets/images/LavaTileset.png";
+import desertTileset1 from "../assets/images/DesertHazards-1.png";
+import desertTileset2 from "../assets/images/DesertHazards-2.png";
 
 import { ABILITIES, COLORS, MAPS } from "../constants";
 
@@ -92,9 +94,6 @@ export default function Game() {
       connection.off("Pong");
 
       connection.on("UpdateGameState", (gameState) => {
-        console.log(
-          `Received Game State: ${JSON.stringify(gameState.gameTick)}`
-        );
         setGameData(gameState);
         setRematchState("normal");
         if (gameState.gameState === "Waiting") {
@@ -121,12 +120,10 @@ export default function Game() {
         else if (ability == 3) audioManager.playCutTailSound();
       });
       connection.on("LeaveGame", () => {
-        console.log("Leave Game");
         navigate("/main-menu");
         audioManager.stopMusic();
       });
       connection.on("RematchResponse", (response) => {
-        console.log("Rematch Response: " + JSON.stringify(response));
         setRematchState(response);
       });
       connection.on("Pong", () => {
@@ -157,7 +154,7 @@ export default function Game() {
     e.preventDefault();
     handleMouseClick();
     if (connection) {
-      connection.invoke("LeaveGame").catch((err) => console.error(err));
+      connection.invoke("LeaveGame").catch(() => {});
     }
   };
 
@@ -165,7 +162,7 @@ export default function Game() {
     e.preventDefault();
     handleMouseClick();
     if (connection) {
-      connection.invoke("AskRematch").catch((err) => console.error(err));
+      connection.invoke("AskRematch").catch(() => {});
     }
   };
 
@@ -173,7 +170,7 @@ export default function Game() {
     e.preventDefault();
     handleMouseClick();
     if (connection) {
-      connection.invoke("PlayAgain").catch((err) => console.error(err));
+      connection.invoke("PlayAgain").catch(() => {});
     }
   };
 
@@ -182,9 +179,7 @@ export default function Game() {
     e.preventDefault();
     handleMouseClick();
     if (connection) {
-      connection
-        .invoke("ActivateAbility")
-        .catch((err) => console.error("Error activating ability:", err));
+      connection.invoke("ActivateAbility").catch(() => {});
     }
   };
 
@@ -211,9 +206,7 @@ export default function Game() {
       case " ": // Detect Space Bar (space character)
         if (!gameData.lobby.gameSettings.abilities) return;
         if (connection) {
-          connection
-            .invoke("ActivateAbility")
-            .catch((err) => console.error("Error activating ability:", err));
+          connection.invoke("ActivateAbility").catch(() => {});
         }
         return;
       default:
@@ -221,9 +214,7 @@ export default function Game() {
     }
 
     if (direction && connection) {
-      connection
-        .invoke("UpdateDirectionCommand", direction)
-        .catch((err) => console.error("Error sending direction command:", err));
+      connection.invoke("UpdateDirectionCommand", direction).catch(() => {});
     }
   };
 
@@ -315,7 +306,7 @@ export default function Game() {
   const Board = () => {
     const rows = gameData.lobby.gameSettings.height;
     const columns = gameData.lobby.gameSettings.width;
-    const map = MAPS[gameData.lobby.gameSettings.map].img;
+    const map = MAPS[gameData.lobby.gameSettings.map].tileset;
     return (
       <div
         ref={boardRef}
@@ -339,6 +330,177 @@ export default function Game() {
                 key={`${rowIndex}-${colIndex}`}
                 src={map}
                 alt={`Tile ${tileIndex}`}
+                style={{
+                  clipPath: clipPath,
+                  transform: transform,
+                  width: `${tileSize * 4}px`,
+                  height: `${tileSize * 4}px`,
+                }}
+              />
+            );
+          })
+        )}
+      </div>
+    );
+  };
+
+  const SpecialGroundLayer = () => {
+    const rows = gameData.lobby.gameSettings.height;
+    const columns = gameData.lobby.gameSettings.width;
+    const player1 = gameData.lobby.player1;
+    const player2 = gameData.lobby.player2;
+    const player1SnakeSprite =
+      player1 == null ? null : snakeTilesets[player1.color];
+    const player2SnakeSprite =
+      player2 == null ? null : snakeTilesets[player2.color];
+
+    const GetEntityData = (entity) => {
+      let sprite = null;
+      let topLeftX = 0;
+      let topLeftY = 0;
+
+      switch (entity) {
+        case "empty":
+          sprite = miscTilset;
+          topLeftX = 3;
+          topLeftY = 3;
+          break;
+
+        /* Quicksand Vertical */
+        case "quicksand-vertical-0":
+          sprite = desertTileset2;
+          topLeftX = 0;
+          topLeftY = 0;
+          break;
+
+        case "quicksand-vertical-1":
+          sprite = desertTileset2;
+          topLeftX = 1;
+          topLeftY = 0;
+          break;
+
+        case "quicksand-vertical-2":
+          sprite = desertTileset2;
+          topLeftX = 0;
+          topLeftY = 1;
+          break;
+
+        case "quicksand-vertical-3":
+          sprite = desertTileset2;
+          topLeftX = 1;
+          topLeftY = 1;
+          break;
+
+        case "quicksand-vertical-4":
+          sprite = desertTileset2;
+          topLeftX = 0;
+          topLeftY = 2;
+          break;
+
+        case "quicksand-vertical-5":
+          sprite = desertTileset2;
+          topLeftX = 1;
+          topLeftY = 2;
+          break;
+
+        case "quicksand-vertical-6":
+          sprite = desertTileset2;
+          topLeftX = 0;
+          topLeftY = 3;
+          break;
+
+        case "quicksand-vertical-7":
+          sprite = desertTileset2;
+          topLeftX = 1;
+          topLeftY = 3;
+          break;
+
+        /* Quicksand Horizontal */
+        case "quicksand-horizontal-0":
+          sprite = desertTileset1;
+          topLeftX = 0;
+          topLeftY = 2;
+          break;
+
+        case "quicksand-horizontal-1":
+          sprite = desertTileset1;
+          topLeftX = 1;
+          topLeftY = 2;
+          break;
+
+        case "quicksand-horizontal-2":
+          sprite = desertTileset1;
+          topLeftX = 2;
+          topLeftY = 2;
+          break;
+
+        case "quicksand-horizontal-3":
+          sprite = desertTileset1;
+          topLeftX = 3;
+          topLeftY = 2;
+          break;
+
+        case "quicksand-horizontal-4":
+          sprite = desertTileset1;
+          topLeftX = 0;
+          topLeftY = 3;
+          break;
+
+        case "quicksand-horizontal-5":
+          sprite = desertTileset1;
+          topLeftX = 1;
+          topLeftY = 3;
+          break;
+
+        case "quicksand-horizontal-6":
+          sprite = desertTileset1;
+          topLeftX = 2;
+          topLeftY = 3;
+          break;
+
+        case "quicksand-horizontal-7":
+          sprite = desertTileset1;
+          topLeftX = 3;
+          topLeftY = 3;
+          break;
+      }
+
+      topLeftX = topLeftX * TILE_SIZE_PERCENT;
+      topLeftY = topLeftY * TILE_SIZE_PERCENT;
+      let bottomRightX = topLeftX + TILE_SIZE_PERCENT;
+      let bottomRightY = topLeftY + TILE_SIZE_PERCENT;
+
+      let translateX = HALF_TILE_SIZE_PERCENT - topLeftX;
+      let translateY = HALF_TILE_SIZE_PERCENT - topLeftY;
+
+      return {
+        sprite,
+        clipPath: `polygon(${topLeftX}% ${topLeftY}%, ${bottomRightX}% ${topLeftY}%, ${bottomRightX}% ${bottomRightY}%, ${topLeftX}% ${bottomRightY}%)`,
+        transform: `translate(${translateX}%, ${translateY}%)`,
+      };
+    };
+
+    return (
+      <div
+        className="game-grid container-center"
+        style={{
+          display: "grid",
+          gridTemplateRows: `repeat(${rows}, ${tileSize}px)`,
+          gridTemplateColumns: `repeat(${columns}, ${tileSize}px)`,
+          transform: `translate(${-tileSize / 2}px, ${tileSize}px)`,
+          zIndex: 1,
+        }}
+      >
+        {gameData.specialGroundLayer.map((row, rowIndex) =>
+          row.map((entity, colIndex) => {
+            const { sprite, clipPath, transform } = GetEntityData(entity);
+
+            return (
+              <img
+                className="tile pixel-art"
+                key={`${rowIndex}-${colIndex}`}
+                src={sprite}
+                alt={`Entity ${entity}`}
                 style={{
                   clipPath: clipPath,
                   transform: transform,
@@ -642,11 +804,27 @@ export default function Game() {
           topLeftY = 2;
           break;
 
-        // 1-tile circular lava pool
         case "lava-circle-small":
           sprite = lavaTileset;
           topLeftX = 1;
           topLeftY = 0;
+          break;
+
+        /* Cactus */
+        case "cactus-0":
+          sprite = desertTileset1;
+          topLeftX = 0;
+          topLeftY = 1;
+          break;
+        case "cactus-1":
+          sprite = desertTileset1;
+          topLeftX = 1;
+          topLeftY = 1;
+          break;
+        case "cactus-2":
+          sprite = desertTileset1;
+          topLeftX = 2;
+          topLeftY = 1;
           break;
       }
 
@@ -673,7 +851,7 @@ export default function Game() {
           gridTemplateRows: `repeat(${rows}, ${tileSize}px)`,
           gridTemplateColumns: `repeat(${columns}, ${tileSize}px)`,
           transform: `translate(${-tileSize / 2}px, ${tileSize}px)`,
-          zIndex: 1,
+          zIndex: 2,
         }}
       >
         {gameData.entityLayer.map((row, rowIndex) =>
@@ -841,7 +1019,7 @@ export default function Game() {
           gridTemplateRows: `repeat(${rows}, ${tileSize}px)`,
           gridTemplateColumns: `repeat(${columns}, ${tileSize}px)`,
           transform: `translate(${-tileSize / 2}px, ${tileSize}px)`,
-          zIndex: 2,
+          zIndex: 3,
         }}
       >
         {gameData.entityLayer.map((row, rowIndex) =>
@@ -948,7 +1126,7 @@ export default function Game() {
           gridTemplateRows: `repeat(${rows}, ${tileSize}px)`,
           gridTemplateColumns: `repeat(${columns}, ${tileSize}px)`,
           transform: `translate(${-tileSize / 2}px, ${tileSize}px)`,
-          zIndex: 2,
+          zIndex: 4,
         }}
       >
         {/* Render the border layer based on grid position */}
@@ -1035,6 +1213,7 @@ export default function Game() {
       </div>
       <div className="game-board">
         <Board />
+        <SpecialGroundLayer />
         <EntityLayer />
         <FrozenLayer />
         <BorderLayer />

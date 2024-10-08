@@ -53,29 +53,29 @@ export default function MainMenu() {
         const lobby = await response.json();
         navigate("/create-private-lobby", { state: { lobby } });
       } else {
-        const errorData = await response.json();
-        const errorMessage = errorData.message;
-        audioManager.playErrorSound();
         switch (response.status) {
           case 400:
-            handleError(error, "Invalid request, please check your data");
+            handleError(
+              setError,
+              "Request body cannot be null or Player Id is required"
+            );
             break;
-          case 401:
-            handleError(setError, "Wrong Credentials");
-            break;
-          case 403:
-            handleError(setError, "Forbidden, you do not have permission");
+          case 404:
+            handleError(
+              setError,
+              `Real-time connection not yet established, try again`
+            );
             break;
           case 409:
-            handleError(setError, "Username already exists");
+            handleError(setError, "Player is already in a lobby");
             break;
           case 500:
-            handleError(setError, "Server error, please try again later");
+            handleError(setError, "Failed to create lobby");
             break;
           default:
             handleError(
               setError,
-              "An unexpected error occurred, please try again"
+              "An unexpected error occurred, please try again."
             );
         }
       }

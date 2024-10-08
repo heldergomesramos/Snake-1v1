@@ -21,7 +21,10 @@ import mapPlains from "./assets/images/Maps-Plains.png";
 import mapDesert from "./assets/images/Maps-Desert.png";
 import mapVolcano from "./assets/images/Maps-Volcano.png";
 
-// export const SERVER_BASE_URL = "http://127.0.0.1:5030";
+import tilesetPlains from "./assets/images/Maps-Plains-Tileset.png";
+import tilesetDesert from "./assets/images/Maps-Desert-Tileset.png";
+import tilesetVolcano from "./assets/images/Maps-Volcano-Tileset.png";
+
 export const SERVER_BASE_URL =
   "https://snake1v1-gvfug6g0bwcfgjeu.spaincentral-01.azurewebsites.net";
 //export const SERVER_BASE_URL = "http://localhost:5030";
@@ -79,9 +82,9 @@ export const ABILITIES = [
 ];
 
 export const MAPS = [
-  { img: mapPlains, name: "Plains" },
-  { img: mapDesert, name: "Desert" },
-  { img: mapVolcano, name: "Volcano" },
+  { img: mapPlains, name: "Plains", tileset: tilesetPlains },
+  { img: mapDesert, name: "Desert", tileset: tilesetDesert },
+  { img: mapVolcano, name: "Volcano", tileset: tilesetVolcano },
 ];
 
 export const WINS_ICON = trophy;

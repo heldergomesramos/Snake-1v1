@@ -61,9 +61,7 @@ class AudioManager {
     const audio = new Audio(soundFile);
     audio.volume = this.isMuted ? 0 : volume;
     audio.currentTime = 0;
-    audio.play().catch((error) => {
-      console.error("Audio playback failed:", error);
-    });
+    audio.play().catch(() => {});
   }
 
   playTypeSound() {
