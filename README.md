@@ -38,9 +38,9 @@ API Backend Repository: [Snake 1v1 API](https://github.com/heldergomesramos/Snak
 
 ## 🎨 Art & 🎶 Audio
 
-Art: All the pixel art for this project was created by me using Aseprite.
-Music: The music played during the game was composed by me using FL Studio.
-Sound effects: I used a mix of free retro video game sample packs and a few custom sounds I designed myself.
+- **Art**: All the pixel art for this project was created by me using Aseprite.
+- **Music**: The music played during the game was composed by me using FL Studio.
+- **Sound Effects**: I used a mix of free retro video game sample packs and a few custom sounds I designed myself.
 
 ## 🚀 How to Run the Game Locally
 
