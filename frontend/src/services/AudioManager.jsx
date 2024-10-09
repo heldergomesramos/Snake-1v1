@@ -1,7 +1,7 @@
 import typeSfx from "../assets/audio/Type.ogg";
 import deleteSfx from "../assets/audio/Delete.ogg";
 import hoverSfx from "../assets/audio/Hover.wav";
-import clickSfx from "https://github.com/heldergomesramos/Snake-1v1/blob/main/docs/assets/Timer-DJgwqpxa.wav?raw=true";
+import clickSfx from "../assets/audio/Click.wav";
 import errorSfx from "../assets/audio/Error.wav";
 import eatSfx from "../assets/audio/Eat.wav";
 import timerSfx from "../assets/audio/Timer.wav";
@@ -60,7 +60,9 @@ class AudioManager {
     const audio = new Audio(soundFile);
     audio.volume = this.isMuted ? 0 : volume;
     audio.currentTime = 0;
-    audio.play();
+    audio
+      .play()
+      .catch((e) => console.error("CUSTOM ERROR: " + JSON.stringify(e)));
   }
 
   playTypeSound() {
