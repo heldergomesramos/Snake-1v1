@@ -31,12 +31,14 @@ async function build() {
       throw new Error(`Index file does not exist in docs folder: ${docsIndex}`);
     }
 
-    // Step 3: Delete old .js files in docs folder
-    console.log("Deleting old .js files from docs folder...");
-    const oldJsFiles = await fs.readdir(docsFolder);
+    // Step 3: Delete old .js files in docs/assets folder
+    console.log("Deleting old .js files from docs/assets folder...");
+    const docsAssetsFolder = join(docsFolder, "assets");
+    const oldJsFiles = await fs.readdir(docsAssetsFolder);
+
     for (const file of oldJsFiles) {
       if (file.endsWith(".js")) {
-        await fs.remove(join(docsFolder, file));
+        await fs.remove(join(docsAssetsFolder, file));
         console.log(`Deleted old JS file: ${file}`);
       }
     }
