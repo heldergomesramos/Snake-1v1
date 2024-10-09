@@ -75,8 +75,8 @@ async function build() {
       files: jsFiles
         .filter((file) => file.endsWith(".js"))
         .map((file) => join(docsAssetsFolder, file)),
-      from: /\/assets\//g, // Replace "/assets/" with "."
-      to: "./Snake-1v1/assets/",
+      from: /\/assets\//g, // Replace "/assets/" with "./assets/"
+      to: "./assets/",
     };
 
     await replaceInFile(jsFileOptions);
