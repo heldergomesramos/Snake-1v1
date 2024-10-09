@@ -31,17 +31,27 @@ async function build() {
       throw new Error(`Index file does not exist in docs folder: ${docsIndex}`);
     }
 
-    // Step 3: Copy assets from dist to docs
+    // Step 3: Delete old .js files in docs folder
+    console.log("Deleting old .js files from docs folder...");
+    const oldJsFiles = await fs.readdir(docsFolder);
+    for (const file of oldJsFiles) {
+      if (file.endsWith(".js")) {
+        await fs.remove(join(docsFolder, file));
+        console.log(`Deleted old JS file: ${file}`);
+      }
+    }
+
+    // Step 4: Copy assets from dist to docs
     console.log("Copying assets to docs folder...");
     await fs.copy(join(distFolder, "assets"), join(docsFolder, "assets"), {
       overwrite: true,
     });
 
-    // Step 4: Copy index.html and modify it
+    // Step 5: Copy index.html and modify it
     console.log("Modifying index.html for GitHub Pages...");
     await fs.copy(distIndex, docsIndex, { overwrite: true });
 
-    // Step 5: Add <base href="/Snake-1v1/" /> and update asset paths
+    // Step 6: Add <base href="/Snake-1v1/" /> and update asset paths
     const options = {
       files: docsIndex,
       from: [
@@ -55,6 +65,19 @@ async function build() {
     };
 
     await replaceInFile(options);
+
+    // Step 7: Update all JS files to replace '/assets' with '.'
+    console.log("Updating JS files to use relative asset paths...");
+    const jsFiles = await fs.readdir(docsFolder);
+    const jsFileOptions = {
+      files: jsFiles
+        .filter((file) => file.endsWith(".js"))
+        .map((file) => join(docsFolder, file)),
+      from: /\/assets\//g, // Replace "/assets/" with "."
+      to: "./",
+    };
+
+    await replaceInFile(jsFileOptions);
 
     console.log("Build process completed successfully!");
   } catch (error) {
