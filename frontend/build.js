@@ -70,11 +70,11 @@ async function build() {
 
     // Step 7: Update all JS files to replace '/assets' with '.'
     console.log("Updating JS files to use relative asset paths...");
-    const jsFiles = await fs.readdir(docsFolder);
+    const jsFiles = await fs.readdir(docsAssetsFolder);
     const jsFileOptions = {
       files: jsFiles
         .filter((file) => file.endsWith(".js"))
-        .map((file) => join(docsFolder, file)),
+        .map((file) => join(docsAssetsFolder, file)),
       from: /\/assets\//g, // Replace "/assets/" with "."
       to: "./Snake-1v1/assets/",
     };
