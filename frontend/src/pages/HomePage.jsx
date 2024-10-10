@@ -83,7 +83,7 @@ export default function HomePage() {
       const data = await response.json();
       setLoading(0);
       if (response.ok) {
-        console.log("Before Token");
+        console.log("Before Token AAA");
         setPlayerData(data);
         console.log("token: " + data.token);
         navigate("/main-menu");
