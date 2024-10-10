@@ -1,20 +1,14 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { PlayerContext } from "../context/PlayerContext";
 import { useSignalR } from "../context/SignalRContext";
-import { COLORS, ABILITIES } from "../constants";
-import { SNAKE_SPRITES } from "../constants";
-
-import { WINS_ICON } from "../constants";
-import { LOSSES_ICON } from "../constants";
-
+import { COLORS, SNAKE_SPRITES, WINS_ICON, LOSSES_ICON } from "../constants";
 import { handleMouseClick, handleMouseEnter } from "../functions";
 import AbilityColorMenu from "../components/AbilityColorMenu";
 
 export default function PublicQueue() {
   const navigate = useNavigate();
-  const [error, setError] = useState("");
+  const [error] = useState("");
   const [phase, setPhase] = useState(0);
   const { playerData, setPlayerDataFields } = useContext(PlayerContext);
   const { connection } = useSignalR();

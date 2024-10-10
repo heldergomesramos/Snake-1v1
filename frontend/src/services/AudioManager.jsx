@@ -118,7 +118,7 @@ class AudioManager {
   playMusic() {
     if (!this.isGameMusicPlaying) {
       this.music.currentTime = 0;
-      this.music.play();
+      this.music.play().catch(() => {});
       this.isGameMusicPlaying = true;
     }
   }
