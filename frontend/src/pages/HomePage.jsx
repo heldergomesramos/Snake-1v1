@@ -8,6 +8,7 @@ import {
   handleMouseClick,
   handleError,
 } from "../functions";
+import githubLogo from "../assets/images/GitHubIcon.png";
 
 export default function HomePage() {
   const usernameRef = useRef("");
@@ -32,7 +33,7 @@ export default function HomePage() {
         });
 
         if (response.ok) {
-          const data = await response.json();
+          console.log("Server ping successful!");
         }
       } catch (err) {}
     };
@@ -82,6 +83,7 @@ export default function HomePage() {
       const data = await response.json();
       setLoading(0);
       if (response.ok) {
+        console.log("Before Token");
         setPlayerData(data);
         console.log("token: " + data.token);
         navigate("/main-menu");
@@ -199,7 +201,20 @@ export default function HomePage() {
       <div className="container-center">
         {error && <p className="error-text">{error}</p>}
       </div>
-      <div className="version">v.1.6</div>
+      <div className="version">v.1.0.7</div>
+      <a
+        href="https://github.com/heldergomesramos/Snake-1v1"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="github-icon"
+        aria-label="GitHub"
+      >
+        <img
+          src={githubLogo}
+          alt="GitHub Logo pixel-art"
+          className="github-logo"
+        />
+      </a>
     </>
   );
 }

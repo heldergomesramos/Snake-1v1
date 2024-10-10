@@ -902,11 +902,23 @@ input[type="checkbox"]:checked + label {
   margin: 5vh;
 }
 
+/* Footer */
+
 .version {
-  color: #494949;
+  color: var(--color-text);
   position: fixed;
   bottom: 10px;
   left: 10px;
+  margin: 10px;
+  text-align: left;
+}
+
+.github-logo {
+  position: fixed;
+  height: 30px;
+  width: 30px;
+  bottom: 10px;
+  left: 90px;
   margin: 10px;
   text-align: left;
 }
