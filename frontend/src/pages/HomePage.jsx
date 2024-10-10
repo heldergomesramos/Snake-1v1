@@ -83,6 +83,7 @@ export default function HomePage() {
       setLoading(0);
       if (response.ok) {
         setPlayerData(data);
+        console.log("token: " + data.token);
         navigate("/main-menu");
       } else {
         switch (response.status) {
