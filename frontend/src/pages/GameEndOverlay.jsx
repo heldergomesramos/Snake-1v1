@@ -1,5 +1,5 @@
 import React from "react";
-import { handleMouseEnter, handleMouseClick } from "../functions";
+import { handleMouseEnter } from "../functions";
 
 const GameEndOverlay = ({
   cause,
