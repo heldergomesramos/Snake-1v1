@@ -83,9 +83,7 @@ export default function HomePage() {
       const data = await response.json();
       setLoading(0);
       if (response.ok) {
-        console.log("Before Token AAA");
         setPlayerData(data);
-        console.log("token: " + data.token);
         navigate("/main-menu");
       } else {
         switch (response.status) {
@@ -201,7 +199,7 @@ export default function HomePage() {
       <div className="container-center">
         {error && <p className="error-text">{error}</p>}
       </div>
-      <div className="version">v.1.0.7</div>
+      <div className="version">v.1.0.8</div>
       <a
         href="https://github.com/heldergomesramos/Snake-1v1"
         target="_blank"

@@ -43,6 +43,7 @@ export default function MainMenu() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${playerData.token}`,
         },
         body: JSON.stringify({ playerId: playerData.playerId }),
       });
