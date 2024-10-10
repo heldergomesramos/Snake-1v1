@@ -60,9 +60,7 @@ class AudioManager {
     const audio = new Audio(soundFile);
     audio.volume = this.isMuted ? 0 : volume;
     audio.currentTime = 0;
-    audio
-      .play()
-      .catch((e) => console.error("CUSTOM ERROR: " + JSON.stringify(e)));
+    audio.play().catch(() => {});
   }
 
   playTypeSound() {

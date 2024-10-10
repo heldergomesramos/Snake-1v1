@@ -1,18 +1,17 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { SERVER_BASE_URL } from "../constants";
-import { COLORS } from "../constants";
-import { SNAKE_SPRITES } from "../constants";
-import { ABILITIES } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
 import { useSignalR } from "../context/SignalRContext";
 
-import { WINS_ICON } from "../constants";
-import { LOSSES_ICON } from "../constants";
-import { COLORS_ICON } from "../constants";
-import { ABILITIES_ICON } from "../constants";
-import { MAPS } from "../constants";
+import {
+  WINS_ICON,
+  LOSSES_ICON,
+  MAPS,
+  SNAKE_SPRITES,
+  COLORS,
+  SERVER_BASE_URL,
+} from "../constants";
 
 import copyIcon from "../assets/images/Copy.png";
 import {
@@ -46,18 +45,15 @@ export default function CreatePrivateLobby() {
     if (copyMessageVisible) return;
     navigator.clipboard.writeText(lobby.code);
 
-    // Show the message
     setFadeOut(false);
     setCopyMessageVisible(true);
 
-    // Start the fade-out after the message has been visible for 2 seconds
     setTimeout(() => {
-      setFadeOut(true); // Trigger the fade-out animation
-      // Hide the message from the DOM after fade-out
+      setFadeOut(true);
       setTimeout(() => {
         setCopyMessageVisible(false);
-      }, 500); // Match this with the fade-out duration
-    }, 1000); // Keep the message visible for 2 seconds
+      }, 500);
+    }, 1000);
   };
 
   useEffect(() => {
@@ -132,7 +128,7 @@ export default function CreatePrivateLobby() {
   };
 
   const handleSettingBlur = () => {
-    setMapSettings(tempMapSettings); // Update the actual map settings state
+    setMapSettings(tempMapSettings);
     if (connection) {
       connection
         .invoke("UpdatePrivateLobbySettings", tempMapSettings)
@@ -157,7 +153,6 @@ export default function CreatePrivateLobby() {
     }
   };
 
-  /* Leave Button */
   const handleLeave = async (e) => {
     e.preventDefault();
     setError("");
@@ -183,7 +178,6 @@ export default function CreatePrivateLobby() {
     }
   };
 
-  /* Leave Button */
   const handleStart = async (e) => {
     handleMouseClick();
     if (connection) {

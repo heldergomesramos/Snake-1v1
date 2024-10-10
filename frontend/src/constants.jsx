@@ -7,6 +7,15 @@ import darkBlueSnake from "./assets/images/SnakeFull-blue-dark.png";
 import purpleSnake from "./assets/images/SnakeFull-purple.png";
 import pinkSnake from "./assets/images/SnakeFull-pink.png";
 
+import redSnakeTileset from "./assets/images/Snake-red.png";
+import orangeSnakeTileset from "./assets/images/Snake-orange.png";
+import yellowSnakeTileset from "./assets/images/Snake-yellow.png";
+import greenSnakeTileset from "./assets/images/Snake-green.png";
+import lightBlueSnakeTileset from "./assets/images/Snake-blue-light.png";
+import darkBlueSnakeTileset from "./assets/images/Snake-blue-dark.png";
+import purpleSnakeTileset from "./assets/images/Snake-purple.png";
+import pinkSnakeTileset from "./assets/images/Snake-pink.png";
+
 import headTailSwap from "./assets/images/AbilityIcons-HeadTailSwap.png";
 import freezeTime from "./assets/images/AbilityIcons-FreezeTime.png";
 import cutTail from "./assets/images/AbilityIcons-CutTail.png";
@@ -25,6 +34,8 @@ import tilesetPlains from "./assets/images/Maps-Plains-Tileset.png";
 import tilesetDesert from "./assets/images/Maps-Desert-Tileset.png";
 import tilesetVolcano from "./assets/images/Maps-Volcano-Tileset.png";
 
+export const TILESET_COLUMNS = 4;
+
 export const SERVER_BASE_URL =
   "https://snake1v1-gvfug6g0bwcfgjeu.spaincentral-01.azurewebsites.net";
 //export const SERVER_BASE_URL = "http://localhost:5030";
@@ -40,6 +51,16 @@ export const COLORS = [
   "#b541b5",
 ];
 
+export const SNAKE_TILESETS = [
+  redSnakeTileset,
+  orangeSnakeTileset,
+  yellowSnakeTileset,
+  greenSnakeTileset,
+  lightBlueSnakeTileset,
+  darkBlueSnakeTileset,
+  purpleSnakeTileset,
+  pinkSnakeTileset,
+];
 export const SNAKE_SPRITES = [
   redSnake,
   orangeSnake,
