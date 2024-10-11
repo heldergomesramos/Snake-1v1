@@ -48,6 +48,7 @@ export default function MainMenu() {
         body: JSON.stringify({ playerId: playerData.playerId }),
       });
 
+      console.log("Sent has header: " + `Bearer ${playerData.token}`);
       setLoading(false);
 
       if (response.ok) {
