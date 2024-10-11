@@ -15,6 +15,7 @@ export const SignalRProvider = ({ children }) => {
     const newConnection = new HubConnectionBuilder()
       .withUrl(`${SERVER_BASE_URL}/gameHub?playerId=${playerData.playerId}`, {
         withCredentials: false,
+        accessTokenFactory: () => playerData.token,
       })
       .withAutomaticReconnect()
       .build();
