@@ -15,7 +15,7 @@ The game is now live and ready to play online! You can challenge your friends in
 
 [Play Snake 1v1](https://heldergomesramos.github.io/Snake-1v1)
 
-The API, which has been fully migrated from SQL Server to MySQL, is now deployed on Azure. This ensures that the backend of the game is fully operational and accessible, supporting real-time multiplayer gameplay.
+The API, originally built with **SQL Server**, has been migrated to **MySQL** to enable deployment on **Azure**. This ensures that the backend of the game is fully operational and accessible, supporting real-time multiplayer gameplay.
 
 ## 📸 Screenshots
 
