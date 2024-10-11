@@ -37,8 +37,6 @@ export default function MainMenu() {
 
     const endpoint = `${SERVER_BASE_URL}/api/lobby/create-private-lobby`;
 
-    /* Missing: Block button clicks until received message from server */
-    console.log("Sent has header: " + `Bearer ${playerData.token}`);
     try {
       const response = await fetch(endpoint, {
         method: "POST",
@@ -49,7 +47,6 @@ export default function MainMenu() {
         body: JSON.stringify({ playerId: playerData.playerId }),
       });
 
-      console.log("Sent has header: " + `Bearer ${playerData.token}`);
       setLoading(false);
 
       if (response.ok) {
