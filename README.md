@@ -27,7 +27,7 @@ The API, which has been fully migrated from SQL Server to MySQL, is now deployed
 - 🕹 Multiplayer gameplay: Challenge a friend in real-time.
 - ⚡ Real-time interactions: Powered by SignalR for seamless communication.
 - 🎮 Customizable settings: Adjust game parameters like speed, time limit, board size, abilities and borders.
-- 🗺 Multiple maps: Choose from different map layouts for a unique experience every match.
+- 🗺 Multiple maps: Choose from 3 different map layouts for a unique experience every match.
 - 🎨 Pixel art graphics: Retro aesthetics inspired by classic snake games.
 
 ## 🛠 Technologies Used
