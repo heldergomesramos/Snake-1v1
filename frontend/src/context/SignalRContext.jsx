@@ -12,6 +12,10 @@ export const SignalRProvider = ({ children }) => {
   const { playerData } = useContext(PlayerContext);
 
   useEffect(() => {
+    console.log(
+      "Trying to establish a signalR connection using token: " +
+        playerData.token
+    );
     const newConnection = new HubConnectionBuilder()
       .withUrl(`${SERVER_BASE_URL}/gameHub?playerId=${playerData.playerId}`, {
         withCredentials: false,
