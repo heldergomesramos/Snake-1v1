@@ -199,7 +199,7 @@ export default function HomePage() {
       <div className="container-center">
         {error && <p className="error-text">{error}</p>}
       </div>
-      <div className="version">v.1.0.8</div>
+      <div className="version">v.1.0.9</div>
       <a
         href="https://github.com/heldergomesramos/Snake-1v1"
         target="_blank"

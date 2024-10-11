@@ -30,6 +30,7 @@ export default function MainMenu() {
 
   const handlePrivateGame = async (e) => {
     e.preventDefault();
+    if (loading) return;
     setError("");
     setLoading(true);
     handleMouseClick();
@@ -37,7 +38,7 @@ export default function MainMenu() {
     const endpoint = `${SERVER_BASE_URL}/api/lobby/create-private-lobby`;
 
     /* Missing: Block button clicks until received message from server */
-
+    console.log("Sent has header: " + `Bearer ${playerData.token}`);
     try {
       const response = await fetch(endpoint, {
         method: "POST",
