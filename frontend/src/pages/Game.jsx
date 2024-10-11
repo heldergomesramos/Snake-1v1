@@ -10,7 +10,7 @@ import { EntityLayer } from "../components/EntityLayer.jsx";
 import { FrozenLayer } from "../components/FrozenLayer.jsx";
 import { BorderLayer } from "../components/BorderLayer.jsx";
 
-import { ABILITIES, COLORS, MAPS } from "../constants";
+import { ABILITIES, COLORS } from "../constants";
 
 import { formatTime, handleMouseClick, handleMouseEnter } from "../functions";
 import GameEndOverlay from "../pages/GameEndOverlay";
