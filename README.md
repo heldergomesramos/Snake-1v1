@@ -1,5 +1,7 @@
 # 🐍 Snake 1v1 Web Game
 
+![Gameplay Screenshot 1](/screenshots/Snake1v1Compressed.gif)
+
 ## 📖 Description
 
 Snake 1v1 is a competitive multiplayer version of the classic snake game, where two players face off in real-time.
@@ -11,6 +13,7 @@ Please note that this repository contains only the **Frontend** of the game.
 **API Backend Repository**: [Snake 1v1 API](https://github.com/heldergomesramos/Snake-1v1-api-mysql)
 
 ## 🌐 Live Version Available
+
 The game is now live and ready to play online! You can challenge your friends in real-time by visiting the following link:
 
 [Play Snake 1v1](https://heldergomesramos.github.io/Snake-1v1)
