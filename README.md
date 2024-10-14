@@ -43,7 +43,6 @@ The API, originally built with **SQL Server**, has been migrated to **MySQL** to
 - **Real-time Communication**: SignalR
 - **Data Access**: Entity Framework Core (with MYSQL)
 - **Authentication**: JWT (used for both HTTP requests and SignalR)
-- **CORS**: Restricted to requests originating from the [official frontend URL](https://heldergomesramos.github.io/Snake-1v1/).
 
 ## 🎨 Art & 🎶 Audio
 
