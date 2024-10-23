@@ -30,9 +30,9 @@ The API, originally built with **SQL Server**, has been migrated to **MySQL** to
 ## ✨ Features
 
 - 🕹 Multiplayer gameplay: Challenge a friend in real-time.
-- ⚡ Real-time interactions: Powered by SignalR for seamless communication.
-- 🎮 Customizable settings: Adjust game parameters like speed, time limit, board size, abilities and borders.
-- 🗺 Multiple maps: Choose from 3 different map layouts for a unique experience every match.
+- 🎮 Customizable settings: Adjust game speed, time limit, board size, abilities, and borders to suit your playstyle.
+- ⚡ Unique Abilities: Choose from 3 powerful abilities: Head-Tail Swap, Freeze Time and Cut Tail.
+- 🗺 Multiple maps: Choose from 3 different map layouts: Plains, Desert and Volcano.
 - 🎨 Pixel art graphics: Retro aesthetics inspired by classic snake games.
 
 ## 🛠 Technologies Used
