@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { SERVER_BASE_URL } from "../constants";
+import { SERVER_BASE_URL, IN_DEVELOPMENT } from "../constants";
 import { PlayerContext } from "../context/PlayerContext";
 import {
   handleInputChange,
@@ -199,7 +199,14 @@ export default function HomePage() {
       <div className="container-center">
         {error && <p className="error-text">{error}</p>}
       </div>
-      <div className="version">v.1.0.9</div>
+      <div className="footer container-center">
+        {IN_DEVELOPMENT && (
+          <p className="error-text">
+            Project may not function properly due to maintenance or development.
+          </p>
+        )}
+      </div>
+      <div className="version">v.1.0.10</div>
       <a
         href="https://github.com/heldergomesramos/Snake-1v1"
         target="_blank"
