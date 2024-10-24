@@ -37,7 +37,8 @@ import tilesetVolcano from "./assets/images/Maps-Volcano-Tileset.png";
 export const TILESET_COLUMNS = 4;
 
 export const IN_DEVELOPMENT = true;
-export const SERVER_BASE_URL = "https://snake-1v1-api.onrender.com";
+export const SERVER_BASE_URL =
+  "https://snake1v1-gvfug6g0bwcfgjeu.spaincentral-01.azurewebsites.net";
 //export const SERVER_BASE_URL = "http://localhost:5030";
 export const BASE_PATH = "/Snake-1v1";
 export const COLORS = [

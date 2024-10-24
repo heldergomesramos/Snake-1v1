@@ -12,9 +12,11 @@ Please note that this repository contains only the **Frontend** of the game.
 
 **API Backend Repository**: [Snake 1v1 API](https://github.com/heldergomesramos/Snake-1v1-api-mysql)
 
-## 🌐 Live Version Available
+## 🌐 Live Version Status
 
-The game is now live and ready to play online! You can challenge your friends in real-time by visiting the following link:
+The game is currently paused for an undefined amount of time.
+
+Previously, you could challenge your friends in real-time by visiting the following link:
 
 [Play Snake 1v1](https://heldergomesramos.github.io/Snake-1v1)
 
