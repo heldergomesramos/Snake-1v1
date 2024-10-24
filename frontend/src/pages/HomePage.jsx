@@ -201,8 +201,9 @@ export default function HomePage() {
       </div>
       <div className="footer container-center">
         {IN_DEVELOPMENT && (
-          <p className="error-text">
-            Project may not function properly due to maintenance or development.
+          <p>
+            I apologize, but the server is currently unavailable for an
+            indefinite amount of time.
           </p>
         )}
       </div>
